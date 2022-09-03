@@ -10,10 +10,11 @@ namespace Discovery_Sandbox
     {
         public string GetMyString(string myVal)
         {
-
-            return "RETURN: " + myVal;
-
+            if (myVal != null) 
+                return $"my val -> RETURN: your val ->{myVal}";
+            else
+                return "my val -> RETURN: your val -> Nothing";
+            
         }
     }
-
 }
