@@ -10,7 +10,7 @@ namespace Discovery_Sandbox
     [System.ComponentModel.ToolboxItem(false)]
     [System.Web.Script.Services.ScriptService]
 
-    public class SandBox : System.Web.Services.WebService
+    public class SandBox : WebService
     {
         private const string ConnectionString = "Data Source = DAVID-R7\\MSSQLSERVER01;" +
                                        "Integrated Security = True;" +
@@ -57,7 +57,6 @@ namespace Discovery_Sandbox
                 nvHash.Add(nameValuePairArr[0], nameValuePairArr[1]);
             }
 
-            var queryString = "";
             var declarations = "";
             var insertColumns = "(";
             var insertValues = " values (";
@@ -72,21 +71,17 @@ namespace Discovery_Sandbox
                 {
                     declarations += $"declare @{item.Key} varchar(max) set @{item.Key} = '{item.Value}' ";
                 }
-
                 insertColumns += $"{item.Key},";
                 insertValues += $"@{item.Key},";
             }
             
             declarations += " INSERT INTO HeatShield.NASA.Discover ";
-
             insertColumns = String.Format(insertColumns.Substring(0,insertColumns.Length - 1));
             insertValues = String.Format(insertValues.Substring(0,insertValues.Length - 1));
-
             insertColumns += ") ";
             insertValues += ") ";
-            queryString = declarations + insertColumns + insertValues;
 
-            return queryString;
+            return $@"{declarations}{insertColumns}{insertValues}";
         }
 
 
