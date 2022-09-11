@@ -25,4 +25,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="board.txt">
+      <Filter>Misc Files</Filter>
+    </Text>
+  </ItemGroup>
 </Project>
