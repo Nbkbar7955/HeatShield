@@ -65,11 +65,13 @@ namespace Discovery_Sandbox
             {
                 if (declarations == "")
                 {
-                    declarations = $"declare @{item.Key} varchar(max) set @{item.Key} = '{item.Value}' ";
+                    // declarations = $"declare @{item.Key} varchar(max) set @{item.Key} = '{item.Value}' ";
+                    declarations = $"declare @{item.Key} varchar(max) set @{item.Key} = {item.Value} ";
                 }
                 else
                 {
-                    declarations += $"declare @{item.Key} varchar(max) set @{item.Key} = '{item.Value}' ";
+                    // declarations += $"declare @{item.Key} varchar(max) set @{item.Key} = '{item.Value}' ";
+                    declarations += $"declare @{item.Key} varchar(max) set @{item.Key} = {item.Value} ";
                 }
                 insertColumns += $"{item.Key},";
                 insertValues += $"@{item.Key},";
