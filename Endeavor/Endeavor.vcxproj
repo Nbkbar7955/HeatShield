@@ -118,6 +118,9 @@
   <ItemGroup>
     <ClInclude Include="__vm\.Endeavor.vsarduino.h" />
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="board.txt" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

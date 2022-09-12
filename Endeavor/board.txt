@@ -1,0 +1,7 @@
+# Endeavor build property overrides
+#
+ # local project board.txt overrides
+  network.port=3232
+  #network.auth_upload=yes
+  #network.password=123
+

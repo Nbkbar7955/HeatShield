@@ -8,18 +8,23 @@
 #include <ESPmDNS.h>
 #include <WiFiUdp.h>
 #include <ArduinoOTA.h>
+#include <iso646.h>
 
+class led_flash;
 const char* ssid = "Wilson.Net-2.4G";
 const char* password = "Pertle-Duck";
 
 //variables for blinking an LED with Millis
 const int led = 2; // ESP32 Pin to which onboard LED is connected
 
-unsigned long previousMillis = 0;  // will store last time LED was updated
+unsigned long previous_millis = 0;  // will store last time LED was updated
 
 const long interval = 1500;  // interval at which to blink (milliseconds)
 
-int ledState = LOW;  // ledState used to set the LED
+/**
+ * \brief: ledState used to set the LED
+ */
+int led_state = LOW;
 
 const int p26 = 26;
 const int p27 = 27;
@@ -29,6 +34,9 @@ int p27State = HIGH;
 
 void setup() {
 
+
+	
+	
     pinMode(led, OUTPUT);
     pinMode(p26, OUTPUT);
     pinMode(p27, OUTPUT);
@@ -96,19 +104,19 @@ void loop() {
     ArduinoOTA.handle();
 
     //loop to blink without delay
-    unsigned long currentMillis = millis();
+    const auto current_millis = millis();
 
-    if (currentMillis - previousMillis >= interval) {
+    if (current_millis - previous_millis >= interval) {
         // save the last time you blinked the LED
-        previousMillis = currentMillis;
+        previous_millis = current_millis;
 
         // if the LED is off turn it on and vice-versa:
-        ledState = not(ledState);
-        p26State = not(p26State);
-        p27State = not(p27State);
+        led_state = !led_state;
+        p26State = !p26State;
+        p27State = !p27State;
 
         // set the LED with the ledState of the variable:
-        digitalWrite(led, ledState);
+        digitalWrite(led, led_state);
         digitalWrite(p26, p26State);
         digitalWrite(p27, p27State);
 
