@@ -86,14 +86,10 @@ namespace Discovery_Sandbox
             return $@"{declarations}{insertColumns}{insertValues}";
         }
 
-
-
-        [WebMethod(EnableSession = true, MessageName = "_QuickTest")]
-        public string GetReturnString(string str)
+        [WebMethod(EnableSession = true, MessageName = "isAlive")]
+        public bool IsAlive()
         {
-            var tTmp = new Temp();
-
-            return tTmp.GetMyString(str);
+            return true;
         }
     }
 }

@@ -2,24 +2,31 @@
  Name:		Endeavor_sandbox.ino
  Created:	8/27/2022 3:36:02 PM
  Author:	david
+ 
 */
 
 #include <WiFi.h>
 #include <ESPmDNS.h>
 #include <WiFiUdp.h>
 #include <ArduinoOTA.h>
-#include <iso646.h>
+#include <NTPClient.h>
 
 class led_flash;
 const char* ssid = "Wilson.Net-2.4G";
 const char* password = "Pertle-Duck";
 
+const long utcOffsetInSeconds = 3600;
+char daysOfTheWeek[7][12] = { "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday" };
+
+// Define NTP Client to get time
+WiFiUDP ntpUDP;
+NTPClient timeClient(ntpUDP, "pool.ntp.org", utcOffsetInSeconds);
+
+
 //variables for blinking an LED with Millis
 const int led = 2; // ESP32 Pin to which onboard LED is connected
-
 unsigned long previous_millis = 0;  // will store last time LED was updated
-
-const long interval = 1500;  // interval at which to blink (milliseconds)
+const long interval = 500;  // interval at which to blink (milliseconds)
 
 /**
  * \brief: ledState used to set the LED
@@ -34,13 +41,16 @@ int p27State = HIGH;
 
 void setup() {
 
-
-	
-	
     pinMode(led, OUTPUT);
+	
     pinMode(p26, OUTPUT);
+    pinMode(p26, INPUT_PULLDOWN);
+	
     pinMode(p27, OUTPUT);
+    pinMode(p27, INPUT_PULLDOWN);
 
+    pinMode(32, INPUT); // report button
+    pinMode(32, INPUT_PULLDOWN);
 
     Serial.begin(115200);
     Serial.println("Booting");
@@ -98,11 +108,16 @@ void setup() {
                     Serial.println("Ready");
                     Serial.print("IP address: ");
                     Serial.println(WiFi.localIP());
+
+	timeClient.begin();
 }
 
 void loop() {
+	
     ArduinoOTA.handle();
+    timeClient.update();
 
+	
     //loop to blink without delay
     const auto current_millis = millis();
 
