@@ -14,6 +14,7 @@
 class led_flash;
 const char* ssid = "Wilson.Net-2.4G";
 const char* password = "Pertle-Duck";
+float version = 0.5;
 
 const long utcOffsetInSeconds = 3600;
 char daysOfTheWeek[7][12] = { "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday" };
@@ -33,24 +34,31 @@ const long interval = 500;  // interval at which to blink (milliseconds)
  */
 int led_state = LOW;
 
-const int p26 = 26;
-const int p27 = 27;
+const int waterPump = 26;
+const int boiler = 27;
+const int manualReport = 32;
+const int callForHeat = 25;
 
-int p26State = LOW;
-int p27State = HIGH;
+int waterPumpState = LOW;
+int boilerState = HIGH;
+int callForHeatState = LOW;
+int manualReportState = LOW;
 
 void setup() {
 
     pinMode(led, OUTPUT);
-	
-    pinMode(p26, OUTPUT);
-    pinMode(p26, INPUT_PULLDOWN);
-	
-    pinMode(p27, OUTPUT);
-    pinMode(p27, INPUT_PULLDOWN);
 
-    pinMode(32, INPUT); // report button
-    pinMode(32, INPUT_PULLDOWN);
+    pinMode(callForHeat, INPUT);
+    pinMode(callForHeat, INPUT_PULLDOWN);
+	
+    pinMode(waterPump, OUTPUT);
+    pinMode(waterPump, INPUT_PULLDOWN);
+	
+    pinMode(boiler, OUTPUT);
+    pinMode(boiler, INPUT_PULLDOWN);
+
+    pinMode(manualReport, INPUT); // report button
+    pinMode(manualReport, INPUT_PULLDOWN);
 
     Serial.begin(115200);
     Serial.println("Booting");
@@ -127,13 +135,13 @@ void loop() {
 
         // if the LED is off turn it on and vice-versa:
         led_state = !led_state;
-        p26State = !p26State;
-        p27State = !p27State;
+        waterPumpState = !waterPumpState;
+        boilerState = !boilerState;
 
         // set the LED with the ledState of the variable:
         digitalWrite(led, led_state);
-        digitalWrite(p26, p26State);
-        digitalWrite(p27, p27State);
+        digitalWrite(waterPump, waterPumpState);
+        digitalWrite(boiler, boilerState);
 
     }
 }

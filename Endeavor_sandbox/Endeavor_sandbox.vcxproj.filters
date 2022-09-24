@@ -27,6 +27,9 @@
     <ClInclude Include="LED_Flash.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="WebManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="board.txt">
@@ -34,7 +37,7 @@
     </Text>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="LED_Flash.cpp">
+    <ClCompile Include="WebManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

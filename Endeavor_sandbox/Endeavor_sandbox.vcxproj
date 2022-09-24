@@ -120,13 +120,20 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="LED_Flash.h" />
+    <ClInclude Include="WebManager.h">
+      <SubType>
+      </SubType>
+    </ClInclude>
     <ClInclude Include="__vm\.Endeavor_sandbox.vsarduino.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="board.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="LED_Flash.cpp" />
+    <ClCompile Include="WebManager.cpp">
+      <SubType>
+      </SubType>
+    </ClCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
