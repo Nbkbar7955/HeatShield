@@ -119,10 +119,14 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="resource.h" />
     <ClInclude Include="__vm\.Endeavor.vsarduino.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="board.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Endeavor.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

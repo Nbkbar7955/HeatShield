@@ -3,13 +3,18 @@
  Created:	8/27/2022 3:36:02 PM
  Author:	david
  
+
 */
 
+//#include <HttpClient.h>
 #include <WiFi.h>
-#include <ESPmDNS.h>
-#include <WiFiUdp.h>
 #include <ArduinoOTA.h>
+#include <ESPmDNS.h>
 #include <NTPClient.h>
+#include <WiFiUdp.h>
+
+#include <ArduinoHttpClient.h>
+
 
 class led_flash;
 const char* ssid = "Wilson.Net-2.4G";
@@ -44,6 +49,14 @@ int boilerState = HIGH;
 int callForHeatState = LOW;
 int manualReportState = LOW;
 
+char serverAddress[] = "192.168.0.21";  // server address
+int port = 44364;
+
+WiFiClient wifi;
+HttpClient client = HttpClient(wifi, serverAddress, port);
+int status = WL_IDLE_STATUS;
+
+
 void setup() {
 
     pinMode(led, OUTPUT);
@@ -57,7 +70,7 @@ void setup() {
     pinMode(boiler, OUTPUT);
     pinMode(boiler, INPUT_PULLDOWN);
 
-    pinMode(manualReport, INPUT); // report button
+    pinMode(manualReport, OUTPUT); // report button
     pinMode(manualReport, INPUT_PULLDOWN);
 
     Serial.begin(115200);
@@ -118,13 +131,22 @@ void setup() {
                     Serial.println(WiFi.localIP());
 
 	timeClient.begin();
+
+
+
+	
 }
+
+void fireDBcall();
 
 void loop() {
 	
     ArduinoOTA.handle();
     timeClient.update();
 
+    fireDBcall();
+	
+	
 	
     //loop to blink without delay
     const auto current_millis = millis();
@@ -145,3 +167,46 @@ void loop() {
 
     }
 }
+
+void fireDBcall()
+{
+    //String serverName = "http://192.168.0.21";
+    //    //"http://192.168.0.21:44364/Discovery_Sandbox.asmx?op=endeavor";
+    //String URLPath = "/Discovery_Sandbox.asmx?op=endeavor";
+
+    String C1 = "C1=1.537,";
+    String C2 = "C2=1.537,";
+    String C3 = "C3=1.537,";
+
+    String C4 = "C4=1.537,";
+    String C5 = "C5=1.53,";
+    String C6 = "C6='first call'";
+
+    String dataStream = "?op=endeavor ";
+	dataStream += C1 + C2 + C3 + C4 + C5 + C6;
+	
+
+
+    client.get("http://192.168.0.21:44364/Discovery_Sandbox.asmx?op=isAlive");
+
+    // read the status code and body of the response
+    int statusCode = client.responseStatusCode();
+    String response = client.responseBody();
+
+
+    String postData = dataStream;
+
+    client.beginRequest();
+    client.post(dataStream);
+    client.sendHeader("Content-Type", "application/x-www-form-urlencoded");
+    client.sendHeader("Content-Length", postData.length());
+    client.sendHeader("X-Custom-Header", "custom-header-value");
+    client.beginBody();
+    client.print(postData);
+    client.endRequest();
+
+    // read the status code and body of the response
+    statusCode = client.responseStatusCode();
+    response = client.responseBody();
+}
+

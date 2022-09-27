@@ -24,10 +24,18 @@
     <ClInclude Include="__vm\.Endeavor.vsarduino.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="board.txt">
       <Filter>Misc Files</Filter>
     </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Endeavor.rc">
+      <Filter>Misc Files</Filter>
+    </ResourceCompile>
   </ItemGroup>
 </Project>

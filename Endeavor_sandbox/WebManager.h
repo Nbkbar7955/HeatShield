@@ -18,7 +18,5 @@ class WebManager
 	void init();
 };
 
-extern WebManager ;
-
 #endif
 
