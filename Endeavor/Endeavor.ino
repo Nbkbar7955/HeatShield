@@ -1,18 +1,27 @@
 /*
- Name:		Endeavor.ino
- Created:	8/27/2022 2:00:11 PM
+ Name:		Endeavor_sandbox.ino
+ Created:	8/27/2022 3:36:02 PM
  Author:	david
+
+ PROTOTYPE - CC:50:E3:80:A2:E8  192.168.0.36
+ PRODUCTION - XX:XX:XX:XX:XX:XX  192.168.0.12
+
 */
 
+//#include <HttpClient.h>
 #include <WiFi.h>
-#include <ESPmDNS.h>
-#include <WiFiUdp.h>
 #include <ArduinoOTA.h>
+#include <ESPmDNS.h>
 #include <NTPClient.h>
+#include <WiFiUdp.h>
+
+#include <ArduinoHttpClient.h>
+
 
 class led_flash;
 const char* ssid = "Wilson.Net-2.4G";
 const char* password = "Pertle-Duck";
+float version = 0.5;
 
 const long utcOffsetInSeconds = 3600;
 char daysOfTheWeek[7][12] = { "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday" };
@@ -21,35 +30,55 @@ char daysOfTheWeek[7][12] = { "Sunday", "Monday", "Tuesday", "Wednesday", "Thurs
 WiFiUDP ntpUDP;
 NTPClient timeClient(ntpUDP, "pool.ntp.org", utcOffsetInSeconds);
 
-
 //variables for blinking an LED with Millis
-const int led = 2; // ESP32 Pin to which onboard LED is connected
 unsigned long previous_millis = 0;  // will store last time LED was updated
 const long interval = 500;  // interval at which to blink (milliseconds)
 
 /**
  * \brief: ledState used to set the LED
  */
-int led_state = LOW;
 
-const int p26 = 26;
-const int p27 = 27;
+const int led = 2;
+const int callForHeat = 4;
+const int soundAlarmReset = 5;
+const int soundAlarm = 25;
+const int waterPump = 26;
+const int boiler = 27;
+const int manualReport = 32;
+const int manualConfig = 33;
 
-int p26State = LOW;
-int p27State = HIGH;
+char serverAddress[] = "192.168.0.36";  // server address
+int port = 44364;
+
+WiFiClient wifi;
+HttpClient client = HttpClient(wifi, serverAddress, port);
+int status = WL_IDLE_STATUS;
+
 
 void setup() {
 
     pinMode(led, OUTPUT);
 
-    pinMode(p26, OUTPUT);
-    pinMode(p26, INPUT_PULLDOWN);
+    pinMode(callForHeat, INPUT);
+    pinMode(callForHeat, INPUT_PULLDOWN);
 
-    pinMode(p27, OUTPUT);
-    pinMode(p27, INPUT_PULLDOWN);
+    pinMode(soundAlarmReset, INPUT);
+    pinMode(soundAlarmReset, INPUT_PULLDOWN);
 
-    pinMode(32, INPUT); // report button
-    pinMode(32, INPUT_PULLDOWN);
+    pinMode(soundAlarm, INPUT);
+    pinMode(soundAlarm, INPUT_PULLDOWN);
+
+    pinMode(waterPump, OUTPUT);
+    pinMode(waterPump, INPUT_PULLDOWN);
+
+    pinMode(boiler, OUTPUT);
+    pinMode(boiler, INPUT_PULLDOWN);
+
+    pinMode(manualReport, OUTPUT); // report button
+    pinMode(manualReport, INPUT_PULLDOWN);
+
+    pinMode(manualConfig, OUTPUT);
+    pinMode(manualConfig, INPUT_PULLDOWN);
 
     Serial.begin(115200);
     Serial.println("Booting");
@@ -109,7 +138,13 @@ void setup() {
                     Serial.println(WiFi.localIP());
 
                     timeClient.begin();
+
+
+
+
 }
+
+void fireDBcall();
 
 void loop() {
 
@@ -124,15 +159,53 @@ void loop() {
         // save the last time you blinked the LED
         previous_millis = current_millis;
 
-        // if the LED is off turn it on and vice-versa:
-        led_state = !led_state;
-        p26State = !p26State;
-        p27State = !p27State;
-
         // set the LED with the ledState of the variable:
-        digitalWrite(led, led_state);
-        digitalWrite(p26, p26State);
-        digitalWrite(p27, p27State);
+        digitalWrite(led, !digitalRead(led));
+        digitalWrite(waterPump, !digitalRead(waterPump));
+        digitalWrite(boiler, !digitalRead(boiler));
 
     }
 }
+
+void fireDBcall()
+{
+    //String serverName = "http://192.168.0.36";
+    //    //"http://192.168.0.21:44364/Discovery_Sandbox.asmx?op=endeavor";
+    //String URLPath = "/Discovery_Sandbox.asmx?op=endeavor";
+
+    String C1 = "C1=1.537,";
+    String C2 = "C2=1.537,";
+    String C3 = "C3=1.537,";
+
+    String C4 = "C4=1.537,";
+    String C5 = "C5=1.53,";
+    String C6 = "C6='first call'";
+
+    String dataStream = "?op=endeavor ";
+    dataStream += C1 + C2 + C3 + C4 + C5 + C6;
+
+
+
+    client.get("http://192.168.0.21:44364/Discovery_Sandbox.asmx?op=isAlive");
+
+    // read the status code and body of the response
+    int statusCode = client.responseStatusCode();
+    String response = client.responseBody();
+
+
+    String postData = dataStream;
+
+    client.beginRequest();
+    client.post(dataStream);
+    client.sendHeader("Content-Type", "application/x-www-form-urlencoded");
+    client.sendHeader("Content-Length", postData.length());
+    client.sendHeader("X-Custom-Header", "custom-header-value");
+    client.beginBody();
+    client.print(postData);
+    client.endRequest();
+
+    // read the status code and body of the response
+    statusCode = client.responseStatusCode();
+    response = client.responseBody();
+}
+

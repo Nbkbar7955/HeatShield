@@ -2,7 +2,9 @@
  Name:		Endeavor_sandbox.ino
  Created:	8/27/2022 3:36:02 PM
  Author:	david
- 
+
+ PROTOTYPE - CC:50:E3:80:A2:E8  192.168.0.36
+ PRODUCTION - XX:XX:XX:XX:XX:XX  192.168.0.12
 
 */
 
@@ -12,6 +14,11 @@
 #include <ESPmDNS.h>
 #include <NTPClient.h>
 #include <WiFiUdp.h>
+
+#include <SPI.h>
+#include <Wire.h>
+#include <Adafruit_GFX.h>
+#include <Adafruit_SSD1306.h>
 
 #include <ArduinoHttpClient.h>
 
@@ -28,50 +35,85 @@ char daysOfTheWeek[7][12] = { "Sunday", "Monday", "Tuesday", "Wednesday", "Thurs
 WiFiUDP ntpUDP;
 NTPClient timeClient(ntpUDP, "pool.ntp.org", utcOffsetInSeconds);
 
-
 //variables for blinking an LED with Millis
-const int led = 2; // ESP32 Pin to which onboard LED is connected
 unsigned long previous_millis = 0;  // will store last time LED was updated
 const long interval = 500;  // interval at which to blink (milliseconds)
 
 /**
  * \brief: ledState used to set the LED
  */
-int led_state = LOW;
 
+const int led = 2;
+const int callForHeat = 4;
+const int soundAlarmReset = 5;
+const int soundAlarm = 25;
 const int waterPump = 26;
 const int boiler = 27;
 const int manualReport = 32;
-const int callForHeat = 25;
+const int manualConfig = 33;
+bool state = true;
 
-int waterPumpState = LOW;
-int boilerState = HIGH;
-int callForHeatState = LOW;
-int manualReportState = LOW;
-
-char serverAddress[] = "192.168.0.21";  // server address
+char serverAddress[] = "192.168.0.36";  // server address
 int port = 44364;
 
 WiFiClient wifi;
 HttpClient client = HttpClient(wifi, serverAddress, port);
 int status = WL_IDLE_STATUS;
 
+//------------------------------------------------------------------------------------------
+
+Adafruit_SSD1306 waterDsp(-1);
+Adafruit_SSD1306 boilerDsp(-1);
+// this is the default address of the display(0x78) on back of display
+#define OLED1 0x3C
+// this is after switching over the jumper.
+#define OLED2 0x3D
+
+
+
+
 
 void setup() {
 
+    waterDsp.begin(SSD1306_SWITCHCAPVCC, OLED1);
+    waterDsp.clearDisplay();
+    waterDsp.display();
+	
+    boilerDsp.begin(SSD1306_SWITCHCAPVCC, OLED2);
+    boilerDsp.clearDisplay();
+    boilerDsp.display();
+	
+
     pinMode(led, OUTPUT);
+    digitalWrite(led, LOW);
 
     pinMode(callForHeat, INPUT);
     pinMode(callForHeat, INPUT_PULLDOWN);
+    digitalWrite(callForHeat,LOW);
+
+    pinMode(soundAlarmReset, INPUT);
+    pinMode(soundAlarmReset, INPUT_PULLDOWN);
+    digitalWrite(soundAlarmReset, LOW);
+
+    pinMode(soundAlarm, OUTPUT);
+    //pinMode(soundAlarm, INPUT_PULLDOWN);
+    digitalWrite(soundAlarm, LOW);
 	
     pinMode(waterPump, OUTPUT);
-    pinMode(waterPump, INPUT_PULLDOWN);
+    //pinMode(waterPump, INPUT_PULLDOWN);
+    digitalWrite(waterPump, LOW);
 	
     pinMode(boiler, OUTPUT);
-    pinMode(boiler, INPUT_PULLDOWN);
+    //pinMode(boiler, INPUT_PULLDOWN);
+    digitalWrite(boiler, LOW);
 
-    pinMode(manualReport, OUTPUT); // report button
+    pinMode(manualReport, INPUT); // report button
     pinMode(manualReport, INPUT_PULLDOWN);
+    digitalWrite(manualReport, LOW);
+
+    pinMode(manualConfig, INPUT);
+    pinMode(manualConfig, INPUT_PULLDOWN);
+    digitalWrite(manualConfig, LOW);
 
     Serial.begin(115200);
     Serial.println("Booting");
@@ -137,16 +179,27 @@ void setup() {
 	
 }
 
+
+
+
+
+
 void fireDBcall();
+
+
+
+
+
+
 
 void loop() {
 	
     ArduinoOTA.handle();
     timeClient.update();
-
-    fireDBcall();
 	
-	
+    //tone(soundAlarm, 1000, 500);
+    //delay(1000);
+    //noTone(soundAlarm);
 	
     //loop to blink without delay
     const auto current_millis = millis();
@@ -155,22 +208,40 @@ void loop() {
         // save the last time you blinked the LED
         previous_millis = current_millis;
 
-        // if the LED is off turn it on and vice-versa:
-        led_state = !led_state;
-        waterPumpState = !waterPumpState;
-        boilerState = !boilerState;
+        digitalWrite(boiler, !digitalRead(boiler));
+        digitalWrite(waterPump, !digitalRead(waterPump));
+        digitalWrite(led, !digitalRead(led));
 
-        // set the LED with the ledState of the variable:
-        digitalWrite(led, led_state);
-        digitalWrite(waterPump, waterPumpState);
-        digitalWrite(boiler, boilerState);
+    }
 
+
+    for (int i = 0; i < 270; i += 10) {
+
+        waterDsp.setTextSize(1);
+        waterDsp.setTextColor(WHITE);
+        waterDsp.setCursor(0, 0);
+        waterDsp.println("Display 1");
+        waterDsp.fillCircle(i, 30, 5, 1);
+        waterDsp.display();
+        waterDsp.clearDisplay();
+
+        boilerDsp.setTextSize(1);
+        boilerDsp.setTextColor(WHITE);
+        boilerDsp.setCursor(0, 0);
+        boilerDsp.println("Display 2");
+        boilerDsp.fillCircle(i - 127, 30, 5, 1);
+        boilerDsp.display();
+        boilerDsp.clearDisplay();
     }
 }
 
+
+
+
+
 void fireDBcall()
 {
-    //String serverName = "http://192.168.0.21";
+    //String serverName = "http://192.168.0.36";
     //    //"http://192.168.0.21:44364/Discovery_Sandbox.asmx?op=endeavor";
     //String URLPath = "/Discovery_Sandbox.asmx?op=endeavor";
 
