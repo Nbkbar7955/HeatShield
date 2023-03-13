@@ -327,7 +327,11 @@ auto opCycle() -> void
   
     
   // if call for heat go to activate immediately
-    if ( digitalRead(callForHeat) == HIGH)
+	// ----------------------------------------------------------------------------------------------
+	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	// ACTIVE MODE FORCED  PID
+	// //
+    if ( digitalRead(callForHeat) == HIGH && activeMode != "active" )
     {
         activeMode = "active";
     }
