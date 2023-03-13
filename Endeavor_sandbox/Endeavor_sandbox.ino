@@ -272,6 +272,9 @@ void setup()
 
 // Loop
 //------------------------------------------------------------------------------------------
+////------------------------------------------------------------------------------------------
+/////------------------------------------------------------------------------------------------
+/////------------------------------------------------------------------------------------------
 
 void loop()
 {
@@ -294,8 +297,13 @@ void loop()
 		// save the last time you blinked the LED
 		millisBefore = millisNow;
 
+		// In Operation now
+		//
+		// 
 		// digitalWrite(yellowRelay, !digitalRead(yellowRelay));
 		// digitalWrite(blueRelay, !digitalRead(blueRelay));
+		//
+		//
 		//
 		// 
 		digitalWrite(procLED, !digitalRead(procLED));
@@ -460,48 +468,54 @@ auto updateDisplay() -> void
 	yellowT = String(yellowTemp);
 	purpleT = String(purpleTmp);
 
-	String title = "HeatShield - PID";
-	//title = title + version;
+	const String title = "HeatShield - PID!!!";
 
-	displayOne.setTextSize(1);
+	
+	//---------------- Display 1 ---------------
+	// Begin
 	displayOne.clearDisplay();
-	displayOne.setTextColor(WHITE);
 
-	displayOne.drawLine(0, 0, 127, 20, WHITE);
-
+	// Yellow Title
 	displayOne.setCursor(11, 0);
 	displayOne.println(title);
-
 	displayOne.drawLine(0, 7, 127, 7, WHITE);
 
+	// Water Row
 	displayOne.setCursor(11, 11);
-	displayOne.println("w:" + blueT + "  |  ");
+	displayOne.println("W: " + blueT);
 
-	displayOne.setCursor(70, 11);
-	displayOne.println("b:" + yellowT);
-
+	// Boiler Row
 	displayOne.setCursor(11, 22);
-	displayOne.println("e:" + purpleT);
+	displayOne.println("B: " + yellowT);
 
+	// Living Room Row
+	displayOne.setCursor(11, 33);
+	displayOne.println("LR: " + purpleT);
+
+	// Update
 	displayOne.display();
 
-
+	//---------------- Display 2 ---------------
+	// Begin
 	displayTwo.clearDisplay();
-	displayTwo.setTextColor(WHITE);
 
+	// Title
 	displayTwo.setCursor(11, 0);
-	displayTwo.println("*PID*");
-
+	displayTwo.println(title);
 	displayTwo.drawLine(0, 7, 127, 7, WHITE);
 
+	// Mode Row
 	displayTwo.setCursor(11, 11);
-	displayTwo.println("Mode: " + activeMode);
+	displayTwo.println("Current Mode: [" + activeMode + "]");
 
+	// High Temp Row
 	displayTwo.setCursor(11, 22);
-	displayTwo.println("highTemperature: " + String(highTemperature));
+	displayTwo.println("highTemperature Setting: [" + String(highTemperature) + "]");
 
+	// Low Temp Row
 	displayTwo.setCursor(11, 33);
-	displayTwo.println("lowTemperature: " + String(lowTemperature));
+	displayTwo.println("lowTemperature Setting: [" + String(lowTemperature) + "]");
 
+	// Update
 	displayTwo.display();
 }
