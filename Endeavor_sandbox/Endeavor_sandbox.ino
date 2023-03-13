@@ -22,46 +22,44 @@
 #include <ArduinoHttpClient.h>
 
 
-
-
 //------------------------------------------------------------------------------------------
 // Operational Vars
 
 String version = "0.7";
 
-int boilerLow = 0;
+int yellowLow = 0;
 
 String activeMode = "active";
 
-float  tHigh = 155;
-float  tLow = 130;
+float highTemperature = 160;
+float lowTemperature = 130;
 
-float aHigh = 155;
-float aLow = 135;
+float highActiveTemperature = 160;
+float lowActiveTemperature = 130;
 
-float sHigh = 135;
-float sLow = 115;
+float highStdbyTemperature = 130;
+float lowStdbyTemperature = 110;
 
-float iHigh = 115;
-float iLow = 95;
+float highInactiveTemperature = 115;
+float lowInactiveTemperature = 95;
 
-float oHigh = 95;
-float oLow = 65;
+float highOffTemperature = 95;
+float lowOffTemperature = 65;
 
-float tmpWater = 0;
-float tmpBoiler = 0;
-float tmpOther = 0;
+float tmpBlue = 0;
+float tmpYellow = 0;
+float tmpPurple = 0;
 
-float waterTemp = 0;
-float waterTempPrev = 0;
-float boilerTemp = 0;
-float boilerTempPrev = 0;
-float otherTmp = 0;
-float otherTempPrev = 0;
+float blueTemp = 0;
+float blueTempPrev = 0;
+float yellowTemp = 0;
+float yellowTempPrev = 0;
+float purpleTmp = 0;
+float purpleTempPrev = 0;
 
-String wt = "";
-String bt = "";
-String ev = "";
+String blueT = "";
+String yellowT = "";
+String purpleT = "";
 
 
 //------------------------------------------------------------------------------------------
@@ -71,36 +69,36 @@ const char* ssid = "Wilson.Net-2.4G";
 const char* password = "Pertle-Duck";
 
 const long utcOffsetInSeconds = 3600;
-char daysOfTheWeek[7][12] = { "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday" };
+char daysOfTheWeek[7][12] = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
 
 // Define NTP Client to get time
 WiFiUDP ntpUDP;
 NTPClient timeClient(ntpUDP, "pool.ntp.org", utcOffsetInSeconds);
 
 // variables for blinking an LED with Millis
-unsigned long previous_millis = 0;  // will store lastss time LED was updated
+unsigned long millisBefore = 0; // will store lastss time LED was updated
 //unsigned long current_millis = 0;  // will store lastss time LED was updated
 
-const long interval = 5000;  // interval at which to blink (milliseconds)
-bool testRelays = true;
+const long interval = 1000; // interval at which to blink (milliseconds)
+bool cycleRelays = true;
 
-const int led = 2;//o
-const int callForHeat = 4; //o
-const int soundAlarmReset = 5;//i CALLFORHEAT
-const int cpuStdbyRelay = 18;//o ??????
-const int cpuStdby = 19;//o ??????
-const int soundAlarm = 25;//o SOUNDALARM
-const int waterPump = 26;//o WATERPUMP RELAY
-const int boiler = 27;//o BURNER RELAY
-const int manualReport = 32;//i PB1
-const int manualConfig = 33;//i PB2
+const int procLED = 2; //o
+const int callForHeat = 4; //i CALLFORHEAT
+const int soundAlarmReset = 5; //o ??????
+const int purpleRelay = 18; //o ??????
+const int PIN19 = 19; //o ??????
+const int speaker = 25; //o SOUNDALARM
+const int blueRelay = 26; //o WATERPUMP RELAY
+const int yellowRelay = 27; //o BURNER RELAY
+const int PB1 = 32; //i PB1
+const int PB2 = 33; //i PB2
 
 const int count = 0;
-bool cpuStdbyFlag = false;
+bool purpleFlag = false;
 bool testAlarm = false;
 bool state = true;
 
-char serverAddress[] = "192.168.0.35";  // server address
+char serverAddress[] = "192.168.0.35"; // server address
 int port = 44364;
 
 WiFiClient wifi;
@@ -113,19 +111,18 @@ int status = WL_IDLE_STATUS;
 // ------------------------------------------------------------------------------------------
 
 
-MCP9600 Oth; // OTHER THERMOCOUPLE
-MCP9600 Wtr; // WATER THERMOCOUPLE
-MCP9600 Blr; // BOILER THERMOCOUPLE
+MCP9600 purpleThermocouple; // OTHER THERMOCOUPLE
+MCP9600 blueThermocouple; // WATER THERMOCOUPLE
+MCP9600 yellowThermocouple; // BOILER THERMOCOUPLE
 
 
 //------------------------------------------------------------------------------------------
 //
-Adafruit_SSD1306 waterDsp(-1); // OLEB ?????
-Adafruit_SSD1306 boilerDsp(-1); //OLED ?????
+Adafruit_SSD1306 displayOne(-1); // OLEB ?????
+Adafruit_SSD1306 displayTwo(-1); //OLED ?????
 
 #define OLED1 0x3C // OLED 1
 #define OLED2 0x3D // OLED 2
-
 
 
 // Prototypes
@@ -133,184 +130,181 @@ Adafruit_SSD1306 boilerDsp(-1); //OLED ?????
 
 auto waterCycle() -> void;
 auto burnCycle() -> void;
-auto opCycle() -> void;
+auto operationalCycle() -> void;
 auto updateDisplay() -> void;
 
 ///------------------------------------------------------------------------------------------
-
 
 
 // Setup
 //------------------------------------------------------------------------------------------
 //
 
-void setup() {
+void setup()
+{
+	Wire.begin();
 
-    Wire.begin();
-	
-  // Begin Thermocouples
-    Wtr.begin(0x060);
-    Blr.begin(0x061);
-    Oth.begin(0x067);
+	// Begin Thermocouples
+	blueThermocouple.begin(0x060);
+	yellowThermocouple.begin(0x061);
+	purpleThermocouple.begin(0x067);
 
-    waterDsp.begin(SSD1306_SWITCHCAPVCC, OLED1);
-    waterDsp.clearDisplay();
-    waterDsp.display();
+	displayOne.begin(SSD1306_SWITCHCAPVCC, OLED1);
+	displayOne.clearDisplay();
+	displayOne.display();
 
-    boilerDsp.begin(SSD1306_SWITCHCAPVCC, OLED2);
-    boilerDsp.clearDisplay();
-    boilerDsp.display();
-
-
-    // OUTPUTS   pinModes
-    // ----------------------------------------
-    pinMode(led, OUTPUT);
-    digitalWrite(led, LOW);
-
-  // ????????????????????????
-    pinMode(callForHeat, INPUT);  // i PIN 4
-
-    pinMode(soundAlarmReset, OUTPUT); // o PIN 5
-    digitalWrite(soundAlarmReset, LOW);
-
-    pinMode(cpuStdbyRelay, OUTPUT);  // o PIN 18
-    digitalWrite(cpuStdbyRelay, LOW);
-
-    pinMode(cpuStdby, OUTPUT); // o PIN 19
-    digitalWrite(cpuStdby, LOW);
-
-    pinMode(soundAlarm, OUTPUT); // o PIN 25
-    digitalWrite(soundAlarm, LOW);
-
-    pinMode(waterPump, OUTPUT); // o PIN 26
-    digitalWrite(waterPump, LOW);
-
-    pinMode(boiler, OUTPUT); // o PIN 27
-    digitalWrite(boiler, HIGH);
-  
-    pinMode(manualReport, OUTPUT); // o PIN 32
-    digitalWrite(manualReport, LOW);
-  
-    pinMode(manualConfig, OUTPUT); // o PIN 33
-    digitalWrite(manualConfig, LOW);
-  
+	displayTwo.begin(SSD1306_SWITCHCAPVCC, OLED2);
+	displayTwo.clearDisplay();
+	displayTwo.display();
 
 
-    // ----------------------------------------
+	// OUTPUTS   pinModes
+	// ----------------------------------------
+	pinMode(procLED, OUTPUT);
+	digitalWrite(procLED, LOW);
+
+	// ????????????????????????
+	pinMode(callForHeat, INPUT); // i PIN 4
+
+	pinMode(soundAlarmReset, OUTPUT); // o PIN 5
+	digitalWrite(soundAlarmReset, LOW);
 
 
-    Serial.begin(115200);
-    Serial.println("Booting");
+	pinMode(PIN19, OUTPUT); // o PIN 19
+	digitalWrite(PIN19, LOW);
 
-    WiFi.mode(WIFI_STA);
-    WiFi.begin(ssid, password);
+	pinMode(speaker, OUTPUT); // o PIN 25
+	digitalWrite(speaker, LOW);
 
-    while (WiFi.waitForConnectResult() != WL_CONNECTED) {
-        Serial.println("Connection Failed! Rebooting...");
-        delay(5000);
-        ESP.restart();
-    }
+	pinMode(blueRelay, OUTPUT); // o PIN 26
+	digitalWrite(blueRelay, LOW);
 
-    // Port defaults to 3232
-    ArduinoOTA.setPort(3232);
+	pinMode(yellowRelay, OUTPUT); // o PIN 27
+	digitalWrite(yellowRelay, HIGH);
 
-    // Hostname defaults to esp3232-[MAC]
-    ArduinoOTA.setHostname("HCv0.03");
+	pinMode(purpleRelay, OUTPUT); // o PIN 18
+	digitalWrite(purpleRelay, LOW);
 
-    // No authentication by default
-    // ArduinoOTA.setPassword("admin");
+	pinMode(PB1, OUTPUT); // o PIN 32
+	digitalWrite(PB1, LOW);
 
-    // Password can be set with it's md5 value as well
-    // MD5(admin) = 21232f297a57a5a743894a0e4a801fc3
-    // ArduinoOTA.setPasswordHash("21232f297a57a5a743894a0e4a801fc3");
+	pinMode(PB2, OUTPUT); // o PIN 33
+	digitalWrite(PB2, LOW);
 
-    /*
-    // Set your Static IP address
-        IPAddress local_IP(192, 168, 0, 37);
-    // Set your Gateway IP address
-    IPAddress gateway(192, 168, 0, 1);
-    IPAddress subnet(255, 255, 0, 0);
+
+	// ----------------------------------------
+
+
+	Serial.begin(115200);
+	Serial.println("Booting");
+
+	WiFi.mode(WIFI_STA);
+	WiFi.begin(ssid, password);
+
+	while (WiFi.waitForConnectResult() != WL_CONNECTED)
+	{
+		Serial.println("Connection Failed! Rebooting...");
+		delay(5000);
+		ESP.restart();
+	}
+
+	// Port defaults to 3232
+	ArduinoOTA.setPort(3232);
+
+	// Hostname defaults to esp3232-[MAC]
+	ArduinoOTA.setHostname("HeatShieldCtrl");
+
+	// No authentication by default
+	// ArduinoOTA.setPassword("admin");
+
+	// Password can be set with it's md5 value as well
+	// MD5(admin) = 21232f297a57a5a743894a0e4a801fc3
+	// ArduinoOTA.setPasswordHash("21232f297a57a5a743894a0e4a801fc3");
+
+	/*
+	// Set your Static IP address
+	    IPAddress local_IP(192, 168, 0, 37);
+	// Set your Gateway IP address
+	IPAddress gateway(192, 168, 0, 1);
+	IPAddress subnet(255, 255, 0, 0);
 */
 
-    ArduinoOTA
-        .onStart([]() {
-        String type;
-        if (ArduinoOTA.getCommand() == U_FLASH)
-            type = "sketch";
-        else // U_SPIFFS
-            type = "filesystem";
+	ArduinoOTA
+		.onStart([]()
+		{
+			String type;
+			if (ArduinoOTA.getCommand() == U_FLASH)
+				type = "sketch";
+			else // U_SPIFFS
+				type = "filesystem";
 
-        // NOTE: if updating SPIFFS this would be the place to unmount SPIFFS using SPIFFS.end()
-        Serial.println("Start updating " + type);
-            })
-        .onEnd([]() {
-                Serial.println("\nEnd");
-            })
-                .onProgress([](unsigned int progress, unsigned int total) {
-                Serial.printf("Progress: %u%%\r", (progress / (total / 100)));
-                    })
-                .onError([](ota_error_t error) {
-                        Serial.printf("Error[%u]: ", error);
-                        if (error == OTA_AUTH_ERROR) Serial.println("Auth Failed");
-                        else if (error == OTA_BEGIN_ERROR) Serial.println("Begin Failed");
-                        else if (error == OTA_CONNECT_ERROR) Serial.println("Connect Failed");
-                        else if (error == OTA_RECEIVE_ERROR) Serial.println("Receive Failed");
-                        else if (error == OTA_END_ERROR) Serial.println("End Failed");
-                    });
+			// NOTE: if updating SPIFFS this would be the place to unmount SPIFFS using SPIFFS.end()
+			Serial.println("Start updating " + type);
+		})
+		.onEnd([]()
+		{
+			Serial.println("\nEnd");
+		})
+		.onProgress([](unsigned int progress, unsigned int total)
+		{
+			Serial.printf("Progress: %u%%\r", (progress / (total / 100)));
+		})
+		.onError([](ota_error_t error)
+		{
+			Serial.printf("Error[%u]: ", error);
+			if (error == OTA_AUTH_ERROR) Serial.println("Auth Failed");
+			else if (error == OTA_BEGIN_ERROR) Serial.println("Begin Failed");
+			else if (error == OTA_CONNECT_ERROR) Serial.println("Connect Failed");
+			else if (error == OTA_RECEIVE_ERROR) Serial.println("Receive Failed");
+			else if (error == OTA_END_ERROR) Serial.println("End Failed");
+		});
 
-                    ArduinoOTA.begin();
+	ArduinoOTA.begin();
 
-                    Serial.println("Ready");
-                    Serial.print("IP address: ");
-                    Serial.println(WiFi.localIP());
+	Serial.println("Ready");
+	Serial.print("IP address: ");
+	Serial.println(WiFi.localIP());
 
-  timeClient.begin();
-
-
-
-
+	timeClient.begin();
 }
-
-
-
 
 
 // Loop
 //------------------------------------------------------------------------------------------
 
-void loop() {
-
-    ArduinoOTA.handle();
-    timeClient.update();
-
-
-    // Code Below
-    //------------------------------------------------------------------------------------------
-    //------------------------------------------------------------------------------------------
-
-    const auto current_millis = millis();
-
-    if (testRelays) {
-        if (current_millis - previous_millis >= interval) {
-            // save the last time you blinked the LED
-            previous_millis = current_millis;
+void loop()
+{
+	ArduinoOTA.handle();
+	timeClient.update();
 
 
-            digitalWrite(boiler, !digitalRead(boiler));
-            digitalWrite(waterPump, !digitalRead(waterPump));
-            digitalWrite(led, !digitalRead(led));
+	// Code Below
+	//------------------------------------------------------------------------------------------
+	//------------------------------------------------------------------------------------------
 
+	const auto millisNow = millis();
 
-  
-        }
-        //opCycle();
+	if (cycleRelays)
+	{
+		if (millisNow - millisBefore < interval)
+		{
+			return;
+		}
+		// save the last time you blinked the LED
+		millisBefore = millisNow;
 
-     // Code Above
-     //------------------------------------------------------------------------------------------
-     //------------------------------------------------------------------------------------------
+		// digitalWrite(yellowRelay, !digitalRead(yellowRelay));
+		// digitalWrite(blueRelay, !digitalRead(blueRelay));
+		//
+		// 
+		digitalWrite(procLED, !digitalRead(procLED));
+		digitalWrite(purpleRelay, !digitalRead(purpleRelay));
+	}
+	operationalCycle();
 
-
-    }
+	// Code Above
+	//------------------------------------------------------------------------------------------
+	//------------------------------------------------------------------------------------------
 }
 
 
@@ -318,194 +312,195 @@ void loop() {
 //------------------------------------------------------------------------------------------
 
 
-auto opCycle() -> void
+auto operationalCycle() -> void
 {
-    ArduinoOTA.handle();
-    timeClient.update();
-	
-    updateDisplay();
-  
-    
-  // if call for heat go to activate immediately
+	ArduinoOTA.handle();
+	timeClient.update();
+
+	updateDisplay();
+
+
+	// if call for heat go to activate immediately
 	// ----------------------------------------------------------------------------------------------
 	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	// ACTIVE MODE FORCED  PID
 	// //
-    if ( digitalRead(callForHeat) == HIGH && activeMode != "active" )
-    {
-        activeMode = "active";
-    }
-    else
-    {
-        activeMode = "stdby";
-    }
+	if (digitalRead(callForHeat) == HIGH)
+	{
+		activeMode = "active";
+	}
+	else
+	{
+		activeMode = "stdby";
+	}
 
-  
-    // -------------------------------------------------------------------------------------
-  
-    if (activeMode == "active")
-    {
-        tHigh = aHigh;
-        tLow = aLow;
-      
-        digitalWrite(waterPump, HIGH);
 
-    }
-    else
-    {
-      if (activeMode == "stdby")
-        {
-            tHigh = sHigh;
-            tLow = sLow;
-        
-            digitalWrite(waterPump, HIGH);
-      }
-        else
-        {
-          if (activeMode == "inactive")
-          {
-                tHigh = iHigh;
-                tLow = iLow;
-          }
-            else
-            {
-                tHigh = oHigh;
-                tLow = oLow;
-            }
-        }
-    }
-    // -------------------------------------------------------------------------------------
+	// -------------------------------------------------------------------------------------
 
-    burnCycle();
-    waterCycle();
-    updateDisplay();
+	if (activeMode == "active")
+	{
+		highTemperature = highActiveTemperature;
+		lowTemperature = lowActiveTemperature;
+
+		digitalWrite(blueRelay, HIGH);
+	}
+	else
+	{
+		if (activeMode == "stdby")
+		{
+			highTemperature = highStdbyTemperature;
+			lowTemperature = lowStdbyTemperature;
+
+			digitalWrite(blueRelay, HIGH);
+		}
+		else
+		{
+			if (activeMode == "inactive")
+			{
+				highTemperature = highInactiveTemperature;
+				lowTemperature = lowOffTemperature;
+			}
+			else
+			{
+				highTemperature = highOffTemperature;
+				lowTemperature = lowOffTemperature;
+			}
+		}
+	}
+	// -------------------------------------------------------------------------------------
+
+	burnCycle();
+	waterCycle();
+	updateDisplay();
 }
 
-auto waterCycle() -> void
-{
-    ArduinoOTA.handle();
-    timeClient.update();
-  
-  if (activeMode == "active"|| activeMode == "stdby")
-  {
-        digitalWrite(waterPump, HIGH);
-  }
-  else
-  {
-        digitalWrite(waterPump, LOW); 
-  }
-}
+
+// ------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------
+// Methods
+// ------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------
 
 
 auto burnCycle() -> void
 {
-    ArduinoOTA.handle();
-    timeClient.update();
-	
-    updateDisplay();
-  
-    waterTemp = ((Wtr.getThermocoupleTemp() * 9 / 5) + 32);
-    boilerTemp = ((Blr.getThermocoupleTemp() * 9 / 5) + 32);
+	ArduinoOTA.handle();
+	timeClient.update();
 
-  // if we hit the bottom
-    if (waterTemp <= tLow) {
-      
-        // go to high
-        while (waterTemp < tHigh) {
-        	
-            ArduinoOTA.handle();
-            timeClient.update();
-          
-            ArduinoOTA.handle();
-            updateDisplay();
-          
-            // save the current temp
-            waterTempPrev = waterTemp;
-          
-            // fire the burner to start raising the temp
-            digitalWrite(boiler, HIGH);         
-            delay(120000); // 120,000 = 2min - run for x mins         
-            digitalWrite(boiler, LOW); // then stop to use boiler temp to continue water increase
+	updateDisplay();
 
-            waterTemp = ((Wtr.getThermocoupleTemp() * 9 / 5) + 32);
-            while (waterTemp > waterTempPrev) // while water temp still rising
-            {
-            	
-                ArduinoOTA.handle();
-                timeClient.update();
-            	
-                updateDisplay();
-              
-                waterTempPrev = waterTemp;
-                boilerLow = ((Blr.getThermocoupleTemp() * 9 / 5) + 32);
-                waterTemp = ((Wtr.getThermocoupleTemp() * 9 / 5) + 32);
+	blueTemp = ((blueThermocouple.getThermocoupleTemp() * 9 / 5) + 32);
+	yellowTemp = ((yellowThermocouple.getThermocoupleTemp() * 9 / 5) + 32);
 
-            }         
-        }
-    }  
+	// if we hit the bottom
+	if (blueTemp <= lowTemperature)
+	{
+		// go to high
+		while (blueTemp < highTemperature)
+		{
+			ArduinoOTA.handle();
+			timeClient.update();
+
+			ArduinoOTA.handle();
+			updateDisplay();
+
+			// save the current temp
+			blueTempPrev = blueTemp;
+
+			// fire the burner to start raising the temp
+			digitalWrite(yellowRelay, HIGH);
+			delay(120000); // 120,000 = 2min - run for x mins         
+			digitalWrite(yellowRelay, LOW); // then stop to use yellowRelay temp to continue water increase
+
+			blueTemp = ((blueThermocouple.getThermocoupleTemp() * 9 / 5) + 32);
+			while (blueTemp > blueTempPrev) // while water temp still rising
+			{
+				ArduinoOTA.handle();
+				timeClient.update();
+
+				updateDisplay();
+
+				blueTempPrev = blueTemp;
+				yellowLow = ((yellowThermocouple.getThermocoupleTemp() * 9 / 5) + 32);
+				blueTemp = ((blueThermocouple.getThermocoupleTemp() * 9 / 5) + 32);
+			}
+		}
+	}
 }
+
+auto waterCycle() -> void
+{
+	ArduinoOTA.handle();
+	timeClient.update();
+
+	if (activeMode == "active" || activeMode == "stdby")
+	{
+		digitalWrite(blueRelay, HIGH);
+	}
+	else
+	{
+		digitalWrite(blueRelay, LOW);
+	}
+}
+
 
 auto updateDisplay() -> void
 {
-    ArduinoOTA.handle();
-    timeClient.update();
+	ArduinoOTA.handle();
+	timeClient.update();
 
 
-    // (26°C × 9/5) + 32 = 78.8°F 
-    waterTemp = ((Wtr.getThermocoupleTemp() * 9 / 5) + 32);
-    boilerTemp = ((Blr.getThermocoupleTemp() * 9 / 5) + 32);
-    otherTmp = ((Oth.getThermocoupleTemp() * 9 / 5) + 32);
+	// (26°C × 9/5) + 32 = 78.8°F 
+	blueTemp = ((blueThermocouple.getThermocoupleTemp() * 9 / 5) + 32);
+	yellowTemp = ((yellowThermocouple.getThermocoupleTemp() * 9 / 5) + 32);
+	purpleTmp = ((purpleThermocouple.getThermocoupleTemp() * 9 / 5) + 32);
 
-    wt = String(waterTemp);
-    bt = String(boilerTemp);
-    ev = String(otherTmp);
+	blueT = String(blueTemp);
+	yellowT = String(yellowTemp);
+	purpleT = String(purpleTmp);
 
-    String title = "HeatShield - PID";
-    //title = title + version;
-	
-    waterDsp.setTextSize(1);
-    waterDsp.clearDisplay();
-    waterDsp.setTextColor(WHITE);
+	String title = "HeatShield - PID";
+	//title = title + version;
 
-    waterDsp.drawLine(0, 0, 127, 20, WHITE);
+	displayOne.setTextSize(1);
+	displayOne.clearDisplay();
+	displayOne.setTextColor(WHITE);
 
-    waterDsp.setCursor(11, 0);
-    waterDsp.println(title);
+	displayOne.drawLine(0, 0, 127, 20, WHITE);
 
-    waterDsp.drawLine(0, 7, 127, 7, WHITE);
+	displayOne.setCursor(11, 0);
+	displayOne.println(title);
 
-    waterDsp.setCursor(11, 11);
-    waterDsp.println("w:" + wt + "  |  ");
+	displayOne.drawLine(0, 7, 127, 7, WHITE);
 
-    waterDsp.setCursor(70, 11);
-    waterDsp.println("b:" + bt);
+	displayOne.setCursor(11, 11);
+	displayOne.println("w:" + blueT + "  |  ");
 
-    waterDsp.setCursor(11, 22);
-    waterDsp.println("e:" + ev);
+	displayOne.setCursor(70, 11);
+	displayOne.println("b:" + yellowT);
 
-    waterDsp.display();
+	displayOne.setCursor(11, 22);
+	displayOne.println("e:" + purpleT);
+
+	displayOne.display();
 
 
-    boilerDsp.clearDisplay();
-    boilerDsp.setTextColor(WHITE);
+	displayTwo.clearDisplay();
+	displayTwo.setTextColor(WHITE);
 
-    boilerDsp.setCursor(11, 0);
-    boilerDsp.println("*PID*");
+	displayTwo.setCursor(11, 0);
+	displayTwo.println("*PID*");
 
-    boilerDsp.drawLine(0, 7, 127, 7, WHITE);
+	displayTwo.drawLine(0, 7, 127, 7, WHITE);
 
-    boilerDsp.setCursor(11, 11);
-    boilerDsp.println("Mode: " + activeMode);
+	displayTwo.setCursor(11, 11);
+	displayTwo.println("Mode: " + activeMode);
 
-    boilerDsp.setCursor(11, 22);
-    boilerDsp.println("tHigh: " + String(tHigh));
+	displayTwo.setCursor(11, 22);
+	displayTwo.println("highTemperature: " + String(highTemperature));
 
-    boilerDsp.setCursor(11, 33);
-    boilerDsp.println("tLow: " + String(tLow));
+	displayTwo.setCursor(11, 33);
+	displayTwo.println("lowTemperature: " + String(lowTemperature));
 
-    boilerDsp.display();
+	displayTwo.display();
 }
-
-
-
-
