@@ -31,7 +31,7 @@ String version = "0.7";
 
 int boilerLow = 0;
 
-String activeMode = "stdby";
+String activeMode = "active";
 
 float  tHigh = 155;
 float  tLow = 130;
@@ -86,14 +86,14 @@ bool testRelays = true;
 
 const int led = 2;//o
 const int callForHeat = 4; //o
-const int soundAlarmReset = 5;//i
-const int cpuStdbyRelay = 18;//o
-const int cpuStdby = 19;//i
-const int soundAlarm = 25;//o
-const int waterPump = 26;//o
-const int boiler = 27;//o
-const int manualReport = 32;//i
-const int manualConfig = 33;//i
+const int soundAlarmReset = 5;//i CALLFORHEAT
+const int cpuStdbyRelay = 18;//o ??????
+const int cpuStdby = 19;//o ??????
+const int soundAlarm = 25;//o SOUNDALARM
+const int waterPump = 26;//o WATERPUMP RELAY
+const int boiler = 27;//o BURNER RELAY
+const int manualReport = 32;//i PB1
+const int manualConfig = 33;//i PB2
 
 const int count = 0;
 bool cpuStdbyFlag = false;
@@ -113,18 +113,18 @@ int status = WL_IDLE_STATUS;
 // ------------------------------------------------------------------------------------------
 
 
-MCP9600 Oth;
-MCP9600 Wtr;
-MCP9600 Blr;
+MCP9600 Oth; // OTHER THERMOCOUPLE
+MCP9600 Wtr; // WATER THERMOCOUPLE
+MCP9600 Blr; // BOILER THERMOCOUPLE
 
 
 //------------------------------------------------------------------------------------------
 //
-Adafruit_SSD1306 waterDsp(-1);
-Adafruit_SSD1306 boilerDsp(-1);
+Adafruit_SSD1306 waterDsp(-1); // OLEB ?????
+Adafruit_SSD1306 boilerDsp(-1); //OLED ?????
 
-#define OLED1 0x3C
-#define OLED2 0x3D
+#define OLED1 0x3C // OLED 1
+#define OLED2 0x3D // OLED 2
 
 
 
@@ -147,7 +147,8 @@ auto updateDisplay() -> void;
 void setup() {
 
     Wire.begin();
-  
+	
+  // Begin Thermocouples
     Wtr.begin(0x060);
     Blr.begin(0x061);
     Oth.begin(0x067);
@@ -167,36 +168,30 @@ void setup() {
     digitalWrite(led, LOW);
 
   // ????????????????????????
-    pinMode(callForHeat, INPUT);
+    pinMode(callForHeat, INPUT);  // i PIN 4
 
-    //pinMode(callForHeat, OUTPUT);
-    //digitalWrite(callForHeat, LOW);
-
-    pinMode(soundAlarmReset, OUTPUT);
+    pinMode(soundAlarmReset, OUTPUT); // o PIN 5
     digitalWrite(soundAlarmReset, LOW);
 
-    pinMode(cpuStdbyRelay, OUTPUT);
+    pinMode(cpuStdbyRelay, OUTPUT);  // o PIN 18
     digitalWrite(cpuStdbyRelay, LOW);
 
-    pinMode(cpuStdby, OUTPUT);
+    pinMode(cpuStdby, OUTPUT); // o PIN 19
     digitalWrite(cpuStdby, LOW);
 
-    pinMode(soundAlarm, OUTPUT);
+    pinMode(soundAlarm, OUTPUT); // o PIN 25
     digitalWrite(soundAlarm, LOW);
 
-    pinMode(waterPump, OUTPUT);
+    pinMode(waterPump, OUTPUT); // o PIN 26
     digitalWrite(waterPump, LOW);
 
-    //pinMode(waterPump, OUTPUT);
-    //digitalWrite(waterPump, LOW);
-
-    pinMode(boiler, OUTPUT);
+    pinMode(boiler, OUTPUT); // o PIN 27
     digitalWrite(boiler, HIGH);
   
-    pinMode(manualReport, OUTPUT);
+    pinMode(manualReport, OUTPUT); // o PIN 32
     digitalWrite(manualReport, LOW);
   
-    pinMode(manualConfig, OUTPUT);
+    pinMode(manualConfig, OUTPUT); // o PIN 33
     digitalWrite(manualConfig, LOW);
   
 
@@ -326,6 +321,8 @@ void loop() {
 auto opCycle() -> void
 {
     ArduinoOTA.handle();
+    timeClient.update();
+	
     updateDisplay();
   
     
@@ -383,6 +380,7 @@ auto opCycle() -> void
 auto waterCycle() -> void
 {
     ArduinoOTA.handle();
+    timeClient.update();
   
   if (activeMode == "active"|| activeMode == "stdby")
   {
@@ -398,6 +396,8 @@ auto waterCycle() -> void
 auto burnCycle() -> void
 {
     ArduinoOTA.handle();
+    timeClient.update();
+	
     updateDisplay();
   
     waterTemp = ((Wtr.getThermocoupleTemp() * 9 / 5) + 32);
@@ -408,6 +408,9 @@ auto burnCycle() -> void
       
         // go to high
         while (waterTemp < tHigh) {
+        	
+            ArduinoOTA.handle();
+            timeClient.update();
           
             ArduinoOTA.handle();
             updateDisplay();
@@ -423,7 +426,10 @@ auto burnCycle() -> void
             waterTemp = ((Wtr.getThermocoupleTemp() * 9 / 5) + 32);
             while (waterTemp > waterTempPrev) // while water temp still rising
             {
+            	
                 ArduinoOTA.handle();
+                timeClient.update();
+            	
                 updateDisplay();
               
                 waterTempPrev = waterTemp;
@@ -438,6 +444,7 @@ auto burnCycle() -> void
 auto updateDisplay() -> void
 {
     ArduinoOTA.handle();
+    timeClient.update();
 
 
     // (26°C × 9/5) + 32 = 78.8°F 
@@ -451,6 +458,7 @@ auto updateDisplay() -> void
 
     String title = "HeatShield - PID";
     //title = title + version;
+	
     waterDsp.setTextSize(1);
     waterDsp.clearDisplay();
     waterDsp.setTextColor(WHITE);
