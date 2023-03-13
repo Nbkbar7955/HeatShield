@@ -401,8 +401,13 @@ auto burnCycle() -> void
 	ArduinoOTA.handle();
 	timeClient.update();
 
+	blueTemp = ((blueThermocouple.getThermocoupleTemp() * 9 / 5) + 32);
+	yellowTemp = ((yellowThermocouple.getThermocoupleTemp() * 9 / 5) + 32);
+	purpleTmp = ((purpleThermocouple.getThermocoupleTemp() * 9 / 5) + 32);
+
 	updateDisplay();
-	
+
+	// PIDMODE Expensive!!
 	if (PIDMODE)
 	{
 		while (blueTemp < highTemperature) {
@@ -410,14 +415,18 @@ auto burnCycle() -> void
 			ArduinoOTA.handle();
 			timeClient.update();
 			
-			digitalWrite(yellowRelay, HIGH);
-			digitalWrite(blueRelay, HIGH);
+			digitalWrite(yellowRelay, HIGH);// burner on
+			digitalWrite(blueRelay, HIGH);// waterpump on
 
 			blueTemp = ((blueThermocouple.getThermocoupleTemp() * 9 / 5) + 32);
-
+			
+			updateDisplay();
 		}
 		
-		return;
+		digitalWrite(yellowRelay, LOW);// burner off
+		
+		delay(300000); // 5 mins
+		digitalWrite(blueRelay, LOW); //waterpump off
 	}
 
 	
