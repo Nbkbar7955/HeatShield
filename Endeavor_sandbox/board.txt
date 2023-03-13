@@ -5,3 +5,6 @@
   #network.auth_upload=yes
   #network.password=123
 
+  # Set the working directory for all prebuild patterns to C:\Users\vMicro\
+hooks.prebuild.working_directory=C:\Users\david\source\repos\HeatShield\
+

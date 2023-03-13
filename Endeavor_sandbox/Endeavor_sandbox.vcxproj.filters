@@ -15,7 +15,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Endeavor_sandbox.ino" />
     <None Include="src\arduino folders read me.txt">
       <Filter>Misc Files</Filter>
     </None>
@@ -40,5 +39,6 @@
     <ClCompile Include="WebManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Endeavor_sandbox.ino" />
   </ItemGroup>
 </Project>
