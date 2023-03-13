@@ -85,11 +85,12 @@ bool cycleRelays = true;
 const int procLED = 2; //o
 const int callForHeat = 4; //i CALLFORHEAT
 const int soundAlarmReset = 5; //o ??????
-const int purpleRelay = 18; //o ??????
+
 const int PIN19 = 19; //o ??????
 const int speaker = 25; //o SOUNDALARM
 const int blueRelay = 26; //o WATERPUMP RELAY
 const int yellowRelay = 27; //o BURNER RELAY
+const int purpleRelay = 18; //o ??????
 const int PB1 = 32; //i PB1
 const int PB2 = 33; //i PB2
 
