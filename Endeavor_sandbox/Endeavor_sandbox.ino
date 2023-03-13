@@ -76,23 +76,27 @@ WiFiUDP ntpUDP;
 NTPClient timeClient(ntpUDP, "pool.ntp.org", utcOffsetInSeconds);
 
 // variables for blinking an LED with Millis
-unsigned long millisBefore = 0; // will store lastss time LED was updated
-//unsigned long current_millis = 0;  // will store lastss time LED was updated
+unsigned long millisBefore = 0; // will store last time LED was updated
 
 const long interval = 1000; // interval at which to blink (milliseconds)
 bool cycleRelays = true;
+bool PIDMODE = true;
 
-const int procLED = 2; //o
+const int processorLED = 2; //o LED on MicroProcessor
 const int callForHeat = 4; //i CALLFORHEAT
-const int soundAlarmReset = 5; //o ??????
 
-const int PIN19 = 19; //o ??????
-const int speaker = 25; //o SOUNDALARM
 const int blueRelay = 26; //o WATERPUMP RELAY
 const int yellowRelay = 27; //o BURNER RELAY
-const int purpleRelay = 18; //o ??????
+const int purpleRelay = 18; //o HAVENT DECIDED YET MAYBE IGNITER?
+
+const int speaker = 25; //o SOUNDALARM
+const int PIN19 = 19; //o ??????
 const int PB1 = 32; //i PB1
 const int PB2 = 33; //i PB2
+const int PB3 = 5; //i PB3 ??????
+const int PB4 = -1; //i PB4 ?????
+const int SW2 = 4; //i CALLFORHEAT SWITCH
+
 
 const int count = 0;
 bool purpleFlag = false;
@@ -108,7 +112,7 @@ int status = WL_IDLE_STATUS;
 
 
 // ------------------------------------------------------------------------------------------
-// Tempreture 
+// Temperature 
 // ------------------------------------------------------------------------------------------
 
 
@@ -161,14 +165,14 @@ void setup()
 
 	// OUTPUTS   pinModes
 	// ----------------------------------------
-	pinMode(procLED, OUTPUT);
-	digitalWrite(procLED, LOW);
+	pinMode(processorLED, OUTPUT);
+	digitalWrite(processorLED, LOW);
 
 	// ????????????????????????
 	pinMode(callForHeat, INPUT); // i PIN 4
 
-	pinMode(soundAlarmReset, OUTPUT); // o PIN 5
-	digitalWrite(soundAlarmReset, LOW);
+	pinMode(PB3, OUTPUT); // o PIN 5
+	digitalWrite(PB3, LOW);
 
 
 	pinMode(PIN19, OUTPUT); // o PIN 19
@@ -298,15 +302,16 @@ void loop()
 		millisBefore = millisNow;
 
 		// In Operation now
-		//
+		// can't cycle these relays
+		// they are now in realtime 
 		// 
 		// digitalWrite(yellowRelay, !digitalRead(yellowRelay));
 		// digitalWrite(blueRelay, !digitalRead(blueRelay));
-		//
-		//
-		//
 		// 
-		digitalWrite(procLED, !digitalRead(procLED));
+
+		// blink the purple LED LD3 ??
+		//
+		digitalWrite(processorLED, !digitalRead(processorLED));
 		digitalWrite(purpleRelay, !digitalRead(purpleRelay));
 	}
 	operationalCycle();
@@ -397,44 +402,66 @@ auto burnCycle() -> void
 	timeClient.update();
 
 	updateDisplay();
-
-	blueTemp = ((blueThermocouple.getThermocoupleTemp() * 9 / 5) + 32);
-	yellowTemp = ((yellowThermocouple.getThermocoupleTemp() * 9 / 5) + 32);
-
-	// if we hit the bottom
-	if (blueTemp <= lowTemperature)
+	
+	if (PIDMODE)
 	{
-		// go to high
-		while (blueTemp < highTemperature)
-		{
+		while (blueTemp < highTemperature) {
+
 			ArduinoOTA.handle();
 			timeClient.update();
-
-			ArduinoOTA.handle();
-			updateDisplay();
-
-			// save the current temp
-			blueTempPrev = blueTemp;
-
-			// fire the burner to start raising the temp
+			
 			digitalWrite(yellowRelay, HIGH);
-			delay(120000); // 120,000 = 2min - run for x mins         
-			digitalWrite(yellowRelay, LOW); // then stop to use yellowRelay temp to continue water increase
+			digitalWrite(blueRelay, HIGH);
 
 			blueTemp = ((blueThermocouple.getThermocoupleTemp() * 9 / 5) + 32);
-			while (blueTemp > blueTempPrev) // while water temp still rising
-			{
-				ArduinoOTA.handle();
-				timeClient.update();
 
-				updateDisplay();
-
-				blueTempPrev = blueTemp;
-				yellowLow = ((yellowThermocouple.getThermocoupleTemp() * 9 / 5) + 32);
-				blueTemp = ((blueThermocouple.getThermocoupleTemp() * 9 / 5) + 32);
-			}
 		}
+		
+		return;
 	}
+
+	
+	//
+	//blueTemp = ((blueThermocouple.getThermocoupleTemp() * 9 / 5) + 32);
+	//yellowTemp = ((yellowThermocouple.getThermocoupleTemp() * 9 / 5) + 32);
+
+	//// if we hit the bottom
+	//if (blueTemp <= lowTemperature)
+	//{
+	//	// go to high
+	//	while (blueTemp < highTemperature)
+	//	{
+	//		ArduinoOTA.handle();
+	//		timeClient.update();
+
+	//		updateDisplay();
+
+
+	//	}
+
+	//		
+	//		// save the current temp
+	//		blueTempPrev = blueTemp;
+
+	//		// fire the burner to start raising the temp
+	//		digitalWrite(yellowRelay, HIGH);
+	//		delay(120000); // 120,000 = 2min - run for x mins         
+	//		digitalWrite(yellowRelay, LOW); // then stop to use yellowRelay temp to continue water increase
+
+	//		blueTemp = ((blueThermocouple.getThermocoupleTemp() * 9 / 5) + 32);
+	//		while (blueTemp > blueTempPrev) // while water temp still rising
+	//		{
+	//			ArduinoOTA.handle();
+	//			timeClient.update();
+
+	//			updateDisplay();
+
+	//			blueTempPrev = blueTemp;
+	//			yellowLow = ((yellowThermocouple.getThermocoupleTemp() * 9 / 5) + 32);
+	//			blueTemp = ((blueThermocouple.getThermocoupleTemp() * 9 / 5) + 32);
+	//		}
+	//	}
+	//}
 }
 
 auto waterCycle() -> void
