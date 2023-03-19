@@ -31,14 +31,14 @@ int yellowLow = 0;
 
 String activeMode = "active";
 
-float highTemperature = 150;
-float lowTemperature = 120;
+float highTemperature = 145;
+float lowTemperature = 125;
 
-float highActiveTemperature = 150;
-float lowActiveTemperature = 120;
+float highActiveTemperature = 145;
+float lowActiveTemperature = 125;
 
-float highStdbyTemperature = 130;
-float lowStdbyTemperature = 110;
+float highStdbyTemperature = 145;
+float lowStdbyTemperature = 125;
 
 float highInactiveTemperature = 115;
 float lowInactiveTemperature = 95;
