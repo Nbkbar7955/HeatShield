@@ -93,7 +93,7 @@ const long interval = 2500; // interval at which to blink (milliseconds)
 // my vars
 
 bool PIDMODE = true;
-bool shutdown = true;
+bool shutdown = false;
 bool startupIndicator = true;
 
 
@@ -519,7 +519,7 @@ auto updateDisplay() -> void
 	waterDsp.println("w: " + wt);
 
 	waterDsp.setCursor(50, 11);
-	waterDsp.println(" -|-  b: " + bt);
+	waterDsp.println(" b: " + bt);
 
 	waterDsp.setCursor(22, 21);
 	waterDsp.println("-> e: " + ev);
