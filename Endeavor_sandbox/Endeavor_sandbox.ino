@@ -376,12 +376,11 @@ auto activeCycle() -> void
 		digitalWrite(waterRelay, HIGH); // waterpump on
 
 		blueTemp = ((Wtr.getThermocoupleTemp() * 9 / 5) + 32);
-
 		updateDisplay();
-
-		coolDownCycle();
 	}
+
 	digitalWrite(burnerRelay, LOW); // burner off
+	coolDownCycle();
 
 	updateDisplay();
 }
@@ -397,6 +396,8 @@ auto coolDownCycle() -> void
 	{
 		ArduinoOTA.handle();
 		timeClient.update();
+
+		if (checkCallForHeat()) return;
 
 		digitalWrite(burnerRelay, LOW); // burner off
 		digitalWrite(waterRelay, HIGH); // waterpump on
@@ -423,7 +424,7 @@ auto updateDisplay() -> void
 	String ev = String(otherTmp);
 
 
-	String title = "M:" + Mode + "F:" + currentFunction;
+	String title = "M:" + Mode + " F:" + currentFunction;
 
 	waterDsp.setTextSize(1);
 	waterDsp.clearDisplay();
@@ -438,13 +439,15 @@ auto updateDisplay() -> void
 	waterDsp.setCursor(50, 11);
 	waterDsp.println(" b:" + bt);
 
-	waterDsp.setCursor(22, 21);
+	waterDsp.setCursor(11, 22);
 	waterDsp.println("e:" + ev);
 
 	waterDsp.display();
 
 	// ==============================================
 
+	title = "TH:" + String(highTemperature) + " TL:" + String(lowTemperature);
+	
 	boilerDsp.setTextSize(1);
 	boilerDsp.clearDisplay();
 	boilerDsp.setTextColor(WHITE);
@@ -459,7 +462,7 @@ auto updateDisplay() -> void
 	boilerDsp.println("b:" + bt);
 
 	boilerDsp.setCursor(50, 22);
-	boilerDsp.println("e:" + ev);
+	boilerDsp.println(" e:" + ev);
 
 	boilerDsp.display();
 
@@ -468,15 +471,15 @@ auto updateDisplay() -> void
 
 auto checkCallForHeat() -> bool
 {
+	ArduinoOTA.handle();
+	timeClient.update();
+	
 	if (digitalRead(callForHeat) == HIGH)
 	{
 		Mode = active;
 		return true;
 	}
-	else
-	{
-		return false;
-	}
+	return false;
 }
 
 auto stdbyCycle() -> void
@@ -502,12 +505,8 @@ auto stdbyCycle() -> void
 		ArduinoOTA.handle();
 		timeClient.update();
 
-		if (checkCallForHeat())
-		{
-			Mode = active;
-			updateDisplay();
-			exit(0);
-		}
+		if (checkCallForHeat()) return;
+		
 		
 		digitalWrite(burnerRelay, HIGH); // burner on
 		digitalWrite(waterRelay, HIGH); // waterpump on
