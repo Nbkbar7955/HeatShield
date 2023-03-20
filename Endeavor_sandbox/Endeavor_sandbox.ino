@@ -533,8 +533,6 @@ auto updateDisplay() -> void
 	String wt = String(waterTemp);
 	String bt = String(boilerTemp);
 	String ev = String(otherTmp);
-
-
 	
 
 	String title = "HeatShield d1 ";
@@ -554,14 +552,13 @@ auto updateDisplay() -> void
 	waterDsp.println(" b: " + bt);
 
 	waterDsp.setCursor(22, 21);
-	waterDsp.println("-> e: " + ev);
+	waterDsp.println("e: " + ev);
 
 	waterDsp.display();
 
 	// ==============================================
 
 	title = "HeatShield d2 ";
-	title = title + version;
 
 	boilerDsp.setTextSize(1);
 	boilerDsp.clearDisplay();
@@ -573,11 +570,11 @@ auto updateDisplay() -> void
 	boilerDsp.setCursor(11, 11);
 	boilerDsp.println("w: " + wt);
 
-	boilerDsp.setCursor(50, 11);
-	boilerDsp.println(" -|-  b: " + bt);
+	boilerDsp.setCursor(11, 22);
+	boilerDsp.println("b: " + bt);
 
-	boilerDsp.setCursor(22, 21);
-	boilerDsp.println("-> e: " + ev);
+	boilerDsp.setCursor(11, 33);
+	boilerDsp.println("e: " + ev);
 
 	boilerDsp.display();
 
@@ -599,7 +596,8 @@ auto stdbyCycle() -> void
 	yellowTemp = ((Blr.getThermocoupleTemp() * 9 / 5) + 32);
 	purpleTmp = ((Evr.getThermocoupleTemp() * 9 / 5) + 32);
 
-
+	updateDisplay();
+	
 	while (blueTemp <= highTemperature) {
 
 		ArduinoOTA.handle();
@@ -611,10 +609,14 @@ auto stdbyCycle() -> void
 		blueTemp = ((Wtr.getThermocoupleTemp() * 9 / 5) + 32);
 
 		updateDisplay();
-
-		return;
 	}
+	digitalWrite(waterRelay, LOW);// waterpump off
+
+	updateDisplay();
 }
-auto waterCycle() -> String {}
+auto waterCycle() -> String 
+{
+}
+
 auto inactiveCycle() -> void {}
 auto shutdownCycle() -> void {}
