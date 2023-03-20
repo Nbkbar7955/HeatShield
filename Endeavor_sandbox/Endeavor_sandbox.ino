@@ -25,17 +25,12 @@
 //------------------------------------------------------------------------------------------
 // Operational Vars
 
-String version = "0.7";
-
-int yellowLow = 0;
-
 String callForHeatVar = "active";
 String active = "active";
 String stdby = "stdby";
 String inactive = "inactive";
-String shutdown = "shutdown";
 
-String activeMode = active;
+String activeMode = stdby;
 
 
 float highActiveTemperature = 160;
@@ -49,9 +44,6 @@ float lowStdbyTemperature = 105;
 
 float highInactiveTemperature = 105;
 float lowInactiveTemperature = 95;
-
-float highOffTemperature = 95;
-float lowOffTemperature = 65;
 
 float tmpBlue = 0;
 float tmpYellow = 0;
@@ -99,9 +91,6 @@ const long interval = 2500; // interval at which to blink (milliseconds)
 //======================================================================================
 //======================================================================================
 // my glob vars
-
-
-bool startupIndicator = false;
 
 
 // $$$
@@ -170,7 +159,7 @@ auto shutdownCycle() -> void;
 auto operationalCycle() -> void;
 auto updateDisplay() -> void;
 auto coolDownCycle() -> void;
-auto waterCycle()->String;
+auto waterCycle() -> String;
 
 
 ///------------------------------------------------------------------------------------------
@@ -187,7 +176,7 @@ void setup()
 	Wtr.begin(0x060);
 	Blr.begin(0x061);
 	Evr.begin(0x067);
-	
+
 	waterDsp.begin(SSD1306_SWITCHCAPVCC, OLED1);
 	waterDsp.clearDisplay();
 	waterDsp.display();
@@ -195,7 +184,7 @@ void setup()
 	boilerDsp.begin(SSD1306_SWITCHCAPVCC, OLED2);
 	boilerDsp.clearDisplay();
 	boilerDsp.display();
-	
+
 	// OUTPUTS   pinModes
 	// ----------------------------------------
 	pinMode(processorLED, OUTPUT);
@@ -224,7 +213,7 @@ void setup()
 
 	pinMode(PB2, OUTPUT); // o PIN 33
 	digitalWrite(PB2, LOW);
-	
+
 	pinMode(PB3, OUTPUT); // o PIN 5
 	digitalWrite(PB3, LOW);
 
@@ -257,7 +246,7 @@ void setup()
 	// MD5(admin) = 21232f297a57a5a743894a0e4a801fc3
 	// ArduinoOTA.setPasswordHash("21232f297a57a5a743894a0e4a801fc3");
 
-	
+
 	// Set your Static IP address
 	//IPAddress local_IP(192, 168, 0, 30);
 	// Set your Gateway IP address
@@ -303,10 +292,6 @@ void setup()
 
 	timeClient.begin();
 
-
-	digitalWrite(purpleRelay, HIGH);
-	delay(30000); // 30 sec pause before start
-	digitalWrite(purpleRelay, LOW);
 }
 
 
@@ -317,7 +302,7 @@ void setup()
 /////------------------------------------------------------------------------------------------
 
 void loop()
-{	
+{
 	ArduinoOTA.handle();
 	timeClient.update();
 
@@ -326,50 +311,18 @@ void loop()
 	//------------------------------------------------------------------------------------------
 	//------------------------------------------------------------------------------------------
 
-		// startup indicator
-	if(startupIndicator)
-	{
-		startupIndicator = false;
 
-		/*
-		for (int ndx = 0; ndx <= 5; ndx++)
-		{
-			ArduinoOTA.handle();
-			timeClient.update();
-			
-			digitalWrite(purpleRelay, HIGH);
-			delay(350);
-			digitalWrite(purpleRelay, LOW);
-			delay(350);
-		}
-		*/
-
-	}
-
-//------------------------------------------------------------------------------------------
-//------------------------------------------------------------------------------------------
+	//------------------------------------------------------------------------------------------
+	//------------------------------------------------------------------------------------------
 	// MY STARTUP CODE ABOVE Code Above
 	// OP Code Below
-//------------------------------------------------------------------------------------------
-//------------------------------------------------------------------------------------------
-//
+	//------------------------------------------------------------------------------------------
+	//------------------------------------------------------------------------------------------
+	//
 	updateDisplay();
-
-	if (shutdown)
-	{
-		digitalWrite(purpleRelay, HIGH);
-		delay(750);
-		
-		digitalWrite(purpleRelay, LOW);
-		delay(750);
-
-		updateDisplay();
-		
-	}
-	else 
-	{
+	
 		operationalCycle();
-	}
+	
 
 	// Code Above
 	//------------------------------------------------------------------------------------------
@@ -396,8 +349,7 @@ auto operationalCycle() -> void
 	// //
 	if (digitalRead(callForHeat) == HIGH)
 	{
-		
-		activeMode = callForHeatVar;
+		activeMode = active;
 	}
 	else
 	{
@@ -413,32 +365,36 @@ auto operationalCycle() -> void
 		lowTemperature = lowActiveTemperature;
 
 		digitalWrite(waterRelay, HIGH); // heat up house wateralways on incall for heat
+		
+		burnCycle();
+		coolDownCycle();
 	}
-	else
-	{
-		if (activeMode == stdby)
-		{
-			stdbyCycle();
-		}
-		else
-		{
-			if (activeMode == inactive)
-			{
-				inactiveCycle();
-			}
-			
-			else
-			{
-				shutdownCycle();
-			}
-		}
-	}
-	// -------------------------------------------------------------------------------------
 
-	burnCycle();
-	coolDownCycle();
+	if (activeMode == stdby)
+	{
+		stdbyCycle();
+	}
+	
+	if (activeMode == inactive)
+	{
+		inactiveCycle();
+	}
+	if (activeMode == stdby)
+	{
+		stdbyCycle();
+		return;
+	}
+
+	if (activeMode == inactive)
+	{
+		inactiveCycle();
+		return;
+	}
+	
 
 }
+
+// -------------------------------------------------------------------------------------
 
 
 // ------------------------------------------------------------------------------------------
@@ -457,44 +413,26 @@ auto burnCycle() -> void
 	yellowTemp = ((Blr.getThermocoupleTemp() * 9 / 5) + 32);
 	purpleTmp = ((Evr.getThermocoupleTemp() * 9 / 5) + 32);
 
-	if (activeMode == active) {
-		while (blueTemp <= highTemperature) {
-
+	if (activeMode == active)
+	{
+		while (blueTemp <= highTemperature)
+		{
 			ArduinoOTA.handle();
 			timeClient.update();
 
-			digitalWrite(burnerRelay, HIGH);// burner on
-			digitalWrite(waterRelay, HIGH);// waterpump on
+			digitalWrite(burnerRelay, HIGH); // burner on
+			digitalWrite(waterRelay, HIGH); // waterpump on
 
 			blueTemp = ((Wtr.getThermocoupleTemp() * 9 / 5) + 32);
 
 			updateDisplay();
 		}
-		return;
 	}
 
-	if (activeMode == stdby)
-	{
-		stdbyCycle();
-		return;
-	}
-
-	if (activeMode == inactive)
-	{
-		inactiveCycle();
-		return;
-	}
-	if (activeMode == shutdown)
-	{
-		shutdownCycle();
-		return;
-	}
-
-	
 	ArduinoOTA.handle();
 	timeClient.update();
-	
-	digitalWrite(burnerRelay, LOW);// burner off
+
+	digitalWrite(burnerRelay, LOW); // burner off
 
 	updateDisplay();
 }
@@ -504,14 +442,14 @@ auto coolDownCycle() -> void
 	ArduinoOTA.handle();
 	timeClient.update();
 
-	while (blueTemp >= lowTemperature) {
-
+	while (blueTemp >= lowTemperature)
+	{
 		ArduinoOTA.handle();
 		timeClient.update();
-		
-		digitalWrite(burnerRelay, LOW);// burner off
-		digitalWrite(waterRelay, HIGH);// waterpump on
-		
+
+		digitalWrite(burnerRelay, LOW); // burner off
+		digitalWrite(waterRelay, HIGH); // waterpump on
+
 		blueTemp = ((Wtr.getThermocoupleTemp() * 9 / 5) + 32);
 
 		updateDisplay();
@@ -521,10 +459,9 @@ auto coolDownCycle() -> void
 
 auto updateDisplay() -> void
 {
-
 	ArduinoOTA.handle();
 	timeClient.update();
-	
+
 	// (26°C × 9/5) + 32 = 78.8°F 
 	waterTemp = ((Wtr.getThermocoupleTemp() * 9 / 5) + 32);
 	boilerTemp = ((Blr.getThermocoupleTemp() * 9 / 5) + 32);
@@ -533,9 +470,9 @@ auto updateDisplay() -> void
 	String wt = String(waterTemp);
 	String bt = String(boilerTemp);
 	String ev = String(otherTmp);
-	
 
-	String title = "HeatShield M: " + activeMode;
+
+	String title = "Mode:" + activeMode;
 
 	waterDsp.setTextSize(1);
 	waterDsp.clearDisplay();
@@ -545,13 +482,13 @@ auto updateDisplay() -> void
 	waterDsp.println(title);
 
 	waterDsp.setCursor(11, 11);
-	waterDsp.println("w: " + wt);
+	waterDsp.println("w:" + wt);
 
 	waterDsp.setCursor(50, 11);
-	waterDsp.println(" b: " + bt);
+	waterDsp.println(" b:" + bt);
 
 	waterDsp.setCursor(22, 21);
-	waterDsp.println("e: " + ev);
+	waterDsp.println("e:" + ev);
 
 	waterDsp.display();
 
@@ -565,18 +502,17 @@ auto updateDisplay() -> void
 	boilerDsp.println(title);
 
 	boilerDsp.setCursor(11, 11);
-	boilerDsp.println("w: " + wt);
+	boilerDsp.println("w:" + wt);
 
 	boilerDsp.setCursor(11, 22);
-	boilerDsp.println("b: " + bt);
+	boilerDsp.println("b:" + bt);
 
-	boilerDsp.setCursor(11, 33);
-	boilerDsp.println("e: " + ev);
+	boilerDsp.setCursor(50, 22);
+	boilerDsp.println("e:" + ev);
 
 	boilerDsp.display();
 
 	// ==============================================
-	
 }
 
 auto stdbyCycle() -> void
@@ -586,34 +522,41 @@ auto stdbyCycle() -> void
 
 	highTemperature = highStdbyTemperature;
 	lowTemperature = highStdbyTemperature;
-	
-	digitalWrite(waterRelay, LOW);// waterpump off
+
+	digitalWrite(waterRelay, LOW); // waterpump off
 
 	blueTemp = ((Wtr.getThermocoupleTemp() * 9 / 5) + 32);
 	yellowTemp = ((Blr.getThermocoupleTemp() * 9 / 5) + 32);
 	purpleTmp = ((Evr.getThermocoupleTemp() * 9 / 5) + 32);
 
 	updateDisplay();
-	
-	while (blueTemp <= highTemperature) {
 
+	while (blueTemp <= highTemperature)
+	{
 		ArduinoOTA.handle();
 		timeClient.update();
 
-		digitalWrite(burnerRelay, HIGH);// burner on
-		digitalWrite(waterRelay, HIGH);// waterpump on
+		digitalWrite(burnerRelay, HIGH); // burner on
+		digitalWrite(waterRelay, HIGH); // waterpump on
 
 		blueTemp = ((Wtr.getThermocoupleTemp() * 9 / 5) + 32);
 
 		updateDisplay();
 	}
-	digitalWrite(waterRelay, LOW);// waterpump off
-
+	digitalWrite(waterRelay, LOW); // waterpump off
+	coolDownCycle();
+	
 	updateDisplay();
 }
-auto waterCycle() -> String 
+
+auto waterCycle() -> String
 {
 }
 
-auto inactiveCycle() -> void {}
-auto shutdownCycle() -> void {}
+auto inactiveCycle() -> void
+{
+}
+
+auto shutdownCycle() -> void
+{
+}
