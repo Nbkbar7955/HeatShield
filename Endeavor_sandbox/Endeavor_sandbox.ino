@@ -170,7 +170,7 @@ auto shutdownCycle() -> void;
 auto operationalCycle() -> void;
 auto updateDisplay() -> void;
 auto coolDownCycle() -> void;
-
+auto waterCycle()->String;
 
 
 ///------------------------------------------------------------------------------------------
@@ -585,6 +585,36 @@ auto updateDisplay() -> void
 	
 }
 
-auto stdbyCycle() -> void {}
+auto stdbyCycle() -> void
+{
+	ArduinoOTA.handle();
+	timeClient.update();
+
+	highTemperature = highStdbyTemperature;
+	lowTemperature = highStdbyTemperature;
+	
+	digitalWrite(waterRelay, LOW);// waterpump off
+
+	blueTemp = ((Wtr.getThermocoupleTemp() * 9 / 5) + 32);
+	yellowTemp = ((Blr.getThermocoupleTemp() * 9 / 5) + 32);
+	purpleTmp = ((Evr.getThermocoupleTemp() * 9 / 5) + 32);
+
+
+	while (blueTemp <= highTemperature) {
+
+		ArduinoOTA.handle();
+		timeClient.update();
+
+		digitalWrite(burnerRelay, HIGH);// burner on
+		digitalWrite(waterRelay, HIGH);// waterpump on
+
+		blueTemp = ((Wtr.getThermocoupleTemp() * 9 / 5) + 32);
+
+		updateDisplay();
+
+		return;
+	}
+}
+auto waterCycle() -> String {}
 auto inactiveCycle() -> void {}
 auto shutdownCycle() -> void {}
