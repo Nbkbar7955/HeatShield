@@ -91,7 +91,7 @@ const long interval = 2500; // interval at which to blink (milliseconds)
 
 //======================================================================================
 //======================================================================================
-// my glob vars
+// my globs
 
 
 // $$$
@@ -133,21 +133,17 @@ int status = WL_IDLE_STATUS;
 // ------------------------------------------------------------------------------------------
 //
 
-
 MCP9600 Evr;
 MCP9600 Wtr;
 MCP9600 Blr;
 
-
 //------------------------------------------------------------------------------------------
-
 
 Adafruit_SSD1306 waterDsp(-1);
 Adafruit_SSD1306 boilerDsp(-1);
 
 #define OLED1 0x3C // OLED 1
 #define OLED2 0x3D // OLED 2
-
 
 // Prototypes
 ///------------------------------------------------------------------------------------------
@@ -180,7 +176,7 @@ void setup()
 	Blr.begin(0x061);
 	Evr.begin(0x067);
 
-	waterDsp.begin(SSD1306_SWITCHCAPVCC, OLED1);
+	waterDsp.begin(SSD1306_SWITCHCAPVCC, auto OLED1);
 	waterDsp.clearDisplay();
 	waterDsp.display();
 
