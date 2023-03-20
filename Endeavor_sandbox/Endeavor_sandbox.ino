@@ -419,9 +419,9 @@ auto updateDisplay() -> void
 	boilerTemp = ((Blr.getThermocoupleTemp() * 9 / 5) + 32);
 	otherTmp = ((Evr.getThermocoupleTemp() * 9 / 5) + 32);
 
-	String wt = String(waterTemp);
-	String bt = String(boilerTemp);
-	String ev = String(otherTmp);
+	const String wt = String(waterTemp);
+	const String bt = String(boilerTemp);
+	const String ev = String(otherTmp);
 
 
 	String title = "M:" + Mode + " F:" + currentFunction;
@@ -523,12 +523,6 @@ auto stdbyCycle() -> void
 
 auto waterCycle() -> String
 {
-}
+	return "";
 
-auto inactiveCycle() -> void
-{
-}
-
-auto shutdownCycle() -> void
-{
 }
