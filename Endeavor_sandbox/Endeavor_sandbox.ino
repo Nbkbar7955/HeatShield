@@ -29,6 +29,7 @@ String version = "0.7";
 
 int yellowLow = 0;
 
+String callForHeat = "active";
 String active = "active";
 String stdby = "stdby";
 String inactive = "inactive";
@@ -395,7 +396,8 @@ auto operationalCycle() -> void
 	// //
 	if (digitalRead(callForHeat) == HIGH)
 	{
-		activeMode = active;
+		
+		activeMode = callForheat;
 	}
 	else
 	{
@@ -584,3 +586,7 @@ auto updateDisplay() -> void
 	// ==============================================
 	
 }
+
+auto stdbyCycle() -> void {}
+auto inactiveCycle() -> void {}
+auto shutdownCycle() -> void {}
