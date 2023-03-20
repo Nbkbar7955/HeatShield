@@ -29,18 +29,24 @@ String version = "0.7";
 
 int yellowLow = 0;
 
-String activeMode = "active";
+String active = "active";
+String stdby = "stdby";
+String inactive = "inactive";
+String shutdown = "shutdown";
 
-float highTemperature = 145;
-float lowTemperature = 125;
+String activeMode = active;
 
-float highActiveTemperature = 145;
-float lowActiveTemperature = 125;
 
-float highStdbyTemperature = 145;
-float lowStdbyTemperature = 125;
+float highActiveTemperature = 160;
+float lowActiveTemperature = 130;
 
-float highInactiveTemperature = 115;
+float highTemperature = highActiveTemperature;
+float lowTemperature = lowActiveTemperature;
+
+float highStdbyTemperature = 125;
+float lowStdbyTemperature = 105;
+
+float highInactiveTemperature = 105;
 float lowInactiveTemperature = 95;
 
 float highOffTemperature = 95;
@@ -60,8 +66,10 @@ float otherTempPrev = 0;
 
 float blueTemp = 0;
 float blueTempPrev = 0;
+
 float yellowTemp = 0;
 float yellowTempPrev = 0;
+
 float purpleTmp = 0;
 float purpleTempPrev = 0;
 
@@ -85,16 +93,14 @@ NTPClient timeClient(ntpUDP, "pool.ntp.org", utcOffsetInSeconds);
 
 // variables for blinking an LED with Millis
 unsigned long millisBefore = 0; // will store last time LED was updated
-
 const long interval = 2500; // interval at which to blink (milliseconds)
 
 //======================================================================================
 //======================================================================================
-// my vars
+// my glob vars
 
-bool PIDMODE = true;
-bool shutdown = false;
-bool startupIndicator = true;
+
+bool startupIndicator = false;
 
 
 // $$$
@@ -105,8 +111,8 @@ bool startupIndicator = true;
 const int processorLED = 2; //o LED on MicroProcessor
 const int callForHeat = 4; //i CALLFORHEAT
 
-const int blueRelay = 26; //o WATERPUMP RELAY
-const int yellowRelay = 27; //o BURNER RELAY
+const int waterRelay = 26; //o WATERPUMP RELAY
+const int burnerRelay = 27; //o BURNER RELAY
 const int purpleRelay = 18; //o HAVENT DECIDED YET MAYBE IGNITER?
 
 const int speaker = 25; //o SOUNDALARM
@@ -137,7 +143,6 @@ int status = WL_IDLE_STATUS;
 //
 
 
-
 MCP9600 Evr;
 MCP9600 Wtr;
 MCP9600 Blr;
@@ -155,11 +160,17 @@ Adafruit_SSD1306 boilerDsp(-1);
 
 // Prototypes
 ///------------------------------------------------------------------------------------------
-
-auto coolDownCycle() -> void;
+///
+///
 auto burnCycle() -> void;
+auto stdbyCycle() -> void;
+auto inactiveCycle() -> void;
+auto shutdownCycle() -> void;
 auto operationalCycle() -> void;
 auto updateDisplay() -> void;
+auto coolDownCycle() -> void;
+
+
 
 ///------------------------------------------------------------------------------------------
 
@@ -198,11 +209,11 @@ void setup()
 	pinMode(speaker, OUTPUT); // o PIN 25
 	digitalWrite(speaker, LOW);
 
-	pinMode(blueRelay, OUTPUT); // o PIN 26
-	digitalWrite(blueRelay, LOW);
+	pinMode(waterRelay, OUTPUT); // o PIN 26
+	digitalWrite(waterRelay, LOW);
 
-	pinMode(yellowRelay, OUTPUT); // o PIN 27
-	digitalWrite(yellowRelay, LOW);
+	pinMode(burnerRelay, OUTPUT); // o PIN 27
+	digitalWrite(burnerRelay, LOW);
 
 	pinMode(purpleRelay, OUTPUT); // o PIN 18
 	digitalWrite(purpleRelay, LOW);
@@ -319,6 +330,7 @@ void loop()
 	{
 		startupIndicator = false;
 
+		/*
 		for (int ndx = 0; ndx <= 5; ndx++)
 		{
 			ArduinoOTA.handle();
@@ -328,8 +340,8 @@ void loop()
 			delay(350);
 			digitalWrite(purpleRelay, LOW);
 			delay(350);
-			
 		}
+		*/
 
 	}
 
@@ -346,6 +358,7 @@ void loop()
 	{
 		digitalWrite(purpleRelay, HIGH);
 		delay(750);
+		
 		digitalWrite(purpleRelay, LOW);
 		delay(750);
 
@@ -382,43 +395,39 @@ auto operationalCycle() -> void
 	// //
 	if (digitalRead(callForHeat) == HIGH)
 	{
-		activeMode = "active";
+		activeMode = active;
 	}
 	else
 	{
-		activeMode = "active";
+		activeMode = stdby;
 	}
 
 
 	// -------------------------------------------------------------------------------------
 
-	if (activeMode == "active")
+	if (activeMode == active)
 	{
 		highTemperature = highActiveTemperature;
 		lowTemperature = lowActiveTemperature;
 
-		digitalWrite(blueRelay, HIGH);
+		digitalWrite(waterRelay, HIGH); // heat up house wateralways on incall for heat
 	}
 	else
 	{
-		if (activeMode == "stdby")
+		if (activeMode == stdby)
 		{
-			highTemperature = highStdbyTemperature;
-			lowTemperature = lowStdbyTemperature;
-
-			digitalWrite(blueRelay, HIGH);
+			stdbyCycle();
 		}
 		else
 		{
-			if (activeMode == "inactive")
+			if (activeMode == inactive)
 			{
-				highTemperature = highInactiveTemperature;
-				lowTemperature = lowOffTemperature;
+				inactiveCycle();
 			}
+			
 			else
 			{
-				highTemperature = highOffTemperature;
-				lowTemperature = lowOffTemperature;
+				shutdownCycle();
 			}
 		}
 	}
@@ -446,23 +455,46 @@ auto burnCycle() -> void
 	yellowTemp = ((Blr.getThermocoupleTemp() * 9 / 5) + 32);
 	purpleTmp = ((Evr.getThermocoupleTemp() * 9 / 5) + 32);
 	
-	while (blueTemp < highTemperature) {
+	if (activeMode == "active") {
+		while (blueTemp <= highTemperature) {
 
-		ArduinoOTA.handle();
-		timeClient.update();
-		
-		digitalWrite(yellowRelay, HIGH);// burner on
-		digitalWrite(blueRelay, HIGH);// waterpump on
+			ArduinoOTA.handle();
+			timeClient.update();
 
-		blueTemp = ((Wtr.getThermocoupleTemp() * 9 / 5) + 32);
-		
-		updateDisplay();
+			digitalWrite(burnerRelay, HIGH);// burner on
+			digitalWrite(waterRelay, HIGH);// waterpump on
+
+			blueTemp = ((Wtr.getThermocoupleTemp() * 9 / 5) + 32);
+
+			updateDisplay();
+		}
+		return;
 	}
+
+	if (activeMode == "stdby")
+	{
+		stdbyCycle();
+		return;
+	}
+
+	if (activeMode == "inactive")
+	{
+		inactiveCycle();
+		return;
+	}
+	if (activeMode == "")
+	{
+		shutdownCycle();
+		return;
+	}
+	}
+
+	
 	
 	ArduinoOTA.handle();
 	timeClient.update();
 	
-	digitalWrite(yellowRelay, LOW);// burner off
+	digitalWrite(burnerRelay, LOW);// burner off
 
 	updateDisplay();
 }
@@ -477,8 +509,8 @@ auto coolDownCycle() -> void
 		ArduinoOTA.handle();
 		timeClient.update();
 		
-		digitalWrite(yellowRelay, LOW);// burner off
-		digitalWrite(blueRelay, HIGH);// waterpump on
+		digitalWrite(burnerRelay, LOW);// burner off
+		digitalWrite(waterRelay, HIGH);// waterpump on
 		
 		blueTemp = ((Wtr.getThermocoupleTemp() * 9 / 5) + 32);
 
