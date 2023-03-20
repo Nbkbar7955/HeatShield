@@ -29,7 +29,7 @@ String version = "0.7";
 
 int yellowLow = 0;
 
-String callForHeat = "active";
+String callForHeatVar = "active";
 String active = "active";
 String stdby = "stdby";
 String inactive = "inactive";
@@ -392,12 +392,12 @@ auto operationalCycle() -> void
 	// if call for heat go to activate immediately
 	// ----------------------------------------------------------------------------------------------
 	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	// ACTIVE MODE FORCED  PID
+	// ACTIVE CALL FOR HEAT
 	// //
 	if (digitalRead(callForHeat) == HIGH)
 	{
 		
-		activeMode = callForheat;
+		activeMode = callForHeatVar;
 	}
 	else
 	{
@@ -456,8 +456,8 @@ auto burnCycle() -> void
 	blueTemp = ((Wtr.getThermocoupleTemp() * 9 / 5) + 32);
 	yellowTemp = ((Blr.getThermocoupleTemp() * 9 / 5) + 32);
 	purpleTmp = ((Evr.getThermocoupleTemp() * 9 / 5) + 32);
-	
-	if (activeMode == "active") {
+
+	if (activeMode == active) {
 		while (blueTemp <= highTemperature) {
 
 			ArduinoOTA.handle();
@@ -473,25 +473,23 @@ auto burnCycle() -> void
 		return;
 	}
 
-	if (activeMode == "stdby")
+	if (activeMode == stdby)
 	{
 		stdbyCycle();
 		return;
 	}
 
-	if (activeMode == "inactive")
+	if (activeMode == inactive)
 	{
 		inactiveCycle();
 		return;
 	}
-	if (activeMode == "")
+	if (activeMode == shutdown)
 	{
 		shutdownCycle();
 		return;
 	}
-	}
 
-	
 	
 	ArduinoOTA.handle();
 	timeClient.update();
