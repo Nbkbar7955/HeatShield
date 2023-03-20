@@ -535,8 +535,7 @@ auto updateDisplay() -> void
 	String ev = String(otherTmp);
 	
 
-	String title = "HeatShield d1 ";
-	title = title + version;
+	String title = "HeatShield M: " + activeMode;
 
 	waterDsp.setTextSize(1);
 	waterDsp.clearDisplay();
@@ -557,8 +556,6 @@ auto updateDisplay() -> void
 	waterDsp.display();
 
 	// ==============================================
-
-	title = "HeatShield d2 ";
 
 	boilerDsp.setTextSize(1);
 	boilerDsp.clearDisplay();
