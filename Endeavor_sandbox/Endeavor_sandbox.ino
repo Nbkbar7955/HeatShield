@@ -71,6 +71,8 @@ String blueT = "";
 String yellowT = "";
 String purpleT = "";
 
+String CHstatus = "-";
+
 
 //------------------------------------------------------------------------------------------
 
@@ -176,7 +178,7 @@ void setup()
 	Blr.begin(0x061);
 	Evr.begin(0x067);
 
-	waterDsp.begin(SSD1306_SWITCHCAPVCC, auto OLED1);
+	waterDsp.begin(SSD1306_SWITCHCAPVCC, OLED1);
 	waterDsp.clearDisplay();
 	waterDsp.display();
 
@@ -207,14 +209,10 @@ void setup()
 	pinMode(purpleRelay, OUTPUT); // o PIN 18
 	digitalWrite(purpleRelay, LOW);
 
-	pinMode(PB1, OUTPUT); // o PIN 32
-	digitalWrite(PB1, LOW);
+	pinMode(PB1, INPUT); // i PIN 32
+	pinMode(PB2, INPUT); // i PIN 33
+	pinMode(PB3, INPUT); // i PIN 5
 
-	pinMode(PB2, OUTPUT); // o PIN 33
-	digitalWrite(PB2, LOW);
-
-	pinMode(PB3, OUTPUT); // o PIN 5
-	digitalWrite(PB3, LOW);
 
 
 	// ----------------------------------------
@@ -334,11 +332,12 @@ auto operationalCycle() -> void
 	{
 		stdbyCycle();
 	}
-
+	/*
 	if (Mode == inactive)
 	{
 		inactiveCycle();
 	}
+	*/
 }
 
 // -------------------------------------------------------------------------------------
@@ -442,7 +441,7 @@ auto updateDisplay() -> void
 
 	// ==============================================
 
-	title = "TH:" + String(highTemperature) + " TL:" + String(lowTemperature);
+	title = "CH" + CHstatus + " HT:" + String(highTemperature) + " LT:" + String(lowTemperature);
 	
 	boilerDsp.setTextSize(1);
 	boilerDsp.clearDisplay();
@@ -472,9 +471,11 @@ auto checkCallForHeat() -> bool
 	
 	if (digitalRead(callForHeat) == HIGH)
 	{
+		CHstatus = "+";
 		Mode = active;
 		return true;
 	}
+	CHstatus = "-";
 	return false;
 }
 
