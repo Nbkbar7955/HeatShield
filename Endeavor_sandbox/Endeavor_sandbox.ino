@@ -302,6 +302,10 @@ void loop()
 	ArduinoOTA.handle();
 	timeClient.update();
 
+	MicroDebug.sendUserMessage("MESSAGE FROM LOOP work for MEEEEE");
+
+	digitalWrite(waterRelay, LOW); // water pump off
+	
 	checkCallForHeat();
 
 	operationalCycle();
@@ -368,7 +372,7 @@ auto activeCycle() -> void
 		timeClient.update();
 
 		digitalWrite(burnerRelay, HIGH); // burner on
-		digitalWrite(waterRelay, HIGH); // waterpump on
+	//	digitalWrite(waterRelay, HIGH); // waterpump on
 
 		blueTemp = ((Wtr.getThermocoupleTemp() * 9 / 5) + 32);
 		updateDisplay();
@@ -395,7 +399,7 @@ auto coolDownCycle() -> void
 		if (checkCallForHeat()) return;
 
 		digitalWrite(burnerRelay, LOW); // burner off
-		digitalWrite(waterRelay, HIGH); // waterpump on
+	//	digitalWrite(waterRelay, HIGH); // waterpump on
 
 		blueTemp = ((Wtr.getThermocoupleTemp() * 9 / 5) + 32);
 
@@ -506,7 +510,7 @@ auto stdbyCycle() -> void
 		
 		
 		digitalWrite(burnerRelay, HIGH); // burner on
-		digitalWrite(waterRelay, HIGH); // waterpump on
+		//digitalWrite(waterRelay, HIGH); // waterpump on
 
 		blueTemp = ((Wtr.getThermocoupleTemp() * 9 / 5) + 32);
 

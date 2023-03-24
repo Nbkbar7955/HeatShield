@@ -142,7 +142,7 @@
   </ImportGroup>
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties arduino.build.auto_discover_includes="1" arduino.upload.port="192.168.0.25" config.Debug.customdebug_esp32_nodemcu-32s_debugger_type="universal" debug.local.portname="192.168.0.37" debug.view.DigitalPins="" />
+      <UserProperties arduino.build.auto_discover_includes="1" arduino.upload.port="192.168.0.25" config.Debug.customdebug_esp32_nodemcu-32s_debugger_type="universal" debug.local.portname="192.168.0.25" debug.view.DigitalPins="" VM.DebugTextMessages.MessageWindow="1" VM.DebugTextMessages.SerialWindow="1" />
     </VisualStudio>
   </ProjectExtensions>
 </Project>
