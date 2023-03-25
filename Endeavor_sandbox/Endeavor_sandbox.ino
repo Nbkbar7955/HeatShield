@@ -49,8 +49,8 @@ float lowStdbyTemperature = 115;
 float highInactiveTemperature = 115;
 float lowInactiveTemperature = 95;
 
-float highTemperature = highActiveTemperature;
-float lowTemperature = lowActiveTemperature;
+float highTemperature = 130;//highStdbyTemperature;
+float lowTemperature = 115;//lowActiveTemperature;
 
 
 //======================================================================================
@@ -462,16 +462,16 @@ auto updateDisplay() -> void
 	waterDsp.println("W: " + sWaterTemp);
 
 	waterDsp.setCursor(11, 22);
-	waterDsp.println(" B: " + sBoilerTemp);
+	waterDsp.println("B: " + sBoilerTemp);
 
-	waterDsp.setCursor(11, 22);
+	waterDsp.setCursor(11, 33);
 	waterDsp.println("E: " + sEVTemp);
 
 	waterDsp.display();
 
 	// ==============================================
 
-	String timeDsp = " " + String(timeClient.getHours()) + ":" + String(timeClient.getMinutes()) + ":" + String(timeClient.getSeconds());
+//	String timeDsp = " " + String(timeClient.getHours()) + ":" + String(timeClient.getMinutes()) + ":" + String(timeClient.getSeconds());
 
 
 
@@ -483,10 +483,10 @@ auto updateDisplay() -> void
 	boilerDsp.println(" E:" + sEVTemp);
 
 	boilerDsp.setCursor(11, 11);
-	boilerDsp.println("W: " + sWaterTemp);
+	boilerDsp.println("HT: " + String(int(highTemperature)));
 
 	boilerDsp.setCursor(11, 22);
-	boilerDsp.println("B:" + sBoilerTemp);
+	boilerDsp.println(" LT: " + String(int(lowTemperature)));
 
 
 	
