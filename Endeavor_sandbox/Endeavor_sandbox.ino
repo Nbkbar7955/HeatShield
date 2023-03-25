@@ -461,7 +461,7 @@ auto updateDisplay() -> void
 	waterDsp.setCursor(11, 11);
 	waterDsp.println("W: " + sWaterTemp);
 
-	waterDsp.setCursor(50, 11);
+	waterDsp.setCursor(11, 22);
 	waterDsp.println(" B: " + sBoilerTemp);
 
 	waterDsp.setCursor(11, 22);
@@ -471,14 +471,16 @@ auto updateDisplay() -> void
 
 	// ==============================================
 
-	String boilerTitle = " " + String(timeClient.getHours()) + ":" + String(timeClient.getMinutes()) + ":" + String(timeClient.getSeconds());
+	String timeDsp = " " + String(timeClient.getHours()) + ":" + String(timeClient.getMinutes()) + ":" + String(timeClient.getSeconds());
+
+
 
 	boilerDsp.setTextSize(1);
 	boilerDsp.clearDisplay();
 	boilerDsp.setTextColor(WHITE);
 
 	boilerDsp.setCursor(11, 1);
-	boilerDsp.println(boilerTitle);
+	boilerDsp.println(" E:" + sEVTemp);
 
 	boilerDsp.setCursor(11, 11);
 	boilerDsp.println("W: " + sWaterTemp);
@@ -486,8 +488,8 @@ auto updateDisplay() -> void
 	boilerDsp.setCursor(11, 22);
 	boilerDsp.println("B:" + sBoilerTemp);
 
-	boilerDsp.setCursor(50, 22);
-	boilerDsp.println(" E:" + sEVTemp);
+
+	
 
 	boilerDsp.display();
 
