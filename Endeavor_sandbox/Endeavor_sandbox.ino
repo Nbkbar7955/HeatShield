@@ -448,7 +448,7 @@ auto updateDisplay() -> void
 	const String sEVTemp = String(envTemp);
 
 
-	String waterTitle = "M: " + String(Mode).toUpperCase() + " F: " + currentFunction;
+	String waterTitle = "M: " + Mode + " F: " + currentFunction;
 	
 	
 	waterDsp.setTextSize(1);
