@@ -169,6 +169,8 @@ auto operationalCycle() -> void;
 auto updateDisplay() -> void;
 auto coolDownCycle(float) -> void;
 auto heatUpCycle(float) -> void;
+auto PB1_Fired() -> void;
+auto PB2_Fired() -> void;
 
 
 
@@ -327,6 +329,18 @@ void loop()
 {
 	ArduinoOTA.handle();
 	timeClient.update();
+
+	if (digitalRead(PB1) == HIGH)
+	{
+		digitalWrite(PB1, LOW);
+		PB1_Fired();
+	}
+	if (digitalRead(PB2) == HIGH)
+	{
+		digitalWrite(PB2, LOW);
+		PB2_Fired();
+	}
+	return;
 	
 	checkCallForHeat();
 	operationalCycle();
@@ -511,4 +525,16 @@ auto checkCallForHeat() -> bool
 	CHstatus = "-";
 	Mode = stdby;
 	return false;
+}
+
+auto PB1_Fired() -> void
+{
+	digitalWrite(burnerRelay, HIGH);
+	digitalWrite(purpleRelay, HIGH);
+}
+
+auto PB2_Fired() -> void
+{
+	digitalWrite(burnerRelay, LOW);
+	digitalWrite(purpleRelay,LOW);
 }
