@@ -40,15 +40,14 @@ String currentFunction = "F:";
 //======================================================================================
 //======================================================================================
 
-float highActiveTemperature = 160;
+float highActiveTemperature = 155;
 float lowActiveTemperature = 130;
 
-float highStdbyTemperature = 130;
-float lowStdbyTemperature = 115;
+float highStdbyTemperature = 140;
+float lowStdbyTemperature = 120;
 
 float highInactiveTemperature = 115;
 float lowInactiveTemperature = 95;
-
 float highTemperature = 130;//highStdbyTemperature;
 float lowTemperature = 115;//lowActiveTemperature;
 
@@ -117,8 +116,8 @@ const int processorLED = 2; //o LED on MicroProcessor
 const int callForHeat = 4; //i CALLFORHEAT
 
 const int waterRelay = 26; //o WATERPUMP RELAY
-const int burnerRelay = 27; //o BURNER RELAY
-const int purpleRelay = 18; //o HAVENT DECIDED YET MAYBE IGNITER?
+const int burnerRelay = 18; // swapm with purple  27; //o BURNER RELAY
+const int purpleRelay = 27; // SWAP with burner 18; //o HAVENT DECIDED YET MAYBE IGNITER?
 
 const int speaker = 25; //o SOUNDALARM
 const int PIN19 = 19; //o ??????
