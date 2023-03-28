@@ -330,17 +330,7 @@ void loop()
 	ArduinoOTA.handle();
 	timeClient.update();
 
-	if (digitalRead(PB1) == HIGH)
-	{
-		digitalWrite(PB1, LOW);
-		PB1_Fired();
-	}
-	if (digitalRead(PB2) == HIGH)
-	{
-		digitalWrite(PB2, LOW);
-		PB2_Fired();
-	}
-	return;
+
 	
 	checkCallForHeat();
 	operationalCycle();
