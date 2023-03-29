@@ -116,8 +116,8 @@ const int processorLED = 2; //o LED on MicroProcessor
 const int callForHeat = 4; //i CALLFORHEAT
 
 const int waterRelay = 26; //o WATERPUMP RELAY
-const int burnerRelay = 18; // swapm with purple  27; //o BURNER RELAY
-const int purpleRelay = 27; // SWAP with burner 18; //o HAVENT DECIDED YET MAYBE IGNITER?
+const int burnerRelay = 27; //o BURNER RELAY
+const int purpleRelay = 18; //o HAVENT DECIDED YET MAYBE IGNITER?
 
 const int speaker = 25; //o SOUNDALARM
 const int PIN19 = 19; //o ??????
