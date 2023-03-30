@@ -43,13 +43,13 @@ String currentFunction = "F:";
 float highActiveTemperature = 155;
 float lowActiveTemperature = 130;
 
-float highStdbyTemperature = 140;
-float lowStdbyTemperature = 120;
+float highStdbyTemperature = 155;
+float lowStdbyTemperature = 130;
 
-float highInactiveTemperature = 115;
-float lowInactiveTemperature = 95;
-float highTemperature = 130;//highStdbyTemperature;
-float lowTemperature = 115;//lowActiveTemperature;
+float highInactiveTemperature = 155;
+float lowInactiveTemperature = 130;
+float highTemperature = 155;//highStdbyTemperature;
+float lowTemperature = 130;//lowActiveTemperature;
 
 
 //======================================================================================
@@ -395,6 +395,7 @@ auto heatUpCycle (float tHigh) -> void
 		ArduinoOTA.handle();
 		timeClient.update();
 
+		digitalWrite(purpleRelay, HIGH); 
 		digitalWrite(burnerRelay, HIGH); // burner on
 		digitalWrite(waterRelay, HIGH); // waterpump on
 
@@ -402,6 +403,7 @@ auto heatUpCycle (float tHigh) -> void
 		updateDisplay();
 	}
 
+	digitalWrite(purpleRelay, LOW);
 	digitalWrite(burnerRelay, LOW); // burner off
 	digitalWrite(waterRelay, LOW); // waterpump off
 
@@ -426,6 +428,7 @@ auto coolDownCycle(float tLow) -> void
 		ArduinoOTA.handle();
 		timeClient.update();
 
+		digitalWrite(purpleRelay, LOW);
 		digitalWrite(burnerRelay, LOW); // burner off
 		digitalWrite(waterRelay, HIGH); // waterpump on
 
