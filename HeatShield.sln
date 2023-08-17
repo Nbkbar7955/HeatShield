@@ -11,7 +11,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Discovery_Sandbox", "Discov
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Discovery", "Discovery\Discovery.csproj", "{2704EE55-090A-4B35-84C6-B27EC058D463}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Columbia", "Columbia\Columbia.vcxproj", "{DCA77A23-ABF6-4F89-AB13-9999BDEBE7D9}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Columbia", "Columbia\Columbia.vcxproj", "{26108775-B5F6-4DF7-9920-BCCD96D8334E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -63,16 +63,16 @@ Global
 		{2704EE55-090A-4B35-84C6-B27EC058D463}.Release|x64.Build.0 = Release|Any CPU
 		{2704EE55-090A-4B35-84C6-B27EC058D463}.Release|x86.ActiveCfg = Release|Any CPU
 		{2704EE55-090A-4B35-84C6-B27EC058D463}.Release|x86.Build.0 = Release|Any CPU
-		{DCA77A23-ABF6-4F89-AB13-9999BDEBE7D9}.Debug|Any CPU.ActiveCfg = Debug|Win32
-		{DCA77A23-ABF6-4F89-AB13-9999BDEBE7D9}.Debug|x64.ActiveCfg = Debug|x64
-		{DCA77A23-ABF6-4F89-AB13-9999BDEBE7D9}.Debug|x64.Build.0 = Debug|x64
-		{DCA77A23-ABF6-4F89-AB13-9999BDEBE7D9}.Debug|x86.ActiveCfg = Debug|Win32
-		{DCA77A23-ABF6-4F89-AB13-9999BDEBE7D9}.Debug|x86.Build.0 = Debug|Win32
-		{DCA77A23-ABF6-4F89-AB13-9999BDEBE7D9}.Release|Any CPU.ActiveCfg = Release|Win32
-		{DCA77A23-ABF6-4F89-AB13-9999BDEBE7D9}.Release|x64.ActiveCfg = Release|x64
-		{DCA77A23-ABF6-4F89-AB13-9999BDEBE7D9}.Release|x64.Build.0 = Release|x64
-		{DCA77A23-ABF6-4F89-AB13-9999BDEBE7D9}.Release|x86.ActiveCfg = Release|Win32
-		{DCA77A23-ABF6-4F89-AB13-9999BDEBE7D9}.Release|x86.Build.0 = Release|Win32
+		{26108775-B5F6-4DF7-9920-BCCD96D8334E}.Debug|Any CPU.ActiveCfg = Debug|Win32
+		{26108775-B5F6-4DF7-9920-BCCD96D8334E}.Debug|x64.ActiveCfg = Debug|x64
+		{26108775-B5F6-4DF7-9920-BCCD96D8334E}.Debug|x64.Build.0 = Debug|x64
+		{26108775-B5F6-4DF7-9920-BCCD96D8334E}.Debug|x86.ActiveCfg = Debug|Win32
+		{26108775-B5F6-4DF7-9920-BCCD96D8334E}.Debug|x86.Build.0 = Debug|Win32
+		{26108775-B5F6-4DF7-9920-BCCD96D8334E}.Release|Any CPU.ActiveCfg = Release|Win32
+		{26108775-B5F6-4DF7-9920-BCCD96D8334E}.Release|x64.ActiveCfg = Release|x64
+		{26108775-B5F6-4DF7-9920-BCCD96D8334E}.Release|x64.Build.0 = Release|x64
+		{26108775-B5F6-4DF7-9920-BCCD96D8334E}.Release|x86.ActiveCfg = Release|Win32
+		{26108775-B5F6-4DF7-9920-BCCD96D8334E}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

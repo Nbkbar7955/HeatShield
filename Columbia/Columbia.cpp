@@ -3,8 +3,22 @@
 
 #include <iostream>
 
+// CPP program to illustrate Pair in STL
+#include <iostream>
+#include <utility>
+using namespace std;
+
 int main()
 {
+	pair<string, string> myTable;
+
+	myTable.first = "myKey";
+	myTable.second = "myValue";
+
+	
+
+
+	
     std::cout << "Hello World!\n";
 }
 
