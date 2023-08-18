@@ -2,24 +2,32 @@
 //
 
 #include <iostream>
-
-// CPP program to illustrate Pair in STL
-#include <iostream>
+#include <cstring>
+#include <string>
+#include <cstdio>
 #include <utility>
+
 using namespace std;
 
 int main()
 {
 	pair<string, string> myTable;
 
-	myTable.first = "myKey";
-	myTable.second = "myValue";
+	myTable.first = "This is myKey";
+	myTable.second = "This is myValue";
 
-	
+	string myOut1 = "first -> "; // +myTable.first;
+	string myOut2 = " second -> "; // +myTable.second;
+
+	printf("%s\n%s\n", myOut1.c_str(),myOut2.c_str());
 
 
-	
-    std::cout << "Hello World!\n";
+	cout << "\n -> ";
+	cout << myTable.first;
+	cout << "\n -> ";
+	cout << myTable.second;
+	cout << "\n";
+    cout << "Hello World!\n";
 }
 
 // Run program: Ctrl + F5 or Debug > Start Without Debugging menu
