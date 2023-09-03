@@ -1,5 +1,5 @@
 /*
- Name:		Endeavor_sandbox.ino
+ Name:		Endeavor
  Created:	8/27/2022 3:36:02 PM
  Author:	david
 
@@ -20,7 +20,7 @@
 
 class led_flash;
 const char* ssid = "Wilson.Net-2.4G";
-const char* password = "Pertle-Duck";
+const char* password = "wilsonwebsite";
 float version = 0.5;
 
 const long utcOffsetInSeconds = 3600;
