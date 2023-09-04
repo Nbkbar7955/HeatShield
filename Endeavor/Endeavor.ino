@@ -1,8 +1,7 @@
 /*
  Name:		Endeavor // question is why not update to pull
  Created:	8/27/2022 3:36:02 PM
- Author:	david
-
+ Author:	David Wilson
  PROTOTYPE - CC:50:E3:80:A2:E8  192.168.0.36
  PRODUCTION - XX:XX:XX:XX:XX:XX  192.168.0.12
 
