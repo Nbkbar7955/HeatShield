@@ -38,7 +38,7 @@ const long interval = 500;  // interval at which to blink (milliseconds)
  */
 
 
-const int TestGit = 99;
+const int TestGit = 99; // ready??
 
 const int led = 2;
 const int callForHeat = 4;
