@@ -13,7 +13,7 @@ namespace Discovery
 
     public class Discovery : WebService
     {
-        private const string ConnectionString = "Data Source = DAVID-R7\\MSSQLSERVER01;" +
+        private const string ConnectionString = "Data Source = IRONMAN\\MSSQLSERVER;" +
                                "Integrated Security = True;" +
                                "Connect Timeout = 15;" +
                                "Encrypt = False;" +
