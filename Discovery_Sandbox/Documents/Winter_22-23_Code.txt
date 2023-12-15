@@ -96,6 +96,7 @@ namespace Discovery
 
         [WebMethod]
         public string HelloWorld()
+
         {
             return "Hello World";
         }

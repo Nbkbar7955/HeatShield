@@ -81,10 +81,14 @@
       <ForcedIncludeFiles>$(ProjectDir)__vm\.Endeavor.vsarduino.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
       <IgnoreStandardIncludePath>true</IgnoreStandardIncludePath>
       <PreprocessorDefinitions>_VMICRO_INTELLISENSE;__ESP32_esp32__;__ESP32_ESP32__;_VMDEBUG=1;HAVE_CONFIG_H;MBEDTLS_CONFIG_FILE=[quoted_string];UNITY_INCLUDE_CONFIG_H;WITH_POSIX;_GNU_SOURCE;IDF_VER=[quoted_string];ESP_PLATFORM;_POSIX_READER_WRITER_LOCKS;F_CPU=240000000L;ARDUINO=108010;ARDUINO_NodeMCU_32S;ARDUINO_ARCH_ESP32;ARDUINO_BOARD=[quoted_string];ARDUINO_VARIANT=[quoted_string];ARDUINO_PARTITION_default;ESP32;CORE_DEBUG_LEVEL=0;ARDUINO_USB_CDC_ON_BOOT=0;__cplusplus=201103L;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <BrowseInformation>true</BrowseInformation>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
+    <Bscmake>
+      <PreserveSbr>true</PreserveSbr>
+    </Bscmake>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
