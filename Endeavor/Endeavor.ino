@@ -223,10 +223,6 @@ char daysOfTheWeek[7][12] = { "Sunday", "Monday", "Tuesday", "Wednesday", "Thurs
 WiFiUDP ntpUDP;
 NTPClient timeClient(ntpUDP, "pool.ntp.org", utcOffsetInSeconds);
 
-// variables for blinking an LED with Millis
-unsigned long millisBefore = 0; // will store last time LED was updated
-const long interval = 2500; // interval at which to blink (milliseconds)
-
 //======================================================================================
 //======================================================================================
 //
@@ -445,14 +441,39 @@ void setup()
 ////------------------------------------------------------------------------------------------
 /////------------------------------------------------------------------------------------------
 /////------------------------------------------------------------------------------------------
+///
+///
+///
 
-void loop()
-{
+
+int TestMode = 1;
+//variables for blinking an LED with Millis
+unsigned long previous_millis = 0;  // will store last time LED was updated
+const long interval = 500;  // interval at which to blink (milliseconds)
+
+void loop() {
+
 	ArduinoOTA.handle();
 	timeClient.update();
+	const auto current_millis = millis();
+	if (TestMode == 1) {
+		//loop to blink without delay
 
-	checkCallForHeat();
-	operationalCycle();
+
+		if (current_millis - previous_millis >= interval) {
+			// save the last time you blinked the LED
+			previous_millis = current_millis;
+
+			// set the LED with the ledState of the variable:
+			digitalWrite(processorLED, !digitalRead(processorLED));
+			//digitalWrite(waterPump, !digitalRead(waterPump));
+			//digitalWrite(boiler, !digitalRead(boiler));
+
+		}
+
+		//checkCallForHeat();
+		//operationalCycle();
+	}
 }
 
 

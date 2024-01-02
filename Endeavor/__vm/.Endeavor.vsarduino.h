@@ -15,13 +15,12 @@
 #define _VSARDUINO_H_
 #define __ESP32_esp32__ 1
 #define __ESP32_ESP32__ 1
-#define _VMDEBUG 1
 #define HAVE_CONFIG_H 1
 #define MBEDTLS_CONFIG_FILE "mbedtls/esp_config.h"
 #define UNITY_INCLUDE_CONFIG_H 1
 #define WITH_POSIX 1
 #define _GNU_SOURCE 1
-#define IDF_VER "v4.4.5"
+#define IDF_VER "v4.4.6-dirty"
 #define ESP_PLATFORM 1
 #define _POSIX_READER_WRITER_LOCKS 1
 #define F_CPU 240000000L
