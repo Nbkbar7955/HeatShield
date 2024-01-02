@@ -55,6 +55,129 @@ float lowTemperature = 130;//lowActiveTemperature;
 //======================================================================================
 //======================================================================================
 //
+//
+
+/*
+// Definitions
+
+MCP9600 t_boiler;
+MCP9600 t_water_inside;
+// MCP9600 t_water_outside;
+MCP9600 t_living_room;
+// MCP9600 t_master_bedroom;
+
+Adafruit_SSD1306 dsp_display_one(-1);
+Adafruit_SSD1306 dsp_display_two(-1);
+Adafruit_SSD1306 dsp_display_three(-1);
+Adafruit_SSD1306 dsp_display_four(-1);
+
+#define OLED1 0x3C // OLED 1 I2C_1
+#define OLED2 0x3D // OLED 2 I2C_1 
+#define OLED3 0x3C // OLED 3 I2C_2 
+#define OLED4 0x3D // OLED 4 I2C_2 
+
+
+
+// Settings
+
+	t_boiler.begin(0x060);
+	t_water_inside.begin(0x061);
+	// t_water_outside.begin(0x??);
+	t_living_room.begin(0x067);
+	// t_master_bedroom.begin(0x??);
+
+
+	// Pin Assignments
+	int p_blink 2;
+	int p_call_for_heat 4;
+	int p_test_pin 5;
+	int p_MISO;
+	int p_MOSI 13;
+	int p_CLK 14;
+	int p_SS 15;
+	int p_boiler_relay 16;
+	int p_water_hi_relay 17;
+	int p_water_lo_relay 18;
+	int p_test_relay 19;
+	int p_I2C_1_SDA 21;
+	int p_I2C_1_SCL 22;
+	// 23 NC
+	int p_I2C_2_SDA 25;
+	int p_I2C_2_SCL 26;
+	// 27 NC
+	int p_speaker 32;
+	// 33 NC
+	int p_PB1 34;
+	int p_PB2 35;
+	int p_PB3 36;
+	int p_PB4 39;
+
+// Operational Variables
+	float op_boiler_temp = 0;
+	float op_boiler_temp_CURR = 0;
+	float op_boiler_temp_PREV = 0;
+	
+	float op_water_inside_temp = 0;
+	float op_water_inside_temp_CURR = 0;
+	float op_water_inside_temp_PREV = 0;
+	
+	float op_water_outside_temp = 0;
+	float op_water_outside_temp_CURR = 0;
+	float op_water_outside_temp_PREV = 0;
+
+	float op_living_room_temp = 0;
+	float op_living_room_temp_CURR = 0;
+	float op_living_room_temp_PREV = 0;
+
+	string s_boiler_temp = "";
+	string s_water_inside_temp = "";
+	string s_water_outside_temp = "";
+	string s_living_room_temp = "";
+	string s_call_heat_status = "-";
+
+	bool b_cool_down_state = false;
+	bool b_testmode = false;
+
+	// WiFi attachment
+	const char* ssid = "Wilson.Net-2.4G";
+	const char* password = "wilsonwebsite.com";
+	char serverAddress[] = "192.168.0.45"; // server address
+	int port = 44364;
+
+	WiFiClient wifi;
+	HttpClient client = HttpClient(wifi, serverAddress, port);
+	int status = WL_IDLE_STATUS;
+
+	// Time Variables
+	const long utcOffsetInSeconds = 3600;
+	char daysOfTheWeek[7][12] = { "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday" };
+
+//  NTP Setup
+	WiFiUDP ntpUDP;
+	NTPClient timeClient(ntpUDP, "pool.ntp.org", utcOffsetInSeconds);
+	int status = WL_IDLE_STATUS;
+
+	// BEGIN CODE?
+
+	setup
+	{
+	}
+
+	loop
+	{
+	}
+
+
+// Prototypes
+	auto checkCallForHeat() -> bool;
+	auto operationalCycle() -> void;
+	auto updateDisplay() -> void;
+	auto coolDownCycle(float) -> void;
+	auto heatUpCycle(float) -> void;
+	auto PB1_Fired() -> void;
+	auto PB2_Fired() -> void;
+	
+ */
 
 float tmpBlue = 0;
 float tmpYellow = 0;
@@ -62,8 +185,10 @@ float tmpPurple = 0;
 
 float waterTemp = 0;
 float waterTempPrev = 0;
+
 float boilerTemp = 0;
 float boilerTempPrev = 0;
+
 float envTemp = 0;
 float otherTempPrev = 0;
 
@@ -89,7 +214,7 @@ String CHstatus = "-";
 
 ////class led_flash;
 const char* ssid = "Wilson.Net-2.4G";
-const char* password = "Pertle-Duck";
+const char* password = "wilsonwebsite.com";
 
 const long utcOffsetInSeconds = 3600;
 char daysOfTheWeek[7][12] = { "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday" };
@@ -219,7 +344,7 @@ void setup()
 	ArduinoOTA.setPort(3232);
 
 	// Hostname defaults to esp3232-[MAC]
-	ArduinoOTA.setHostname("HSEndeavor");
+	ArduinoOTA.setHostname("Endeavor");
 
 	// No authentication by default
 	// ArduinoOTA.setPassword("admin");
