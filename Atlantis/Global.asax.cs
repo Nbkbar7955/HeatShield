@@ -7,6 +7,8 @@ using System.Web.Routing;
 using System.Web.Security;
 using System.Web.SessionState;
 
+// * try to get atlantis to ironman
+
 namespace Atlantis
 {
     public class Global : HttpApplication
@@ -16,6 +18,9 @@ namespace Atlantis
             // Code that runs on application startup
             RouteConfig.RegisterRoutes(RouteTable.Routes);
             BundleConfig.RegisterBundles(BundleTable.Bundles);
+
+
+            // * try to get atlantis to ironman
         }
     }
 }

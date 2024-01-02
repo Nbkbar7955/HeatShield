@@ -7,7 +7,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-
+// * try to get atlantis to ironman
 namespace Atlantis
 {
     public partial class SiteMaster
