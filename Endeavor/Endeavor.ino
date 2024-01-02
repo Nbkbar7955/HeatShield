@@ -1,5 +1,5 @@
 /*
- Name:    Endeavor_sandbox.ino
+ Name:    Endeavor 2324
  Created: 8/27/2022 3:36:02 PM
  Author:  david
 
@@ -240,6 +240,7 @@ const int callForHeat = 4; //i CALLFORHEAT
 const int waterRelay = 26; //o WATERPUMP RELAY
 const int burnerRelay = 27; //o BURNER RELAY
 const int purpleRelay = 18; //o HAVENT DECIDED YET MAYBE IGNITER?
+const int testRelay = 19;
 
 const int speaker = 25; //o SOUNDALARM
 const int PIN19 = 19; //o ??????
@@ -400,8 +401,8 @@ void setup()
 					digitalWrite(processorLED, LOW);
 
 					// ????????????????????????
-					pinMode(callForHeat, INPUT); // i PIN 4
-					pinMode(callForHeat, INPUT_PULLDOWN);
+					pinMode(callForHeat, OUTPUT); // i PIN 4
+					digitalWrite(callForHeat, LOW);
 
 					pinMode(PIN19, OUTPUT); // o PIN 19
 					digitalWrite(PIN19, LOW);
@@ -410,16 +411,16 @@ void setup()
 					digitalWrite(speaker, LOW);
 
 					pinMode(waterRelay, OUTPUT); // o PIN 26
-					pinMode(waterRelay, INPUT_PULLDOWN);
-					digitalWrite(waterRelay, LOW);
+					digitalWrite(waterRelay, HIGH);
 
 					pinMode(burnerRelay, OUTPUT); // o PIN 27
-					pinMode(burnerRelay, INPUT_PULLDOWN);
-					digitalWrite(burnerRelay, LOW);
+					digitalWrite(burnerRelay, HIGH);
+
+					pinMode(testRelay, OUTPUT);
+					digitalWrite(testRelay, HIGH);
 
 					pinMode(purpleRelay, OUTPUT); // o PIN 18
-					pinMode(purpleRelay, INPUT_PULLDOWN);
-					digitalWrite(purpleRelay, LOW);
+					digitalWrite(purpleRelay, HIGH);
 
 					pinMode(PB1, INPUT); // i PIN 32
 					pinMode(PB1, INPUT_PULLDOWN);
