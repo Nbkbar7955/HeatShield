@@ -464,7 +464,7 @@ void loop() {
 	ArduinoOTA.handle();
 	timeClient.update();
 
-	
+
 	const auto current_millis = millis();
 	if (TestMode == 1) {
 		//loop to blink without delay
@@ -529,19 +529,11 @@ void loop() {
 						digitalWrite(testRelay, HIGH);
 					}
 				}
-			}		
+			}
 		}
 	}
-		
-
-
-
-
-		
-		//checkCallForHeat();
-		//operationalCycle();
-	}
 }
+
 
 
 // Functions
