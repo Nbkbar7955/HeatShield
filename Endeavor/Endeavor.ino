@@ -236,19 +236,26 @@ NTPClient timeClient(ntpUDP, "pool.ntp.org", utcOffsetInSeconds);
 //
 const int processorLED = 2; //o LED on MicroProcessor
 const int callForHeat = 4; //i CALLFORHEAT
+const int testPin = 5; //test mode
 
-const int waterRelay = 26; //o WATERPUMP RELAY
-const int burnerRelay = 27; //o BURNER RELAY
+// SPI
+const int misoSPI = 12;
+const int mosiSPI = 13;
+const int clkSPI = 14;
+const int ssSPI = 15;
+
+
+const int waterRelay = 17; //o WATERPUMP RELAY
+const int burnerRelay = 16; //o BURNER RELAY
 const int purpleRelay = 18; //o HAVENT DECIDED YET MAYBE IGNITER?
 const int testRelay = 19;
 
-const int speaker = 25; //o SOUNDALARM
-const int PIN19 = 19; //o ??????
-const int PB1 = 32; //i PB1
-const int PB2 = 33; //i PB2
-const int PB3 = 5; //i PB3 ??????
-const int PB4 = -1; //i PB4 ?????
-const int SW2 = 4; //i CALLFORHEAT SWITCH
+const int speaker = 32; //o SOUNDALARM
+const int PB1 = 34; //i PB1
+const int PB2 = 35; //i PB2
+const int PB3 = 36; //i PB3 ??????
+const int PB4 = 39; //i PB4 ?????
+
 
 
 const int count = 0;
