@@ -247,7 +247,7 @@ const int ssSPI = 15;
 
 const int waterRelay = 17; //o WATERPUMP RELAY
 const int burnerRelay = 16; //o BURNER RELAY
-const int purpleRelay = 18; //o HAVENT DECIDED YET MAYBE IGNITER?
+const int waterLowRelay = 18; //o HAVENT DECIDED YET MAYBE IGNITER?
 const int testRelay = 19;
 
 const int speaker = 32; //o SOUNDALARM
@@ -411,9 +411,6 @@ void setup()
 					pinMode(callForHeat, OUTPUT); // i PIN 4
 					digitalWrite(callForHeat, LOW);
 
-					pinMode(PIN19, OUTPUT); // o PIN 19
-					digitalWrite(PIN19, LOW);
-
 					pinMode(speaker, OUTPUT); // o PIN 25
 					digitalWrite(speaker, LOW);
 
@@ -426,18 +423,20 @@ void setup()
 					pinMode(testRelay, OUTPUT);
 					digitalWrite(testRelay, HIGH);
 
-					pinMode(purpleRelay, OUTPUT); // o PIN 18
-					digitalWrite(purpleRelay, HIGH);
+					pinMode(waterLowRelay, OUTPUT); // o PIN 18
+					digitalWrite(waterLowRelay, HIGH);
 
-					pinMode(PB1, INPUT); // i PIN 32
+					pinMode(PB1, INPUT); // i PIN 34
 					pinMode(PB1, INPUT_PULLDOWN);
 
-
-					pinMode(PB2, INPUT); // i PIN 33
+					pinMode(PB2, INPUT); // i PIN 35
 					pinMode(PB2, INPUT_PULLDOWN);
 
-					pinMode(PB3, INPUT); // i PIN 5
+					pinMode(PB3, INPUT); // i PIN 36
 					pinMode(PB3, INPUT_PULLDOWN);
+
+					pinMode(PB4, INPUT); // i PIN 39
+					pinMode(PB4, INPUT_PULLDOWN);
 
 					Mode = stdby; // starting mode
 					// ----------------------------------------
@@ -458,6 +457,7 @@ int TestMode = 1;
 //variables for blinking an LED with Millis
 unsigned long previous_millis = 0;  // will store last time LED was updated
 const long interval = 500;  // interval at which to blink (milliseconds)
+
 
 void loop() {
 
@@ -534,7 +534,7 @@ auto heatUpCycle(float tHigh) -> void
 		ArduinoOTA.handle();
 		timeClient.update();
 
-		digitalWrite(purpleRelay, HIGH);
+		digitalWrite(waterLowRelay, HIGH);
 		digitalWrite(burnerRelay, HIGH); // burner on
 		digitalWrite(waterRelay, HIGH); // waterpump on
 
@@ -542,7 +542,7 @@ auto heatUpCycle(float tHigh) -> void
 		updateDisplay();
 	}
 
-	digitalWrite(purpleRelay, LOW);
+	digitalWrite(waterLowRelay, LOW);
 	digitalWrite(burnerRelay, LOW); // burner off
 	digitalWrite(waterRelay, LOW); // waterpump off
 
@@ -572,7 +572,7 @@ auto coolDownCycle(float tLow) -> void
 		ArduinoOTA.handle();
 		timeClient.update();
 
-		digitalWrite(purpleRelay, LOW);
+		digitalWrite(waterLowRelay, LOW);
 		digitalWrite(burnerRelay, LOW); // burner off
 		digitalWrite(waterRelay, LOW); // waterpump off
 
@@ -661,11 +661,11 @@ auto checkCallForHeat() -> bool
 auto PB1_Fired() -> void
 {
 	digitalWrite(burnerRelay, HIGH);
-	digitalWrite(purpleRelay, HIGH);
+	digitalWrite(waterLowRelay, HIGH);
 }
 
 auto PB2_Fired() -> void
 {
 	digitalWrite(burnerRelay, LOW);
-	digitalWrite(purpleRelay, LOW);
+	digitalWrite(waterLowRelay, LOW);
 }
