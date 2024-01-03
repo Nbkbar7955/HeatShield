@@ -467,8 +467,8 @@ void loop() {
 
 			// set the LED with the ledState of the variable:
 			digitalWrite(processorLED, !digitalRead(processorLED));
-			//digitalWrite(waterPump, !digitalRead(waterPump));
-			//digitalWrite(boiler, !digitalRead(boiler));
+			digitalWrite(waterRelay, !digitalRead(waterRelay));
+			digitalWrite(burnerRelay, !digitalRead(burnerRelay));
 
 		}
 
