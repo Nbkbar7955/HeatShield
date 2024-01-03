@@ -424,7 +424,7 @@ void setup()
 					digitalWrite(testRelay, HIGH);
 
 					pinMode(waterLowRelay, OUTPUT); // o PIN 18
-					digitalWrite(waterLowRelay, HIGH);
+					digitalWrite(waterLowRelay, LOW);
 
 					pinMode(PB1, INPUT); // i PIN 34
 					pinMode(PB1, INPUT_PULLDOWN);
@@ -476,6 +476,7 @@ void loop() {
 			digitalWrite(processorLED, !digitalRead(processorLED));
 			digitalWrite(waterRelay, !digitalRead(waterRelay));
 			digitalWrite(burnerRelay, !digitalRead(burnerRelay));
+			digitalWrite(waterLowRelay, !digitalRead(waterLowRelay));
 
 		}
 
