@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Discovery", "Discovery\Disc
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Columbia", "Columbia\Columbia.vcxproj", "{26108775-B5F6-4DF7-9920-BCCD96D8334E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Atlantis", "Atlantis\Atlantis.csproj", "{83281FB2-41DD-461C-A8AF-210404D55E35}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -49,6 +51,18 @@ Global
 		{26108775-B5F6-4DF7-9920-BCCD96D8334E}.Release|x64.Build.0 = Release|x64
 		{26108775-B5F6-4DF7-9920-BCCD96D8334E}.Release|x86.ActiveCfg = Release|Win32
 		{26108775-B5F6-4DF7-9920-BCCD96D8334E}.Release|x86.Build.0 = Release|Win32
+		{83281FB2-41DD-461C-A8AF-210404D55E35}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{83281FB2-41DD-461C-A8AF-210404D55E35}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{83281FB2-41DD-461C-A8AF-210404D55E35}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{83281FB2-41DD-461C-A8AF-210404D55E35}.Debug|x64.Build.0 = Debug|Any CPU
+		{83281FB2-41DD-461C-A8AF-210404D55E35}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{83281FB2-41DD-461C-A8AF-210404D55E35}.Debug|x86.Build.0 = Debug|Any CPU
+		{83281FB2-41DD-461C-A8AF-210404D55E35}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{83281FB2-41DD-461C-A8AF-210404D55E35}.Release|Any CPU.Build.0 = Release|Any CPU
+		{83281FB2-41DD-461C-A8AF-210404D55E35}.Release|x64.ActiveCfg = Release|Any CPU
+		{83281FB2-41DD-461C-A8AF-210404D55E35}.Release|x64.Build.0 = Release|Any CPU
+		{83281FB2-41DD-461C-A8AF-210404D55E35}.Release|x86.ActiveCfg = Release|Any CPU
+		{83281FB2-41DD-461C-A8AF-210404D55E35}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
