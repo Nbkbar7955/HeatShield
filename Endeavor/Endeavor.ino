@@ -247,7 +247,7 @@ const int ssSPI = 15;
 
 const int waterRelay = 17; //o WATERPUMP RELAY
 const int burnerRelay = 16; //o BURNER RELAY
-const int waterLowRelay = 18; //o HAVENT DECIDED YET MAYBE IGNITER?
+const int waterLowRelay = 18; //o
 const int testRelay = 19;
 
 const int speaker = 32; //o SOUNDALARM
@@ -263,7 +263,7 @@ bool purpleFlag = false;
 bool testAlarm = false;
 bool state = true;
 
-char serverAddress[] = "192.168.0.45"; // server address
+char serverAddress[] = "192.168.0.67"; // server address
 int port = 44364;
 
 WiFiClient wifi;
@@ -394,52 +394,52 @@ void setup()
 						else if (error == OTA_END_ERROR) Serial.println("End Failed");
 					});
 
-					ArduinoOTA.begin();
+	ArduinoOTA.begin();
 
-					Serial.println("Ready");
-					Serial.print("IP address: ");
-					Serial.println(WiFi.localIP());
+	Serial.println("Ready");
+	Serial.print("IP address: ");
+	Serial.println(WiFi.localIP());
 
-					timeClient.begin();
+	timeClient.begin();
 
-					// OUTPUTS   pinModes
-					// ----------------------------------------
-					pinMode(processorLED, OUTPUT);
-					digitalWrite(processorLED, LOW);
+			// OUTPUTS   pinModes
+	// ----------------------------------------
+	pinMode(processorLED, OUTPUT);
+	digitalWrite(processorLED, LOW);
 
-					// ????????????????????????
-					pinMode(callForHeat, OUTPUT); // i PIN 4
-					digitalWrite(callForHeat, LOW);
+	// ????????????????????????
+	pinMode(callForHeat, OUTPUT); // i PIN 4
+	digitalWrite(callForHeat, LOW);
 
-					pinMode(speaker, OUTPUT); // o PIN 25
-					digitalWrite(speaker, LOW);
+	pinMode(speaker, OUTPUT); // o PIN 25
+	digitalWrite(speaker, LOW);
 
-					pinMode(waterRelay, OUTPUT); // o PIN 26
-					digitalWrite(waterRelay, HIGH);
+	pinMode(waterRelay, OUTPUT); // o PIN 26
+	digitalWrite(waterRelay, HIGH);
 
-					pinMode(burnerRelay, OUTPUT); // o PIN 27
-					digitalWrite(burnerRelay, HIGH);
+	pinMode(burnerRelay, OUTPUT); // o PIN 27
+	digitalWrite(burnerRelay, HIGH);
 
-					pinMode(testRelay, OUTPUT);
-					digitalWrite(testRelay, HIGH);
+	pinMode(testRelay, OUTPUT);
+	digitalWrite(testRelay, HIGH);
 
-					pinMode(waterLowRelay, OUTPUT); // o PIN 18
-					digitalWrite(waterLowRelay, LOW);
+	pinMode(waterLowRelay, OUTPUT); // o PIN 18
+	digitalWrite(waterLowRelay, LOW);
 
-					pinMode(PB1, INPUT); // i PIN 34
-					pinMode(PB1, INPUT_PULLDOWN);
+	pinMode(PB1, INPUT); // i PIN 34
+	pinMode(PB1, INPUT_PULLDOWN);
 
-					pinMode(PB2, INPUT); // i PIN 35
-					pinMode(PB2, INPUT_PULLDOWN);
+	pinMode(PB2, INPUT); // i PIN 35
+	pinMode(PB2, INPUT_PULLDOWN);
 
-					pinMode(PB3, INPUT); // i PIN 36
-					pinMode(PB3, INPUT_PULLDOWN);
+	pinMode(PB3, INPUT); // i PIN 36
+	pinMode(PB3, INPUT_PULLDOWN);
 
-					pinMode(PB4, INPUT); // i PIN 39
-					pinMode(PB4, INPUT_PULLDOWN);
+	pinMode(PB4, INPUT); // i PIN 39
+	pinMode(PB4, INPUT_PULLDOWN);
 
-					Mode = stdby; // starting mode
-					// ----------------------------------------
+	Mode = stdby; // starting mode
+	// ----------------------------------------
 }
 
 
@@ -456,30 +456,88 @@ void setup()
 int TestMode = 1;
 //variables for blinking an LED with Millis
 unsigned long previous_millis = 0;  // will store last time LED was updated
-const long interval = 500;  // interval at which to blink (milliseconds)
+const long interval = 1000;  // interval at which to blink (milliseconds)
 
 
 void loop() {
 
 	ArduinoOTA.handle();
 	timeClient.update();
+
+	
 	const auto current_millis = millis();
 	if (TestMode == 1) {
 		//loop to blink without delay
 
+			/*
+			if (current_millis - previous_millis >= interval) {
+				// save the last time you blinked the LED
+				previous_millis = current_millis;
 
-		if (current_millis - previous_millis >= interval) {
-			// save the last time you blinked the LED
-			previous_millis = current_millis;
+				// set the LED with the ledState of the variable:
+				digitalWrite(processorLED, !digitalRead(processorLED));
 
-			// set the LED with the ledState of the variable:
-			digitalWrite(processorLED, !digitalRead(processorLED));
-			digitalWrite(waterRelay, !digitalRead(waterRelay));
-			digitalWrite(burnerRelay, !digitalRead(burnerRelay));
-			digitalWrite(waterLowRelay, !digitalRead(waterLowRelay));
+				digitalWrite(waterRelay, !digitalRead(waterRelay));
+
+				digitalWrite(burnerRelay, !digitalRead(burnerRelay));
+
+				//  digitalWrite(testRelay, !digitalRead(testRelay));
+				//	digitalWrite(waterLowRelay, LOW);
+
+			}
+			*/
+
+
+		if (digitalRead(PB1))
+		{
+			digitalWrite(burnerRelay, LOW);
+			digitalWrite(waterRelay, HIGH);
+			digitalWrite(waterLowRelay, HIGH);
+			digitalWrite(testRelay, HIGH);
 
 		}
+		else {
+			if (digitalRead(PB2))
+			{
+				digitalWrite(burnerRelay, HIGH);
+				digitalWrite(waterRelay, LOW);
+				digitalWrite(waterLowRelay, HIGH);
+				digitalWrite(testRelay, HIGH);
 
+			}
+			else {
+				if (digitalRead(PB3))
+				{
+					digitalWrite(burnerRelay, HIGH);
+					digitalWrite(waterRelay, HIGH);
+					digitalWrite(waterLowRelay, LOW);
+					digitalWrite(testRelay, HIGH);
+
+				}
+				else {
+					if (digitalRead(PB4))
+					{
+						digitalWrite(burnerRelay, HIGH);
+						digitalWrite(waterRelay, HIGH);
+						digitalWrite(waterLowRelay, HIGH);
+						digitalWrite(testRelay, LOW);
+					}
+					else {
+						digitalWrite(burnerRelay, HIGH);
+						digitalWrite(waterRelay, HIGH);
+						digitalWrite(waterLowRelay, HIGH);
+						digitalWrite(testRelay, HIGH);
+					}
+				}
+			}		
+		}
+	}
+		
+
+
+
+
+		
 		//checkCallForHeat();
 		//operationalCycle();
 	}
