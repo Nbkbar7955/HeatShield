@@ -1,3 +1,13 @@
+
+
+
+
+
+
+
+
+
+
 /*
  Name:    Endeavor 2324
  Created: 8/27/2022 3:36:02 PM
@@ -20,6 +30,15 @@
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
 #include <ArduinoHttpClient.h>
+
+#define SDA_1 21
+#define SCL_1 22
+
+#define SDA_2 25
+#define SCL_2 26
+
+
+
 
 
 //------------------------------------------------------------------------------------------
@@ -48,6 +67,7 @@ float lowStdbyTemperature = 130;
 
 float highInactiveTemperature = 155;
 float lowInactiveTemperature = 130;
+
 float highTemperature = 155;//highStdbyTemperature;
 float lowTemperature = 130;//lowActiveTemperature;
 
@@ -72,9 +92,9 @@ Adafruit_SSD1306 dsp_display_three(-1);
 Adafruit_SSD1306 dsp_display_four(-1);
 
 #define OLED1 0x3C // OLED 1 I2C_1
-#define OLED2 0x3D // OLED 2 I2C_1 
-#define OLED3 0x3C // OLED 3 I2C_2 
-#define OLED4 0x3D // OLED 4 I2C_2 
+#define OLED2 0x3D // OLED 2 I2C_1
+#define OLED3 0x3C // OLED 3 I2C_2
+#define OLED4 0x3D // OLED 4 I2C_2
 
 
 
@@ -116,11 +136,11 @@ Adafruit_SSD1306 dsp_display_four(-1);
 	float op_boiler_temp = 0;
 	float op_boiler_temp_CURR = 0;
 	float op_boiler_temp_PREV = 0;
-	
+
 	float op_water_inside_temp = 0;
 	float op_water_inside_temp_CURR = 0;
 	float op_water_inside_temp_PREV = 0;
-	
+
 	float op_water_outside_temp = 0;
 	float op_water_outside_temp_CURR = 0;
 	float op_water_outside_temp_PREV = 0;
@@ -176,7 +196,7 @@ Adafruit_SSD1306 dsp_display_four(-1);
 	auto heatUpCycle(float) -> void;
 	auto PB1_Fired() -> void;
 	auto PB2_Fired() -> void;
-	
+
  */
 
 float tmpBlue = 0;
@@ -212,7 +232,6 @@ String CHstatus = "-";
 
 //------------------------------------------------------------------------------------------
 
-////class led_flash;
 const char* ssid = "Wilson.Net-2.4G";
 const char* password = "wilsonwebsite.com";
 
@@ -279,14 +298,23 @@ int status = WL_IDLE_STATUS;
 MCP9600 evThermocouple;
 MCP9600 waterThermocouple;
 MCP9600 boilerThermocouple;
+MCP9600 waterOutThermocouple;
 
 //------------------------------------------------------------------------------------------
 
-Adafruit_SSD1306 waterDsp(-1);
-Adafruit_SSD1306 boilerDsp(-1);
+Adafruit_SSD1306 displayTwo(-1);
+Adafruit_SSD1306 displayOne(-1);
+
+Adafruit_SSD1306 displayThree(-1);
+Adafruit_SSD1306 displayFour(-1);
+
 
 #define OLED1 0x3C // OLED 1
 #define OLED2 0x3D // OLED 2
+
+#define OLED3 0x3C // OLED 3
+#define OLED4 0x3D // OLED 4
+
 
 // Prototypes
 ///------------------------------------------------------------------------------------------
@@ -301,10 +329,34 @@ auto heatUpCycle(float) -> void;
 auto PB1_Fired() -> void;
 auto PB2_Fired() -> void;
 
+/*
+#define SDA_1 21
+#define SCL_1 22
+
+#define SDA_2 25
+#define SCL_2 26
+
+
+Adafruit_SSD1306 displayTwo(-1);
+Adafruit_SSD1306 displayOne(-1);
+
+Adafruit_SSD1306 displayThree(-1);
+Adafruit_SSD1306 displayFour(-1);
+
+
+#define OLED1 0x3C // OLED 1
+#define OLED2 0x3D // OLED 2
+
+#define OLED3 0x3C // OLED 3
+#define OLED4 0x3D // OLED 4
+
+
+*/
 
 
 
-
+TwoWire I2C_One = TwoWire(0);
+TwoWire I2C_Two = TwoWire(1);
 
 ///------------------------------------------------------------------------------------------
 
@@ -314,22 +366,36 @@ auto PB2_Fired() -> void;
 
 void setup()
 {
-	Wire.begin();
+
+
+
+
+	I2C_One.begin(SDA_1, SCL_1, 100000);
+	I2C_Two.begin(SDA_2, SCL_2, 100000);
+
+
+
+	displayOne.begin(SSD1306_SWITCHCAPVCC, &I2C_One, OLED2);
+	displayOne.clearDisplay();
+	displayOne.display();
+
+	displayTwo.begin(SSD1306_SWITCHCAPVCC, &I2C_One, OLED1);
+	displayTwo.clearDisplay();
+	displayTwo.display();
+
+	displayThree.begin(SSD1306_SWITCHCAPVCC, &I2C_Two, OLED3);
+	displayThree.clearDisplay();
+	displayThree.display();
+
+	displayFour.begin(SSD1306_SWITCHCAPVCC, &I2C_Two, OLED4);
+	displayFour.clearDisplay();
+	displayFour.display();
+
 
 	// Begin Thermocouples
 	waterThermocouple.begin(0x060);
 	boilerThermocouple.begin(0x061);
-	evThermocouple.begin(0x067);
-
-	waterDsp.begin(SSD1306_SWITCHCAPVCC, OLED1);
-	waterDsp.clearDisplay();
-	waterDsp.display();
-
-	boilerDsp.begin(SSD1306_SWITCHCAPVCC, OLED2);
-	boilerDsp.clearDisplay();
-	boilerDsp.display();
-
-
+	evThermocouple.begin(0x064);
 
 	Serial.begin(115200);
 	Serial.println("Booting");
@@ -394,52 +460,52 @@ void setup()
 						else if (error == OTA_END_ERROR) Serial.println("End Failed");
 					});
 
-	ArduinoOTA.begin();
+					ArduinoOTA.begin();
 
-	Serial.println("Ready");
-	Serial.print("IP address: ");
-	Serial.println(WiFi.localIP());
+					Serial.println("Ready");
+					Serial.print("IP address: ");
+					Serial.println(WiFi.localIP());
 
-	timeClient.begin();
+					timeClient.begin();
 
-			// OUTPUTS   pinModes
-	// ----------------------------------------
-	pinMode(processorLED, OUTPUT);
-	digitalWrite(processorLED, LOW);
+					// OUTPUTS   pinModes
+			// ----------------------------------------
+					pinMode(processorLED, OUTPUT);
+					digitalWrite(processorLED, LOW);
 
-	// ????????????????????????
-	pinMode(callForHeat, OUTPUT); // i PIN 4
-	digitalWrite(callForHeat, LOW);
+					// ????????????????????????
+					pinMode(callForHeat, OUTPUT); // i PIN 4
+					digitalWrite(callForHeat, LOW);
 
-	pinMode(speaker, OUTPUT); // o PIN 25
-	digitalWrite(speaker, LOW);
+					pinMode(speaker, OUTPUT); // o PIN 25
+					digitalWrite(speaker, LOW);
 
-	pinMode(waterRelay, OUTPUT); // o PIN 26
-	digitalWrite(waterRelay, HIGH);
+					pinMode(waterRelay, OUTPUT); // o PIN 26
+					digitalWrite(waterRelay, HIGH);
 
-	pinMode(burnerRelay, OUTPUT); // o PIN 27
-	digitalWrite(burnerRelay, HIGH);
+					pinMode(burnerRelay, OUTPUT); // o PIN 27
+					digitalWrite(burnerRelay, HIGH);
 
-	pinMode(testRelay, OUTPUT);
-	digitalWrite(testRelay, HIGH);
+					pinMode(testRelay, OUTPUT);
+					digitalWrite(testRelay, HIGH);
 
-	pinMode(waterLowRelay, OUTPUT); // o PIN 18
-	digitalWrite(waterLowRelay, LOW);
+					pinMode(waterLowRelay, OUTPUT); // o PIN 18
+					digitalWrite(waterLowRelay, LOW);
 
-	pinMode(PB1, INPUT); // i PIN 34
-	pinMode(PB1, INPUT_PULLDOWN);
+					pinMode(PB1, INPUT); // i PIN 34
+					pinMode(PB1, INPUT_PULLDOWN);
 
-	pinMode(PB2, INPUT); // i PIN 35
-	pinMode(PB2, INPUT_PULLDOWN);
+					pinMode(PB2, INPUT); // i PIN 35
+					pinMode(PB2, INPUT_PULLDOWN);
 
-	pinMode(PB3, INPUT); // i PIN 36
-	pinMode(PB3, INPUT_PULLDOWN);
+					pinMode(PB3, INPUT); // i PIN 36
+					pinMode(PB3, INPUT_PULLDOWN);
 
-	pinMode(PB4, INPUT); // i PIN 39
-	pinMode(PB4, INPUT_PULLDOWN);
+					pinMode(PB4, INPUT); // i PIN 39
+					pinMode(PB4, INPUT_PULLDOWN);
 
-	Mode = stdby; // starting mode
-	// ----------------------------------------
+					Mode = stdby; // starting mode
+					// ----------------------------------------
 }
 
 
@@ -456,8 +522,7 @@ void setup()
 int TestMode = 1;
 //variables for blinking an LED with Millis
 unsigned long previous_millis = 0;  // will store last time LED was updated
-const long interval = 1000;  // interval at which to blink (milliseconds)
-
+const long interval = 500;  // interval at which to blink (milliseconds)
 
 void loop() {
 
@@ -466,71 +531,74 @@ void loop() {
 
 
 	const auto current_millis = millis();
+
+
+
 	if (TestMode == 1) {
 		//loop to blink without delay
 
-			/*
-			if (current_millis - previous_millis >= interval) {
-				// save the last time you blinked the LED
-				previous_millis = current_millis;
 
-				// set the LED with the ledState of the variable:
-				digitalWrite(processorLED, !digitalRead(processorLED));
+		if (current_millis - previous_millis >= interval) {
+			// save the last time you blinked the LED
+			previous_millis = current_millis;
 
-				digitalWrite(waterRelay, !digitalRead(waterRelay));
+			// set the LED with the ledState of the variable:
+			digitalWrite(processorLED, !digitalRead(processorLED));
 
-				digitalWrite(burnerRelay, !digitalRead(burnerRelay));
-
-				//  digitalWrite(testRelay, !digitalRead(testRelay));
-				//	digitalWrite(waterLowRelay, LOW);
-
-			}
-			*/
+		}
 
 
-		if (digitalRead(PB1))
+
+
+
+
+
+		if (digitalRead(PB1) == HIGH)
 		{
 			digitalWrite(burnerRelay, LOW);
+		}
+		else
+		{
+			digitalWrite(burnerRelay, HIGH);
+		}
+
+		if (digitalRead(PB2) == HIGH)
+		{
+			digitalWrite(waterRelay, LOW);
+		}
+		else
+		{
 			digitalWrite(waterRelay, HIGH);
+		}
+
+		if (digitalRead(PB3) == HIGH)
+		{
+			digitalWrite(waterLowRelay, LOW);
+		}
+		else
+		{
 			digitalWrite(waterLowRelay, HIGH);
+		}
+
+		if (digitalRead(PB4) == HIGH)
+		{
+			digitalWrite(testRelay, LOW);
+		}
+		else
+		{
 			digitalWrite(testRelay, HIGH);
-
 		}
-		else {
-			if (digitalRead(PB2))
-			{
-				digitalWrite(burnerRelay, HIGH);
-				digitalWrite(waterRelay, LOW);
-				digitalWrite(waterLowRelay, HIGH);
-				digitalWrite(testRelay, HIGH);
 
-			}
-			else {
-				if (digitalRead(PB3))
-				{
-					digitalWrite(burnerRelay, HIGH);
-					digitalWrite(waterRelay, HIGH);
-					digitalWrite(waterLowRelay, LOW);
-					digitalWrite(testRelay, HIGH);
+		digitalWrite(PB1, LOW);
+		digitalWrite(PB2, LOW);
+		digitalWrite(PB3, LOW);
+		digitalWrite(PB4, LOW);
 
-				}
-				else {
-					if (digitalRead(PB4))
-					{
-						digitalWrite(burnerRelay, HIGH);
-						digitalWrite(waterRelay, HIGH);
-						digitalWrite(waterLowRelay, HIGH);
-						digitalWrite(testRelay, LOW);
-					}
-					else {
-						digitalWrite(burnerRelay, HIGH);
-						digitalWrite(waterRelay, HIGH);
-						digitalWrite(waterLowRelay, HIGH);
-						digitalWrite(testRelay, HIGH);
-					}
-				}
-			}
-		}
+		digitalWrite(burnerRelay, HIGH);
+		digitalWrite(waterRelay, HIGH);
+		digitalWrite(waterLowRelay, HIGH);
+		digitalWrite(testRelay, HIGH);
+
 	}
 }
 
@@ -653,20 +721,20 @@ auto updateDisplay() -> void
 	String waterTitle = "M->" + Mode + " F->" + currentFunction;
 
 
-	waterDsp.setTextSize(1);
-	waterDsp.clearDisplay();
-	waterDsp.setTextColor(WHITE);
+	displayTwo.setTextSize(1);
+	displayTwo.clearDisplay();
+	displayTwo.setTextColor(WHITE);
 
-	waterDsp.setCursor(11, 1);
-	waterDsp.println(waterTitle);
+	displayTwo.setCursor(11, 1);
+	displayTwo.println(waterTitle);
 
-	waterDsp.setCursor(11, 11);
-	waterDsp.println("W->" + sWaterTemp);
+	displayTwo.setCursor(11, 11);
+	displayTwo.println("W->" + sWaterTemp);
 
-	waterDsp.setCursor(11, 22);
-	waterDsp.println("B->" + sBoilerTemp);
+	displayTwo.setCursor(11, 22);
+	displayTwo.println("B->" + sBoilerTemp);
 
-	waterDsp.display();
+	displayTwo.display();
 
 	// ==============================================
 
@@ -674,20 +742,20 @@ auto updateDisplay() -> void
 
 
 
-	boilerDsp.setTextSize(1);
-	boilerDsp.clearDisplay();
-	boilerDsp.setTextColor(WHITE);
+	displayOne.setTextSize(1);
+	displayOne.clearDisplay();
+	displayOne.setTextColor(WHITE);
 
-	boilerDsp.setCursor(11, 1);
-	boilerDsp.println("E->" + sEVTemp);
+	displayOne.setCursor(11, 1);
+	displayOne.println("E->" + sEVTemp);
 
-	boilerDsp.setCursor(11, 11);
-	boilerDsp.println("HT->" + String(int(highTemperature)));
+	displayOne.setCursor(11, 11);
+	displayOne.println("HT->" + String(int(highTemperature)));
 
-	boilerDsp.setCursor(11, 22);
-	boilerDsp.println("L->" + String(int(lowTemperature)));
+	displayOne.setCursor(11, 22);
+	displayOne.println("L->" + String(int(lowTemperature)));
 
-	boilerDsp.display();
+	displayOne.display();
 
 	// ==============================================
 }
