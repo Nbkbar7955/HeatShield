@@ -1,13 +1,4 @@
 
-
-
-
-
-
-
-
-
-
 /*
  Name:    Endeavor 2324
  Created: 8/27/2022 3:36:02 PM
@@ -31,11 +22,12 @@
 #include <Adafruit_SSD1306.h>
 #include <ArduinoHttpClient.h>
 
-#define SDA_1 21
-#define SCL_1 22
 
-#define SDA_2 25
-#define SCL_2 26
+//#define SDA_1 21
+//#define SCL_1 22
+//
+//#define SDA_2 25
+//#define SCL_2 26
 
 
 
@@ -305,15 +297,15 @@ MCP9600 waterOutThermocouple;
 Adafruit_SSD1306 displayTwo(-1);
 Adafruit_SSD1306 displayOne(-1);
 
-Adafruit_SSD1306 displayThree(-1);
-Adafruit_SSD1306 displayFour(-1);
+//Adafruit_SSD1306 displayThree(-1);
+//Adafruit_SSD1306 displayFour(-1);
 
 
 #define OLED1 0x3C // OLED 1
 #define OLED2 0x3D // OLED 2
 
-#define OLED3 0x3C // OLED 3
-#define OLED4 0x3D // OLED 4
+//#define OLED3 0x3C // OLED 3
+//#define OLED4 0x3D // OLED 4
 
 
 // Prototypes
@@ -329,34 +321,20 @@ auto heatUpCycle(float) -> void;
 auto PB1_Fired() -> void;
 auto PB2_Fired() -> void;
 
-/*
-#define SDA_1 21
-#define SCL_1 22
 
-#define SDA_2 25
-#define SCL_2 26
-
-
-Adafruit_SSD1306 displayTwo(-1);
-Adafruit_SSD1306 displayOne(-1);
-
-Adafruit_SSD1306 displayThree(-1);
-Adafruit_SSD1306 displayFour(-1);
-
-
-#define OLED1 0x3C // OLED 1
-#define OLED2 0x3D // OLED 2
-
-#define OLED3 0x3C // OLED 3
-#define OLED4 0x3D // OLED 4
-
-
-*/
-
-
-
-TwoWire I2C_One = TwoWire(0);
-TwoWire I2C_Two = TwoWire(1);
+//#define SDA_1 21
+//#define SCL_1 22
+//
+//#define SDA_2 25
+//#define SCL_2 26
+//
+//
+//
+//
+//
+//
+//TwoWire I2C_One = TwoWire(0);
+//TwoWire I2C_Two = TwoWire(1);
 
 ///------------------------------------------------------------------------------------------
 
@@ -367,29 +345,31 @@ TwoWire I2C_Two = TwoWire(1);
 void setup()
 {
 
+	//Wire.begin(SDA_1,SCL_1,100000);
 
 
-
-	I2C_One.begin(SDA_1, SCL_1, 100000);
-	I2C_Two.begin(SDA_2, SCL_2, 100000);
-
+	//I2C_One.begin(SDA_1, SCL_1, 100000);
+	//I2C_Two.begin(SDA_2, SCL_2, 100000);
 
 
-	displayOne.begin(SSD1306_SWITCHCAPVCC, &I2C_One, OLED2);
+	
+	displayOne.begin(SSD1306_SWITCHCAPVCC,OLED1);
 	displayOne.clearDisplay();
 	displayOne.display();
 
-	displayTwo.begin(SSD1306_SWITCHCAPVCC, &I2C_One, OLED1);
+	displayTwo.begin(SSD1306_SWITCHCAPVCC, OLED2);
 	displayTwo.clearDisplay();
 	displayTwo.display();
 
-	displayThree.begin(SSD1306_SWITCHCAPVCC, &I2C_Two, OLED3);
-	displayThree.clearDisplay();
-	displayThree.display();
 
-	displayFour.begin(SSD1306_SWITCHCAPVCC, &I2C_Two, OLED4);
-	displayFour.clearDisplay();
-	displayFour.display();
+	//displayThree.begin(SSD1306_SWITCHCAPVCC, 1, OLED3);
+	//displayThree.clearDisplay();
+	//displayThree.display();
+
+	//displayFour.begin(SSD1306_SWITCHCAPVCC, 1, OLED4);
+	//displayFour.clearDisplay();
+	//displayFour.display();
+	
 
 
 	// Begin Thermocouples
@@ -462,50 +442,50 @@ void setup()
 
 					ArduinoOTA.begin();
 
-					Serial.println("Ready");
-					Serial.print("IP address: ");
-					Serial.println(WiFi.localIP());
+		Serial.println("Ready");
+		Serial.print("IP address: ");
+		Serial.println(WiFi.localIP());
 
-					timeClient.begin();
+		timeClient.begin();
 
-					// OUTPUTS   pinModes
-			// ----------------------------------------
-					pinMode(processorLED, OUTPUT);
-					digitalWrite(processorLED, LOW);
+		// OUTPUTS   pinModes
+// ----------------------------------------
+		pinMode(processorLED, OUTPUT);
+		digitalWrite(processorLED, LOW);
 
-					// ????????????????????????
-					pinMode(callForHeat, OUTPUT); // i PIN 4
-					digitalWrite(callForHeat, LOW);
+		// ????????????????????????
+		pinMode(callForHeat, OUTPUT); // i PIN 4
+		digitalWrite(callForHeat, LOW);
 
-					pinMode(speaker, OUTPUT); // o PIN 25
-					digitalWrite(speaker, LOW);
+		pinMode(speaker, OUTPUT); // o PIN 25
+		digitalWrite(speaker, LOW);
 
-					pinMode(waterRelay, OUTPUT); // o PIN 26
-					digitalWrite(waterRelay, HIGH);
+		pinMode(waterRelay, OUTPUT); // o PIN 26
+		digitalWrite(waterRelay, HIGH);
 
-					pinMode(burnerRelay, OUTPUT); // o PIN 27
-					digitalWrite(burnerRelay, HIGH);
+		pinMode(burnerRelay, OUTPUT); // o PIN 27
+		digitalWrite(burnerRelay, HIGH);
 
-					pinMode(testRelay, OUTPUT);
-					digitalWrite(testRelay, HIGH);
+		pinMode(testRelay, OUTPUT);
+		digitalWrite(testRelay, HIGH);
 
-					pinMode(waterLowRelay, OUTPUT); // o PIN 18
-					digitalWrite(waterLowRelay, LOW);
+		pinMode(waterLowRelay, OUTPUT); // o PIN 18
+		digitalWrite(waterLowRelay, LOW);
 
-					pinMode(PB1, INPUT); // i PIN 34
-					pinMode(PB1, INPUT_PULLDOWN);
+		pinMode(PB1, INPUT); // i PIN 34
+		pinMode(PB1, INPUT_PULLDOWN);
 
-					pinMode(PB2, INPUT); // i PIN 35
-					pinMode(PB2, INPUT_PULLDOWN);
+		pinMode(PB2, INPUT); // i PIN 35
+		pinMode(PB2, INPUT_PULLDOWN);
 
-					pinMode(PB3, INPUT); // i PIN 36
-					pinMode(PB3, INPUT_PULLDOWN);
+		pinMode(PB3, INPUT); // i PIN 36
+		pinMode(PB3, INPUT_PULLDOWN);
 
-					pinMode(PB4, INPUT); // i PIN 39
-					pinMode(PB4, INPUT_PULLDOWN);
+		pinMode(PB4, INPUT); // i PIN 39
+		pinMode(PB4, INPUT_PULLDOWN);
 
-					Mode = stdby; // starting mode
-					// ----------------------------------------
+		Mode = stdby; // starting mode
+		// ----------------------------------------
 }
 
 
@@ -522,7 +502,7 @@ void setup()
 int TestMode = 1;
 //variables for blinking an LED with Millis
 unsigned long previous_millis = 0;  // will store last time LED was updated
-const long interval = 500;  // interval at which to blink (milliseconds)
+const long interval = 1000;  // interval at which to blink (milliseconds)
 
 void loop() {
 
@@ -544,14 +524,33 @@ void loop() {
 
 			// set the LED with the ledState of the variable:
 			digitalWrite(processorLED, !digitalRead(processorLED));
+			digitalWrite(waterLowRelay, HIGH);
+
+
 
 		}
 
+		//displayThree.setTextSize(1);
+		//displayThree.clearDisplay();
+		//displayThree.setTextColor(WHITE);
+
+		//displayThree.setCursor(11, 1);
+		//displayThree.println("Display 3");
+		//displayThree.display();
+
+		//displayTwo.setTextSize(1);
+		//displayTwo.clearDisplay();
+		//displayTwo.setTextColor(WHITE);
+
+		//displayTwo.setCursor(11, 1);
+		//displayTwo.println("Display 2");
+		//displayTwo.display();
+
+		updateDisplay();
 
 
 
-
-
+		/*
 
 		if (digitalRead(PB1) == HIGH)
 		{
@@ -598,6 +597,21 @@ void loop() {
 		digitalWrite(waterRelay, HIGH);
 		digitalWrite(waterLowRelay, HIGH);
 		digitalWrite(testRelay, HIGH);
+		*/
+
+		//I2C_One.beginTransmission(0x3c);
+		//I2C_One.write(0x40);
+		//I2C_One.endTransmission();
+
+		//I2C_Two.beginTransmission(0x3c);
+		//I2C_Two.write(0x45);
+		//I2C_Two.endTransmission();
+		//
+
+
+
+
+
 
 	}
 }
