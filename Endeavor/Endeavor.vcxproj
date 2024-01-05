@@ -138,7 +138,7 @@
   </ImportGroup>
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties arduino.upload.port="192.168.0.89" config.Debug.customdebug_esp32_nodemcu-32s_debugger_type="universal" custom_esp32_nodemcu-32s_EraseFlash="none" />
+      <UserProperties arduino.upload.port="192.168.0.79" config.Debug.customdebug_esp32_nodemcu-32s_debugger_type="universal" custom_esp32_nodemcu-32s_EraseFlash="none" />
     </VisualStudio>
   </ProjectExtensions>
 </Project>

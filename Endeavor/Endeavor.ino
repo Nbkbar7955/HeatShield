@@ -385,10 +385,10 @@ auto updateDisplay() -> void
 	displayOne.println("UP: "  + String(int((millis() - startUpTime) / 1000)) );
 
 	displayOne.setCursor(11, 11);
-	displayOne.println("BLR->" + sBoilerTemp);
+	displayOne.println("BLR:" + sBoilerTemp);
 
 	displayOne.setCursor(11, 22);
-	displayOne.println("WIT->" + sWaterInTemp);
+	displayOne.println("WIT:" + sWaterInTemp);
 
 	displayOne.display();
 
@@ -402,10 +402,10 @@ auto updateDisplay() -> void
 	displayTwo.println(" step here? ");
 
 	displayTwo.setCursor(11, 11);
-	displayTwo.println("WOT->" + sWaterOutTemp);
+	displayTwo.println("WOT:" + sWaterOutTemp);
 
 	displayTwo.setCursor(11, 22);
-	displayTwo.println("ENV->" + sEVTemp);
+	displayTwo.println("ENV:" + sEVTemp);
 
 	displayTwo.display();
 	// ==============================================
