@@ -318,8 +318,8 @@ String activeRelay = "None";
 unsigned long previous_millis = 0;
 unsigned long previousRelayMillis = 0;
 
-const long interval = 1000;
-const long relayInterval = 3000;
+const long interval = 125;
+const long relayInterval = 1000;
 int nextRelay = 1;
 
 
