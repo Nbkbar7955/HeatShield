@@ -13,8 +13,8 @@
 //#include <HttpClient.h>
 #include <ArduinoOTA.h>
 #include <ESPmDNS.h>
-#include <NTPClient.h>
-#include <WiFiUdp.h>
+//#include <NTPClient.h>
+// #include <WiFiUdp.h>
 #include <SPI.h>
 #include <Adafruit_SSD1306.h>
 #include <ArduinoHttpClient.h>
@@ -88,12 +88,10 @@ String CHstatus = "-";
 const char* ssid = "Wilson.Net-2.4G";
 const char* password = "wilsonwebsite.com";
 
-const long utcOffsetInSeconds = 3600;
-char daysOfTheWeek[7][12] = { "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday" };
 
 // Define NTP Client to get time
-WiFiUDP ntpUDP;
-NTPClient timeClient(ntpUDP, "pool.ntp.org", utcOffsetInSeconds);
+//WiFiUDP ntpUDP;
+
 
 
 const int processorLED = 2; //o LED on MicroProcessor
@@ -141,7 +139,7 @@ int status = WL_IDLE_STATUS;
 MCP9600 evThermocouple;
 MCP9600 waterInThermocouple;
 MCP9600 boilerThermocouple;
-MCP9600 waterOutThermocouple;
+
 
 
 //------------------------------------------------------------------------------------------
@@ -159,13 +157,9 @@ Adafruit_SSD1306 displayOne(-1);
 ///
 ///
 
-auto checkCallForHeat() -> bool;
-auto operationalCycle() -> void;
+
 auto updateDisplay() -> void;
-auto coolDownCycle(float) -> void;
-auto heatUpCycle(float) -> void;
-auto PB1_Fired() -> void;
-auto PB2_Fired() -> void;
+
 
 
 long startUpTime = 0;
@@ -179,8 +173,8 @@ long startUpTime = 0;
 void setup()
 {
 
-	
-	displayOne.begin(SSD1306_SWITCHCAPVCC,OLED1);
+
+	displayOne.begin(SSD1306_SWITCHCAPVCC, OLED1);
 	displayOne.clearDisplay();
 	displayOne.display();
 
@@ -193,7 +187,7 @@ void setup()
 	//waterOutThermocouple.begin(0x65);
 	boilerThermocouple.begin(0x061);
 	evThermocouple.begin(0x064);
-	
+
 
 	Serial.begin(115200);
 	Serial.println("Booting");
@@ -247,57 +241,56 @@ void setup()
 					ArduinoOTA.begin();
 
 
-	Serial.println("Ready");
-		Serial.print("IP address: ");
-		Serial.println(WiFi.localIP());
-
-		timeClient.begin();
-
-		// OUTPUTS   pinModes
-// ----------------------------------------
-		pinMode(processorLED, OUTPUT);
-		digitalWrite(processorLED, LOW);
-		
-		pinMode(callForHeat, OUTPUT); // i PIN 4
-		digitalWrite(callForHeat, LOW);
-
-		pinMode(speaker, OUTPUT); // o PIN 25
-		digitalWrite(speaker, LOW);
-
-		pinMode(waterRelay, OUTPUT); // o PIN 26
-		digitalWrite(waterRelay, HIGH);
-
-		pinMode(burnerRelay, OUTPUT); // o PIN 27
-		digitalWrite(burnerRelay, HIGH);
-
-		pinMode(testRelay, OUTPUT);
-		digitalWrite(testRelay, HIGH);
-
-		pinMode(waterLowRelay, OUTPUT); // o PIN 18
-		digitalWrite(waterLowRelay, HIGH);
-
-		pinMode(PB1, INPUT); // i PIN 34
-		pinMode(PB1, INPUT_PULLDOWN);
-		digitalWrite(PB1, LOW);
-
-		pinMode(PB2, INPUT); // i PIN 35
-		pinMode(PB2, INPUT_PULLDOWN);
-		digitalWrite(PB2, LOW);
-
-		pinMode(PB3, INPUT); // i PIN 36
-		pinMode(PB3, INPUT_PULLDOWN);
-		digitalWrite(PB3, LOW);
-
-		pinMode(PB4, INPUT); // i PIN 39
-		pinMode(PB4, INPUT_PULLDOWN);
-		digitalWrite(PB4, LOW);
-
-		Mode = stdby; // starting mode
-		// ----------------------------------------
-		//
+					Serial.println("Ready");
+					Serial.print("IP address: ");
+					Serial.println(WiFi.localIP());
 
 
-		startUpTime = millis();
+					// OUTPUTS   pinModes
+			// ----------------------------------------
+					pinMode(processorLED, OUTPUT);
+					digitalWrite(processorLED, LOW);
+
+					pinMode(callForHeat, OUTPUT); // i PIN 4
+					digitalWrite(callForHeat, LOW);
+
+					pinMode(speaker, OUTPUT); // o PIN 25
+					digitalWrite(speaker, LOW);
+
+					pinMode(waterRelay, OUTPUT); // o PIN 26
+					digitalWrite(waterRelay, HIGH);
+
+					pinMode(burnerRelay, OUTPUT); // o PIN 27
+					digitalWrite(burnerRelay, HIGH);
+
+					pinMode(testRelay, OUTPUT);
+					digitalWrite(testRelay, HIGH);
+
+					pinMode(waterLowRelay, OUTPUT); // o PIN 18
+					digitalWrite(waterLowRelay, HIGH);
+
+					pinMode(PB1, INPUT); // i PIN 34
+					pinMode(PB1, INPUT_PULLDOWN);
+					digitalWrite(PB1, LOW);
+
+					pinMode(PB2, INPUT); // i PIN 35
+					pinMode(PB2, INPUT_PULLDOWN);
+					digitalWrite(PB2, LOW);
+
+					pinMode(PB3, INPUT); // i PIN 36
+					pinMode(PB3, INPUT_PULLDOWN);
+					digitalWrite(PB3, LOW);
+
+					pinMode(PB4, INPUT); // i PIN 39
+					pinMode(PB4, INPUT_PULLDOWN);
+					digitalWrite(PB4, LOW);
+
+					Mode = stdby; // starting mode
+					// ----------------------------------------
+					//
+
+
+					startUpTime = millis();
 }
 
 
@@ -316,25 +309,26 @@ void setup()
 
 
 int TestMode = 1;
-
+String activeRelay = "None";
 
 
 
 
 //variables for blinking an LED with Millis
-unsigned long previous_millis = 0;  // will store last time LED was updated
-const long interval = 1000;  // interval at which to blink (milliseconds)
+unsigned long previous_millis = 0;
+unsigned long previousRelayMillis = 0;
 
+const long interval = 1000;
+const long relayInterval = 3000;
+int nextRelay = 1;
 
 
 void loop() {
 
 	ArduinoOTA.handle();
-	timeClient.update();
-
 
 	const auto current_millis = millis();
-
+	const auto currentRelayMillis = millis();
 
 
 	if (TestMode == 1) {
@@ -350,6 +344,51 @@ void loop() {
 
 		}
 
+		if (currentRelayMillis - previousRelayMillis >= relayInterval) {
+			// save the last time you blinked the LED
+			previousRelayMillis = currentRelayMillis;
+
+
+
+			switch (nextRelay) {
+
+			case 1:
+				digitalWrite(burnerRelay, LOW);
+				digitalWrite(waterRelay, HIGH);
+				digitalWrite(waterLowRelay, HIGH);
+				digitalWrite(testRelay, HIGH);
+				break;
+			case 2:
+				digitalWrite(burnerRelay, HIGH);
+				digitalWrite(waterRelay, LOW);
+				digitalWrite(waterLowRelay, HIGH);
+				digitalWrite(testRelay, HIGH);
+				break;
+			case 3:
+				digitalWrite(burnerRelay, HIGH);
+				digitalWrite(waterRelay, HIGH);
+				digitalWrite(waterLowRelay, LOW);
+				digitalWrite(testRelay, HIGH);
+				break;
+			case 4:
+				digitalWrite(burnerRelay, HIGH);
+				digitalWrite(waterRelay, HIGH);
+				digitalWrite(waterLowRelay, HIGH);
+				digitalWrite(testRelay, LOW);
+				break;
+			default:
+				digitalWrite(burnerRelay, LOW);
+				digitalWrite(waterRelay, HIGH);
+				digitalWrite(waterLowRelay, LOW);
+				digitalWrite(testRelay, HIGH);
+				break;
+			}
+
+			if (nextRelay > 4) nextRelay = 1;
+			nextRelay++;
+
+		}
+
 
 		updateDisplay();
 
@@ -357,11 +396,9 @@ void loop() {
 }
 
 
-auto updateDisplay() -> void
-{
-	ArduinoOTA.handle();
-	timeClient.update();
+auto updateDisplay() -> void {
 
+	ArduinoOTA.handle();
 
 	// (26°C × 9/5) + 32 = 78.8°F 
 	waterInTemp = waterInThermocouple.getThermocoupleTemp(false);
@@ -374,15 +411,18 @@ auto updateDisplay() -> void
 	const String sEVTemp = String(envTemp);
 	const String sWaterOutTemp = String(waterOutTemp);
 
-	
+
 	// ==============================================
+
+
+	displayOne.clearDisplay();
 
 	displayOne.setTextSize(1);
 	displayOne.clearDisplay();
 	displayOne.setTextColor(WHITE);
 
 	displayOne.setCursor(11, 1);
-	displayOne.println("UP: "  + String(int((millis() - startUpTime) / 1000)) );
+	displayOne.println("UP: " + String(int((millis() - startUpTime) / 1000)));
 
 	displayOne.setCursor(11, 11);
 	displayOne.println("BLR:" + sBoilerTemp);
@@ -394,12 +434,18 @@ auto updateDisplay() -> void
 
 	// ==============================================	
 
+
+	displayTwo.clearDisplay();
+
+
 	displayTwo.setTextSize(1);
 	displayTwo.clearDisplay();
 	displayTwo.setTextColor(WHITE);
 
+
+
 	displayTwo.setCursor(11, 1);
-	displayTwo.println(" step here? ");
+	displayTwo.println("Relay:" + String(nextRelay - 1));
 
 	displayTwo.setCursor(11, 11);
 	displayTwo.println("WOT:" + sWaterOutTemp);
@@ -411,132 +457,3 @@ auto updateDisplay() -> void
 	// ==============================================
 }
 
-
-
-// Functions
-//------------------------------------------------------------------------------------------
-
-
-auto operationalCycle() -> void
-{
-	ArduinoOTA.handle();
-	timeClient.update();
-
-	currentFunction = "op";
-
-	updateDisplay();
-	checkCallForHeat();
-
-	if (Mode == active) heatUpCycle(highActiveTemperature);
-	if (Mode == stdby) heatUpCycle(highStdbyTemperature);
-	if (Mode == inActive) heatUpCycle(highInactiveTemperature);
-
-	updateDisplay();
-
-}
-
-// -------------------------------------------------------------------------------------
-// ------------------------------------------------------------------------------------------
-// ------------------------------------------------------------------------------------------
-// Methods
-// ------------------------------------------------------------------------------------------
-// ------------------------------------------------------------------------------------------
-
-
-
-auto heatUpCycle(float tHigh) -> void
-{
-
-	ArduinoOTA.handle();
-	timeClient.update();
-
-	currentFunction = "heat";
-	highTemperature = tHigh;
-
-	currentWaterTemp = waterInThermocouple.getThermocoupleTemp(false);
-	currentBoilerTemp = boilerThermocouple.getThermocoupleTemp(false);
-	currentEvTemp = evThermocouple.getThermocoupleTemp(false);
-
-	while (currentWaterTemp <= tHigh && !coolDown)
-	{
-		ArduinoOTA.handle();
-		timeClient.update();
-
-		digitalWrite(waterLowRelay, HIGH);
-		digitalWrite(burnerRelay, HIGH); // burner on
-		digitalWrite(waterRelay, HIGH); // waterpump on
-
-		currentWaterTemp = waterInThermocouple.getThermocoupleTemp(false);
-		updateDisplay();
-	}
-
-	digitalWrite(waterLowRelay, LOW);
-	digitalWrite(burnerRelay, LOW); // burner off
-	digitalWrite(waterRelay, LOW); // waterpump off
-
-	updateDisplay();
-
-	if (Mode == active) coolDownCycle(lowActiveTemperature);
-	if (Mode == stdby) coolDownCycle(lowStdbyTemperature);
-	if (Mode == inActive) coolDownCycle(lowInactiveTemperature);
-
-}
-
-auto coolDownCycle(float tLow) -> void
-{
-	ArduinoOTA.handle();
-	timeClient.update();
-
-	coolDown = true;
-	currentFunction = "cool";
-	lowTemperature = tLow;
-
-	currentWaterTemp = waterInThermocouple.getThermocoupleTemp(false);
-	currentBoilerTemp = boilerThermocouple.getThermocoupleTemp(false);
-	currentEvTemp = evThermocouple.getThermocoupleTemp(false);
-
-	while (currentWaterTemp >= tLow)
-	{
-		ArduinoOTA.handle();
-		timeClient.update();
-
-		digitalWrite(waterLowRelay, LOW);
-		digitalWrite(burnerRelay, LOW); // burner off
-		digitalWrite(waterRelay, LOW); // waterpump off
-
-		currentWaterTemp = waterInThermocouple.getThermocoupleTemp(false);
-		updateDisplay();
-	}
-	coolDown = false;
-}
-
-
-
-auto checkCallForHeat() -> bool
-{
-	ArduinoOTA.handle();
-	timeClient.update();
-
-
-	if (digitalRead(callForHeat) == HIGH)
-	{
-		CHstatus = "+";
-		Mode = active;
-		return true;
-	}
-	CHstatus = "-";
-	Mode = stdby;
-	return false;
-}
-
-auto PB1_Fired() -> void
-{
-	digitalWrite(burnerRelay, HIGH);
-	digitalWrite(waterLowRelay, HIGH);
-}
-
-auto PB2_Fired() -> void
-{
-	digitalWrite(burnerRelay, LOW);
-	digitalWrite(waterLowRelay, LOW);
-}
