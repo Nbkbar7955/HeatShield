@@ -136,9 +136,10 @@ int status = WL_IDLE_STATUS;
 // ------------------------------------------------------------------------------------------
 //
 
-MCP9600 evThermocouple;
-MCP9600 waterInThermocouple;
-MCP9600 boilerThermocouple;
+MCP9600 evThermocouple;  //pink
+MCP9600 waterInThermocouple; //blue
+MCP9600 boilerThermocouple; //yellow
+MCP9600 waterOutThermocouple; //white
 
 
 
@@ -150,6 +151,8 @@ Adafruit_SSD1306 displayOne(-1);
 #define OLED1 0x3C // OLED 1
 #define OLED2 0x3D // OLED 2
 
+#define OLED3 0x3C // OLED 3
+#define OLED4 0x3D // OLED 4
 
 
 // Prototypes
@@ -183,10 +186,10 @@ void setup()
 	displayTwo.display();
 
 	// Begin Thermocouples
-	waterInThermocouple.begin(0x060);
-	//waterOutThermocouple.begin(0x65);
-	boilerThermocouple.begin(0x061);
-	evThermocouple.begin(0x064);
+	waterInThermocouple.begin(0x060);   // blue
+	waterOutThermocouple.begin(0x65); // white
+	boilerThermocouple.begin(0x061); // yellow
+	evThermocouple.begin(0x064); // pink
 
 
 	Serial.begin(115200);
@@ -404,7 +407,7 @@ auto updateDisplay() -> void {
 	waterInTemp = waterInThermocouple.getThermocoupleTemp(false);
 	boilerTemp = boilerThermocouple.getThermocoupleTemp(false);
 	envTemp = evThermocouple.getThermocoupleTemp(false);
-	waterOutTemp = 0; //sWaterOutTemp = waterOutThermocouple.getThermocoupleTemp(false);
+	waterOutTemp = waterOutThermocouple.getThermocoupleTemp(false);; //sWaterOutTemp = waterOutThermocouple.getThermocoupleTemp(false);
 
 	const String sWaterInTemp = String(waterInTemp);
 	const String sBoilerTemp = String(boilerTemp);
