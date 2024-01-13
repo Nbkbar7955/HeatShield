@@ -7,6 +7,8 @@
  PROTOTYPE - CC:50:E3:80:A2:E8  192.168.0.36
  PRODUCTION - 24:6F:28:9E:9B:D0  192.168.0.37  25?
 
+ OLED 0.96 module 12864 (UMLIFE) 128x64
+
 */
 
 #include <SparkFun_MCP9600.h>
@@ -20,7 +22,8 @@
 #include <ArduinoHttpClient.h>
 
 
-
+#define SCREEN_WIDTH 128
+#define SCREEN_HEIGHT 64
 
 String callForHeatVar = "active";
 String active = "active";
@@ -130,20 +133,34 @@ WiFiClient wifi;
 HttpClient client = HttpClient(wifi, serverAddress, port);
 int status = WL_IDLE_STATUS;
 
+
+
+
+
+
+
 //
 // ------------------------------------------------------------------------------------------
 // Temperature 
 // ------------------------------------------------------------------------------------------
 //
 
-MCP9600 evThermocouple;  //pink
-MCP9600 waterInThermocouple; //blue
-MCP9600 boilerThermocouple; //yellow
-MCP9600 waterOutThermocouple; //white
+MCP9600 evThermocouple;  //65 pink
+MCP9600 waterInThermocouple; //61 blue
+MCP9600 boilerThermocouple; //60 yellow
+MCP9600 waterOutThermocouple; //64 white
 
 
 
 //------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
 
 Adafruit_SSD1306 displayTwo(-1);
 Adafruit_SSD1306 displayOne(-1);
@@ -151,24 +168,22 @@ Adafruit_SSD1306 displayOne(-1);
 #define OLED1 0x3C // OLED 1
 #define OLED2 0x3D // OLED 2
 
-#define OLED3 0x3C // OLED 3
-#define OLED4 0x3D // OLED 4
+//#define OLED3 0x3C // OLED 3
+//#define OLED4 0x3D // OLED 4
 
 
 // Prototypes
 ///------------------------------------------------------------------------------------------
-///
-///
+
+
 
 
 auto updateDisplay() -> void;
 
 
-
 long startUpTime = 0;
 
 ///------------------------------------------------------------------------------------------
-
 // Setup
 //------------------------------------------------------------------------------------------
 //
@@ -176,6 +191,9 @@ long startUpTime = 0;
 void setup()
 {
 
+
+
+	
 
 	displayOne.begin(SSD1306_SWITCHCAPVCC, OLED1);
 	displayOne.clearDisplay();
@@ -186,12 +204,19 @@ void setup()
 	displayTwo.display();
 
 	// Begin Thermocouples
-	waterInThermocouple.begin(0x060);   // blue
-	waterOutThermocouple.begin(0x65); // white
-	boilerThermocouple.begin(0x061); // yellow
-	evThermocouple.begin(0x064); // pink
+	boilerThermocouple.begin(0x060); // yellow
+	waterInThermocouple.begin(0x061);   // blue  
+	waterOutThermocouple.begin(0x64); // white
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	evThermocouple.begin(0x065); // pink
 
 
+
+
+
+
+
+	
 	Serial.begin(115200);
 	Serial.println("Booting");
 
@@ -321,8 +346,8 @@ String activeRelay = "None";
 unsigned long previous_millis = 0;
 unsigned long previousRelayMillis = 0;
 
-const long interval = 125;
-const long relayInterval = 1000;
+const long interval = 250;
+const long relayInterval = 750;
 int nextRelay = 1;
 
 
@@ -335,7 +360,6 @@ void loop() {
 
 
 	if (TestMode == 1) {
-		//loop to blink without delay
 
 
 		if (current_millis - previous_millis >= interval) {
@@ -347,12 +371,15 @@ void loop() {
 
 		}
 
+
+
+
 		if (currentRelayMillis - previousRelayMillis >= relayInterval) {
 			// save the last time you blinked the LED
 			previousRelayMillis = currentRelayMillis;
 
-
-
+			updateDisplay();
+			
 			switch (nextRelay) {
 
 			case 1:
@@ -381,82 +408,103 @@ void loop() {
 				break;
 			default:
 				digitalWrite(burnerRelay, LOW);
-				digitalWrite(waterRelay, HIGH);
+				digitalWrite(waterRelay, LOW);
 				digitalWrite(waterLowRelay, LOW);
-				digitalWrite(testRelay, HIGH);
+				digitalWrite(testRelay, LOW);
 				break;
 			}
 
+			nextRelay++;	
 			if (nextRelay > 4) nextRelay = 1;
-			nextRelay++;
+		
+		
+		
+	}
 
-		}
 
 
-		updateDisplay();
 
 	}
 }
+
+
+
+
+
+
 
 
 auto updateDisplay() -> void {
 
 	ArduinoOTA.handle();
 
+
 	// (26°C × 9/5) + 32 = 78.8°F 
-	waterInTemp = waterInThermocouple.getThermocoupleTemp(false);
+	
 	boilerTemp = boilerThermocouple.getThermocoupleTemp(false);
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	envTemp = evThermocouple.getThermocoupleTemp(false);
-	waterOutTemp = waterOutThermocouple.getThermocoupleTemp(false);; //sWaterOutTemp = waterOutThermocouple.getThermocoupleTemp(false);
+	waterOutTemp = waterOutThermocouple.getThermocoupleTemp(false);
+	waterInTemp = waterInThermocouple.getThermocoupleTemp(false);
 
+	//61/blu
 	const String sWaterInTemp = String(waterInTemp);
+	// 60/yel
 	const String sBoilerTemp = String(boilerTemp);
+	// 65/pnk
 	const String sEVTemp = String(envTemp);
+	//64/wht
 	const String sWaterOutTemp = String(waterOutTemp);
-
+	
 
 	// ==============================================
 
 
 	displayOne.clearDisplay();
-
 	displayOne.setTextSize(1);
-	displayOne.clearDisplay();
 	displayOne.setTextColor(WHITE);
 
 	displayOne.setCursor(11, 1);
 	displayOne.println("UP: " + String(int((millis() - startUpTime) / 1000)));
 
 	displayOne.setCursor(11, 11);
-	displayOne.println("BLR:" + sBoilerTemp);
+	displayOne.println("B:Y:0: " + sBoilerTemp);
 
 	displayOne.setCursor(11, 22);
-	displayOne.println("WIT:" + sWaterInTemp);
+	displayOne.println("I:B:1: " + sWaterInTemp);
 
 	displayOne.display();
 
-	// ==============================================	
+
 
 
 	displayTwo.clearDisplay();
-
-
 	displayTwo.setTextSize(1);
-	displayTwo.clearDisplay();
 	displayTwo.setTextColor(WHITE);
-
-
 
 	displayTwo.setCursor(11, 1);
 	displayTwo.println("Relay:" + String(nextRelay - 1));
 
 	displayTwo.setCursor(11, 11);
-	displayTwo.println("WOT:" + sWaterOutTemp);
+	displayTwo.println("O:W:4: " + sWaterOutTemp);
 
 	displayTwo.setCursor(11, 22);
-	displayTwo.println("ENV:" + sEVTemp);
+	displayTwo.println("E:P:5: " + sEVTemp);
 
 	displayTwo.display();
+	
 	// ==============================================
 }
+
+
+
+
+
+
+
+
+
+
+
+
 
