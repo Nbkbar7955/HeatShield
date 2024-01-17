@@ -145,7 +145,7 @@ int status = WL_IDLE_STATUS;
 // ------------------------------------------------------------------------------------------
 //
 
-MCP9600 evThermocouple;  //65 pink
+MCP9600 evThermocouple;  //64 pink
 MCP9600 waterInThermocouple; //61 blue
 MCP9600 boilerThermocouple; //60 yellow
 MCP9600 waterOutThermocouple; //64 white
@@ -206,9 +206,9 @@ void setup()
 	// Begin Thermocouples
 	boilerThermocouple.begin(0x060); // yellow
 	waterInThermocouple.begin(0x061);   // blue  
-	waterOutThermocouple.begin(0x64); // white
+	waterOutThermocouple.begin(0x62); // white
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	evThermocouple.begin(0x065); // pink
+	evThermocouple.begin(0x064); // pink
 
 
 
@@ -284,6 +284,7 @@ void setup()
 
 					pinMode(speaker, OUTPUT); // o PIN 25
 					digitalWrite(speaker, LOW);
+	
 
 					pinMode(waterRelay, OUTPUT); // o PIN 26
 					digitalWrite(waterRelay, HIGH);
@@ -361,7 +362,9 @@ void loop() {
 
 	if (TestMode == 1) {
 
+		digitalWrite(speaker, LOW);
 
+		
 		if (current_millis - previous_millis >= interval) {
 			// save the last time you blinked the LED
 			previous_millis = current_millis;
@@ -379,6 +382,9 @@ void loop() {
 			previousRelayMillis = currentRelayMillis;
 
 			updateDisplay();
+
+
+			digitalWrite(speaker, LOW);
 			
 			switch (nextRelay) {
 
@@ -405,6 +411,7 @@ void loop() {
 				digitalWrite(waterRelay, HIGH);
 				digitalWrite(waterLowRelay, HIGH);
 				digitalWrite(testRelay, LOW);
+				//digitalWrite(speaker, HIGH);
 				break;
 			default:
 				digitalWrite(burnerRelay, LOW);
