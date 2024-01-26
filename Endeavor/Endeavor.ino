@@ -56,17 +56,17 @@ float tmpBlue = 0;
 float tmpYellow = 0;
 float tmpPurple = 0;
 
-float waterInTemp = 0;
-float waterTempPrev = 0;
+float wtrInTemp = 0;
+float wtrTempPrev = 0;
 
-float waterOutTemp = 0;
-float waterOutTempPrev = 0;
+float wtrOutTemp = 0;
+float wtrOutTempPrev = 0;
 
-float boilerTemp = 0;
-float boilerTempPrev = 0;
+float blrTemp = 0;
+float blrTempPrev = 0;
 
 float envTemp = 0;
-float otherTempPrev = 0;
+float envTempPrev = 0;
 
 
 float currentWaterTemp = 0;
@@ -176,6 +176,18 @@ Adafruit_SSD1306 displayOne(-1);
 ///------------------------------------------------------------------------------------------
 
 
+auto opCycle(void) -> void;
+
+auto burnCycle(int) -> bool;
+auto burnCycle(void) -> bool;
+
+auto waterCycle(int) -> bool;
+auto waterCycle(void) -> bool;
+
+auto evTemp(void) -> float;
+auto Function prototypeswaterInTemp(void) -> float;
+auto waterOutTemp(void) -> float;
+auto boilerTemp(void) -> float;
 
 
 auto updateDisplay() -> void;
@@ -435,11 +447,41 @@ void loop() {
 }
 
 
+void opCycle()
+{
+}
 
+bool burnCycle(int)
+{
+}
 
+auto burnCycle() -> bool
+{
+}
 
+bool waterCycle(int)
+{
+}
 
+auto waterCycle() -> bool
+{
+}
 
+float evTemp()
+{
+}
+
+float waterInTemp()
+{
+}
+
+float waterOutTemp()
+{
+}
+
+float boilerTemp()
+{
+}
 
 auto updateDisplay() -> void {
 
@@ -448,20 +490,20 @@ auto updateDisplay() -> void {
 
 	// (26°C × 9/5) + 32 = 78.8°F 
 	
-	boilerTemp = boilerThermocouple.getThermocoupleTemp(false);
+	blrTemp = boilerThermocouple.getThermocoupleTemp(false);
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	envTemp = evThermocouple.getThermocoupleTemp(false);
-	waterOutTemp = waterOutThermocouple.getThermocoupleTemp(false);
+	wtrOutTemp = waterOutThermocouple.getThermocoupleTemp(false);
 	waterInTemp = waterInThermocouple.getThermocoupleTemp(false);
 
 	//61/blu
 	const String sWaterInTemp = String(waterInTemp);
 	// 60/yel
-	const String sBoilerTemp = String(boilerTemp);
+	const String sBoilerTemp = String(blrTemp);
 	// 65/pnk
 	const String sEVTemp = String(envTemp);
 	//64/wht
-	const String sWaterOutTemp = String(waterOutTemp);
+	const String sWaterOutTemp = String(wtrOutTemp);
 	
 
 	// ==============================================
