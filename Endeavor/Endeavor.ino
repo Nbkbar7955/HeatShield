@@ -43,8 +43,13 @@ float OTempHigh = 200;
 float OTempLow = 100;
 
 long waterRunTime = 240000;
-
 int averageNumber = 10;
+
+bool burnerLit = true;
+bool flameOut = false;
+
+
+
 
 
 //======================================================================================
@@ -131,6 +136,7 @@ Adafruit_SSD1306 displayOne(-1);
 //======================================================================================
 //
 
+auto safetyCheck(bool) -> bool;
 auto testCycle() -> bool;
 auto opCycle(void) -> void;
 auto runHeatCycle() -> bool;
@@ -373,9 +379,15 @@ void loop() {
 	saveState();
 	threadCycle();
 	commCycle();
+	safetyCheck(flameOut);
 	opCycle();
 }
 
+
+auto safetyCheck(bool) -> bool
+{
+	return true;
+}
 
 auto testCycle() -> bool
 {
