@@ -12,90 +12,52 @@
 */
 
 #include <SparkFun_MCP9600.h>
-//#include <HttpClient.h>
 #include <ArduinoOTA.h>
 #include <ESPmDNS.h>
-//#include <NTPClient.h>
-// #include <WiFiUdp.h>
 #include <SPI.h>
 #include <Adafruit_SSD1306.h>
 #include <ArduinoHttpClient.h>
+#include <WiFiClient.h>
+#include <WiFi.h>
+#include <Update.h>
 
 
 #define SCREEN_WIDTH 128
 #define SCREEN_HEIGHT 64
 
-String callForHeatVar = "active";
-String active = "active";
-String stdby = "stdby";
-String inActive = "inActive";
-
-String Mode = stdby;
-String currentFunction = "F:";
 
 
 //======================================================================================
 //======================================================================================
-// SET TEMPERATURE VALUES
+// Variables
 //======================================================================================
 //======================================================================================
 
-float highActiveTemperature = 155;
-float lowActiveTemperature = 130;
-
-float highStdbyTemperature = 155;
-float lowStdbyTemperature = 130;
-
-float highInactiveTemperature = 155;
-float lowInactiveTemperature = 130;
-
-float highTemperature = 155;
-float lowTemperature = 130;
-
-float tmpBlue = 0;
-float tmpYellow = 0;
-float tmpPurple = 0;
-
-float wtrInTemp = 0;
-float wtrTempPrev = 0;
-
-float wtrOutTemp = 0;
-float wtrOutTempPrev = 0;
-
-float blrTemp = 0;
-float blrTempPrev = 0;
-
-float envTemp = 0;
-float envTempPrev = 0;
 
 
-float currentWaterTemp = 0;
-float blueTempPrev = 0;
 
-float currentBoilerTemp = 0;
-float yellowTempPrev = 0;
-
-float currentEvTemp = 0;
-float purpleTempPrev = 0;
-
-String blueT = "";
-String yellowT = "";
-String purpleT = "";
-bool coolDown = false;
-
-String CHstatus = "-";
-
-
-//------------------------------------------------------------------------------------------
+//======================================================================================
+//======================================================================================
+// WiFi 
+//======================================================================================
+//======================================================================================
 
 const char* ssid = "Wilson.Net-2.4G";
 const char* password = "wilsonwebsite.com";
 
+char serverAddress[] = "192.168.0.67"; // server address
+int port = 44364;
 
-// Define NTP Client to get time
-//WiFiUDP ntpUDP;
+WiFiClient wifi;
+HttpClient client = HttpClient(wifi, serverAddress, port);
+int status = WL_IDLE_STATUS;
 
-
+//======================================================================================
+//======================================================================================
+// Pin Definitions
+//======================================================================================
+//======================================================================================
+//
 
 const int processorLED = 2; //o LED on MicroProcessor
 const int callForHeat = 4; //i CALLFORHEAT
@@ -121,46 +83,25 @@ const int PB4 = 39; //i PB4 ?????
 
 
 
-const int count = 0;
-bool purpleFlag = false;
-bool testAlarm = false;
-bool state = true;
-
-char serverAddress[] = "192.168.0.67"; // server address
-int port = 44364;
-
-WiFiClient wifi;
-HttpClient client = HttpClient(wifi, serverAddress, port);
-int status = WL_IDLE_STATUS;
-
-
-
-
-
-
-
-//
-// ------------------------------------------------------------------------------------------
-// Temperature 
-// ------------------------------------------------------------------------------------------
+//======================================================================================
+//======================================================================================
+// Thermocouple Definitions
+//======================================================================================
+//======================================================================================
 //
 
-MCP9600 evThermocouple;  //64 pink
-MCP9600 waterInThermocouple; //61 blue
-MCP9600 boilerThermocouple; //60 yellow
-MCP9600 waterOutThermocouple; //64 white
+MCP9600 EThermocouple;  //64 pink
+MCP9600 IThermocouple; //61 blue
+MCP9600 BThermocouple; //60 yellow
+MCP9600 OThermocouple; //64 white
 
 
-
-//------------------------------------------------------------------------------------------
-
-
-
-
-
-
-
-
+//======================================================================================
+//======================================================================================
+// OLED Definitions
+//======================================================================================
+//======================================================================================
+//
 
 Adafruit_SSD1306 displayTwo(-1);
 Adafruit_SSD1306 displayOne(-1);
@@ -168,36 +109,64 @@ Adafruit_SSD1306 displayOne(-1);
 #define OLED1 0x3C // OLED 1
 #define OLED2 0x3D // OLED 2
 
-//#define OLED3 0x3C // OLED 3
-//#define OLED4 0x3D // OLED 4
+#define OLED3 0x3C // OLED 3
+#define OLED4 0x3D // OLED 4
 
 
+//======================================================================================
+//======================================================================================
 // Prototypes
-///------------------------------------------------------------------------------------------
-
+//======================================================================================
+//======================================================================================
+//
 
 auto opCycle(void) -> void;
-
 auto burnCycle(int) -> bool;
 auto burnCycle(void) -> bool;
-
 auto waterCycle(int) -> bool;
 auto waterCycle(void) -> bool;
-
-auto evTemp(void) -> float;
-auto Function prototypeswaterInTemp(void) -> float;
-auto waterOutTemp(void) -> float;
-auto boilerTemp(void) -> float;
-
-
+auto ETemp(void) -> float;
+auto ITemp(void) -> float;
+auto OTemp(void) -> float;
+auto BTemp(void) -> float;
 auto updateDisplay() -> void;
+auto saveState() -> bool;
+auto restoreState() -> bool;
+auto saveConfig() -> bool;
+auto restoreConfig() -> bool;
+auto commCycle() -> bool;
+auto threadCycle() -> bool;
 
 
+//======================================================================================
+//======================================================================================
+// Temporary Definitions
+//======================================================================================
+//======================================================================================
+//
+
+bool TestMode = true;
 long startUpTime = 0;
 
-///------------------------------------------------------------------------------------------
+
+unsigned long currentBlinkMillis = 0;
+unsigned long previousBlinkMillis = 0;
+
+unsigned long previousRelayMillis = 0;
+unsigned long currentRelayMillis = 0;
+
+const long blinkInterval = 250;
+const long relayInterval = 750;
+
+int nextRelay = 1;
+
+
+
+//======================================================================================
+//======================================================================================
 // Setup
-//------------------------------------------------------------------------------------------
+//======================================================================================
+//======================================================================================
 //
 
 void setup()
@@ -205,8 +174,18 @@ void setup()
 
 
 
+	//======================================================================================
+	// Temporary Var Inits
+	//======================================================================================	
 	
+	startUpTime = millis();
 
+	
+	//======================================================================================
+	// Display Init
+	//======================================================================================
+
+	
 	displayOne.begin(SSD1306_SWITCHCAPVCC, OLED1);
 	displayOne.clearDisplay();
 	displayOne.display();
@@ -215,22 +194,27 @@ void setup()
 	displayTwo.clearDisplay();
 	displayTwo.display();
 
-	// Begin Thermocouples
-	boilerThermocouple.begin(0x060); // yellow
-	waterInThermocouple.begin(0x061);   // blue  
-	waterOutThermocouple.begin(0x62); // white
-	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	evThermocouple.begin(0x064); // pink
-
-
-
-
-
-
-
+	//======================================================================================
+	// Thermocouple Init
+	//======================================================================================
 	
+	BThermocouple.begin(0x060); // yellow
+	IThermocouple.begin(0x061);   // blue  
+	OThermocouple.begin(0x62); // white
+	EThermocouple.begin(0x064); // pink
+
+
+	//======================================================================================
+	// Serial
+	//======================================================================================
+
 	Serial.begin(115200);
 	Serial.println("Booting");
+
+
+	//======================================================================================
+	// WiFi
+	//======================================================================================
 
 	WiFi.mode(WIFI_STA);
 	WiFi.begin(ssid, password);
@@ -242,6 +226,12 @@ void setup()
 		ESP.restart();
 	}
 
+
+
+	//======================================================================================
+	// OTA
+	//======================================================================================
+	
 	// Port defaults to 3232
 	ArduinoOTA.setPort(3232);
 	ArduinoOTA.setHostname("Endeavor");
@@ -280,124 +270,98 @@ void setup()
 
 					ArduinoOTA.begin();
 
+					//======================================================================================
+					// Serial
+					//======================================================================================
 
 					Serial.println("Ready");
 					Serial.print("IP address: ");
 					Serial.println(WiFi.localIP());
 
 
-					// OUTPUTS   pinModes
-			// ----------------------------------------
-					pinMode(processorLED, OUTPUT);
-					digitalWrite(processorLED, LOW);
+	//======================================================================================
+	// PinModes
+	//======================================================================================
 
-					pinMode(callForHeat, OUTPUT); // i PIN 4
-					digitalWrite(callForHeat, LOW);
+	pinMode(processorLED, OUTPUT);
+	digitalWrite(processorLED, LOW);
 
-					pinMode(speaker, OUTPUT); // o PIN 25
-					digitalWrite(speaker, LOW);
-	
+	pinMode(callForHeat, OUTPUT); // i PIN 4
+	digitalWrite(callForHeat, LOW);
 
-					pinMode(waterRelay, OUTPUT); // o PIN 26
-					digitalWrite(waterRelay, HIGH);
-
-					pinMode(burnerRelay, OUTPUT); // o PIN 27
-					digitalWrite(burnerRelay, HIGH);
-
-					pinMode(testRelay, OUTPUT);
-					digitalWrite(testRelay, HIGH);
-
-					pinMode(waterLowRelay, OUTPUT); // o PIN 18
-					digitalWrite(waterLowRelay, HIGH);
-
-					pinMode(PB1, INPUT); // i PIN 34
-					pinMode(PB1, INPUT_PULLDOWN);
-					digitalWrite(PB1, LOW);
-
-					pinMode(PB2, INPUT); // i PIN 35
-					pinMode(PB2, INPUT_PULLDOWN);
-					digitalWrite(PB2, LOW);
-
-					pinMode(PB3, INPUT); // i PIN 36
-					pinMode(PB3, INPUT_PULLDOWN);
-					digitalWrite(PB3, LOW);
-
-					pinMode(PB4, INPUT); // i PIN 39
-					pinMode(PB4, INPUT_PULLDOWN);
-					digitalWrite(PB4, LOW);
-
-					Mode = stdby; // starting mode
-					// ----------------------------------------
-					//
+	pinMode(speaker, OUTPUT); // o PIN 25
+	digitalWrite(speaker, LOW);
 
 
-					startUpTime = millis();
+	pinMode(waterRelay, OUTPUT); // o PIN 26
+	digitalWrite(waterRelay, HIGH);
+
+	pinMode(burnerRelay, OUTPUT); // o PIN 27
+	digitalWrite(burnerRelay, HIGH);
+
+	pinMode(testRelay, OUTPUT);
+	digitalWrite(testRelay, HIGH);
+
+	pinMode(waterLowRelay, OUTPUT); // o PIN 18
+	digitalWrite(waterLowRelay, HIGH);
+
+	pinMode(PB1, INPUT); // i PIN 34
+	pinMode(PB1, INPUT_PULLDOWN);
+	digitalWrite(PB1, LOW);
+
+	pinMode(PB2, INPUT); // i PIN 35
+	pinMode(PB2, INPUT_PULLDOWN);
+	digitalWrite(PB2, LOW);
+
+	pinMode(PB3, INPUT); // i PIN 36
+	pinMode(PB3, INPUT_PULLDOWN);
+	digitalWrite(PB3, LOW);
+
+	pinMode(PB4, INPUT); // i PIN 39
+	pinMode(PB4, INPUT_PULLDOWN);
+	digitalWrite(PB4, LOW);
+
+
+
+
 }
 
 
+//======================================================================================
+//======================================================================================
 // Loop
-//------------------------------------------------------------------------------------------
-////------------------------------------------------------------------------------------------
-/////------------------------------------------------------------------------------------------
-/////------------------------------------------------------------------------------------------
-///
-///
-///
-
-
-
-
-
-
-int TestMode = 1;
-String activeRelay = "None";
-
-
-
-
-//variables for blinking an LED with Millis
-unsigned long previous_millis = 0;
-unsigned long previousRelayMillis = 0;
-
-const long interval = 250;
-const long relayInterval = 750;
-int nextRelay = 1;
+//======================================================================================
+//======================================================================================
+//
 
 
 void loop() {
 
 	ArduinoOTA.handle();
 
-	const auto current_millis = millis();
-	const auto currentRelayMillis = millis();
+	currentBlinkMillis = millis();
+	currentRelayMillis = millis();
 
 
-	if (TestMode == 1) {
 
-		digitalWrite(speaker, LOW);
+	if (TestMode) {
 
-		
-		if (current_millis - previous_millis >= interval) {
-			// save the last time you blinked the LED
-			previous_millis = current_millis;
+		/// <summary>
+		///  If blink Time
+		/// </summary>
+		if (currentBlinkMillis - previousBlinkMillis >= blinkInterval) {
+			previousBlinkMillis = currentBlinkMillis;
 
-			// set the LED with the ledState of the variable:
 			digitalWrite(processorLED, !digitalRead(processorLED));
-
 		}
 
-
-
-
+		// If time for next relay
 		if (currentRelayMillis - previousRelayMillis >= relayInterval) {
 			// save the last time you blinked the LED
 			previousRelayMillis = currentRelayMillis;
 
 			updateDisplay();
 
-
-			digitalWrite(speaker, LOW);
-			
 			switch (nextRelay) {
 
 			case 1:
@@ -433,15 +397,9 @@ void loop() {
 				break;
 			}
 
-			nextRelay++;	
-			if (nextRelay > 4) nextRelay = 1;
-		
-		
-		
-	}
-
-
-
+			nextRelay++;
+			if (nextRelay >= 4) nextRelay = 1;
+		}
 
 	}
 }
@@ -449,65 +407,75 @@ void loop() {
 
 void opCycle()
 {
+	ArduinoOTA.handle();
 }
 
 bool burnCycle(int)
 {
+	ArduinoOTA.handle();
+	return false;
 }
 
 auto burnCycle() -> bool
 {
+	ArduinoOTA.handle();
+	return burnCycle(0);
 }
 
 bool waterCycle(int)
 {
+	ArduinoOTA.handle();
+	return false;
 }
 
 auto waterCycle() -> bool
 {
+	ArduinoOTA.handle();
+	return waterCycle(0);
 }
 
-float evTemp()
+
+float ETemp()
 {
+	ArduinoOTA.handle();
+	if (!EThermocouple.isConnected()) return(0);
+	if (!EThermocouple.available()) return(0);
+
+	return (EThermocouple.getThermocoupleTemp(false));
+
 }
 
-float waterInTemp()
+float ITemp()
 {
+	ArduinoOTA.handle();
+	if (!IThermocouple.isConnected()) return(0);
+	if (!IThermocouple.available()) return(0);
+
+	return (IThermocouple.getThermocoupleTemp(false));
+
 }
 
-float waterOutTemp()
+float OTemp()
 {
+	ArduinoOTA.handle();
+	if (!OThermocouple.isConnected()) return(0);
+	if (!OThermocouple.available()) return(0);
+
+	return (OThermocouple.getThermocoupleTemp(false));
 }
 
-float boilerTemp()
+float BTemp()
 {
+	ArduinoOTA.handle();
+	if (!BThermocouple.isConnected()) return(0);
+	if (!BThermocouple.available()) return(0);
+
+	return (BThermocouple.getThermocoupleTemp(false));
 }
 
 auto updateDisplay() -> void {
 
 	ArduinoOTA.handle();
-
-
-	// (26°C × 9/5) + 32 = 78.8°F 
-	
-	blrTemp = boilerThermocouple.getThermocoupleTemp(false);
-	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	envTemp = evThermocouple.getThermocoupleTemp(false);
-	wtrOutTemp = waterOutThermocouple.getThermocoupleTemp(false);
-	waterInTemp = waterInThermocouple.getThermocoupleTemp(false);
-
-	//61/blu
-	const String sWaterInTemp = String(waterInTemp);
-	// 60/yel
-	const String sBoilerTemp = String(blrTemp);
-	// 65/pnk
-	const String sEVTemp = String(envTemp);
-	//64/wht
-	const String sWaterOutTemp = String(wtrOutTemp);
-	
-
-	// ==============================================
-
 
 	displayOne.clearDisplay();
 	displayOne.setTextSize(1);
@@ -517,14 +485,12 @@ auto updateDisplay() -> void {
 	displayOne.println("UP: " + String(int((millis() - startUpTime) / 1000)));
 
 	displayOne.setCursor(11, 11);
-	displayOne.println("B:Y:0: " + sBoilerTemp);
+	displayOne.println("B:Y:0: " + String(BTemp()));
 
 	displayOne.setCursor(11, 22);
-	displayOne.println("I:B:1: " + sWaterInTemp);
+	displayOne.println("I:B:1: " + String(ITemp()));
 
 	displayOne.display();
-
-
 
 
 	displayTwo.clearDisplay();
@@ -535,14 +501,43 @@ auto updateDisplay() -> void {
 	displayTwo.println("Relay:" + String(nextRelay - 1));
 
 	displayTwo.setCursor(11, 11);
-	displayTwo.println("O:W:4: " + sWaterOutTemp);
+	displayTwo.println("O:W:4: " + String(OTemp()));
 
 	displayTwo.setCursor(11, 22);
-	displayTwo.println("E:P:5: " + sEVTemp);
+	displayTwo.println("E:P:5: " + String(ETemp()));
 
 	displayTwo.display();
-	
-	// ==============================================
+
+}
+
+bool saveState()
+{
+	return true;
+}
+
+bool restoreState()
+{
+	return true;
+}
+
+bool saveConfig()
+{
+	return true;
+}
+
+bool restoreConfig()
+{
+	return true;
+}
+
+bool commCycle()
+{
+	return true;
+}
+
+bool threadCycle()
+{
+	return true;
 }
 
 
