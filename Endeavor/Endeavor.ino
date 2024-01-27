@@ -4,10 +4,7 @@
  Created: 8/27/2022 3:36:02 PM
  Author:  david
 
- PROTOTYPE - CC:50:E3:80:A2:E8  192.168.0.36
- PRODUCTION - 24:6F:28:9E:9B:D0  192.168.0.37  25?
-
- OLED 0.96 module 12864 (UMLIFE) 128x64
+Blah Blah Blah...
 
 */
 
@@ -33,7 +30,21 @@
 //======================================================================================
 //======================================================================================
 
+float BTempHigh = 900;
+float BTempLow = 400;
 
+float ITempHigh = 180;
+float ITempLow = 130;
+
+float ETempHigh = 72;
+float ETempLow = 66;
+
+float OTempHigh = 200;
+float OTempLow = 100;
+
+long waterRunTime = 240000;
+
+int averageNumber = 10;
 
 
 //======================================================================================
@@ -120,9 +131,14 @@ Adafruit_SSD1306 displayOne(-1);
 //======================================================================================
 //
 
+auto testCycle() -> bool;
 auto opCycle(void) -> void;
-auto burnCycle(int) -> bool;
-auto burnCycle(void) -> bool;
+auto runHeatCycle() -> bool;
+auto stopHeatCycle() -> bool;
+auto startBurnCycle(int) -> bool;
+auto startBurnCycle(void) -> bool;
+auto stopBurnCycle(int) -> bool;
+auto stopBurnCycle(void) -> bool;
 auto waterCycle(int) -> bool;
 auto waterCycle(void) -> bool;
 auto ETemp(void) -> float;
@@ -322,7 +338,8 @@ void setup()
 	pinMode(PB4, INPUT_PULLDOWN);
 	digitalWrite(PB4, LOW);
 
-
+	restoreConfig();
+	restoreState();
 
 
 }
@@ -339,93 +356,166 @@ void setup()
 void loop() {
 
 	ArduinoOTA.handle();
-
 	currentBlinkMillis = millis();
-	currentRelayMillis = millis();
 
+	if (currentBlinkMillis - previousBlinkMillis >= blinkInterval) {
+		previousBlinkMillis = currentBlinkMillis;
 
+		digitalWrite(processorLED, !digitalRead(processorLED));
+	}
 
 	if (TestMode) {
-
-		/// <summary>
-		///  If blink Time
-		/// </summary>
-		if (currentBlinkMillis - previousBlinkMillis >= blinkInterval) {
-			previousBlinkMillis = currentBlinkMillis;
-
-			digitalWrite(processorLED, !digitalRead(processorLED));
-		}
-
-		// If time for next relay
-		if (currentRelayMillis - previousRelayMillis >= relayInterval) {
-			// save the last time you blinked the LED
-			previousRelayMillis = currentRelayMillis;
-
-			updateDisplay();
-
-			switch (nextRelay) {
-
-			case 1:
-				digitalWrite(burnerRelay, LOW);
-				digitalWrite(waterRelay, HIGH);
-				digitalWrite(waterLowRelay, HIGH);
-				digitalWrite(testRelay, HIGH);
-				break;
-			case 2:
-				digitalWrite(burnerRelay, HIGH);
-				digitalWrite(waterRelay, LOW);
-				digitalWrite(waterLowRelay, HIGH);
-				digitalWrite(testRelay, HIGH);
-				break;
-			case 3:
-				digitalWrite(burnerRelay, HIGH);
-				digitalWrite(waterRelay, HIGH);
-				digitalWrite(waterLowRelay, LOW);
-				digitalWrite(testRelay, HIGH);
-				break;
-			case 4:
-				digitalWrite(burnerRelay, HIGH);
-				digitalWrite(waterRelay, HIGH);
-				digitalWrite(waterLowRelay, HIGH);
-				digitalWrite(testRelay, LOW);
-				//digitalWrite(speaker, HIGH);
-				break;
-			default:
-				digitalWrite(burnerRelay, LOW);
-				digitalWrite(waterRelay, LOW);
-				digitalWrite(waterLowRelay, LOW);
-				digitalWrite(testRelay, LOW);
-				break;
-			}
-
-			nextRelay++;
-			if (nextRelay >= 4) nextRelay = 1;
-		}
-
+		while(testCycle()) { ArduinoOTA.handle(); }
 	}
+
+	
+	saveConfig();
+	saveState();
+	threadCycle();
+	commCycle();
+	opCycle();
 }
 
+
+auto testCycle() -> bool
+{
+
+	ArduinoOTA.handle();
+	currentRelayMillis = millis();
+
+	// If time for next relay
+	if (currentRelayMillis - previousRelayMillis >= relayInterval) {
+		// save the last time you blinked the LED
+		previousRelayMillis = currentRelayMillis;
+
+		updateDisplay();
+
+		switch (nextRelay) {
+
+		case 1:
+			digitalWrite(burnerRelay, LOW);
+			digitalWrite(waterRelay, HIGH);
+			digitalWrite(waterLowRelay, HIGH);
+			digitalWrite(testRelay, HIGH);
+			break;
+		case 2:
+			digitalWrite(burnerRelay, HIGH);
+			digitalWrite(waterRelay, LOW);
+			digitalWrite(waterLowRelay, HIGH);
+			digitalWrite(testRelay, HIGH);
+			break;
+		case 3:
+			digitalWrite(burnerRelay, HIGH);
+			digitalWrite(waterRelay, HIGH);
+			digitalWrite(waterLowRelay, LOW);
+			digitalWrite(testRelay, HIGH);
+			break;
+		case 4:
+			digitalWrite(burnerRelay, HIGH);
+			digitalWrite(waterRelay, HIGH);
+			digitalWrite(waterLowRelay, HIGH);
+			digitalWrite(testRelay, LOW);
+			//digitalWrite(speaker, HIGH);
+			break;
+		default:
+			digitalWrite(burnerRelay, LOW);
+			digitalWrite(waterRelay, LOW);
+			digitalWrite(waterLowRelay, LOW);
+			digitalWrite(testRelay, LOW);
+			break;
+		}
+
+		nextRelay++;
+		if (nextRelay >= 4) nextRelay = 1;
+	}
+	return true;
+}
 
 void opCycle()
 {
 	ArduinoOTA.handle();
+
+	const auto currentETemp = ETemp();
+
+	if (currentETemp < ETempLow) runHeatCycle();
+	else if (currentETemp >= ETempHigh) stopHeatCycle();
+	
 }
 
-bool burnCycle(int)
+auto runHeatCycle() -> bool
 {
 	ArduinoOTA.handle();
+
+	float currentBTemp = BTemp();
+	float currentETemp = ETemp();
+
+	while (currentETemp <= ETempLow)
+	{
+		ArduinoOTA.handle();
+
+		while (currentBTemp < BTempHigh)
+		{
+			ArduinoOTA.handle();
+			startBurnCycle();
+			currentBTemp = BTemp();
+		}
+		stopBurnCycle();
+
+		
+		waterCycle();
+		currentETemp = ETemp();
+	}
+
+	return true;
+}
+
+auto stopHeatCycle() -> bool
+{
+	ArduinoOTA.handle();
+
+	digitalWrite(burnerRelay, LOW);
+	digitalWrite(waterRelay, LOW);
+	
+	return true;
+}
+
+bool startBurnCycle(int)
+{
+	ArduinoOTA.handle();
+
+	// Put inside boiler routines here
+	
+	digitalWrite(burnerRelay, HIGH);
+	
 	return false;
 }
 
-auto burnCycle() -> bool
+auto startBurnCycle() -> bool
 {
 	ArduinoOTA.handle();
-	return burnCycle(0);
+	return startBurnCycle(0);
+}
+
+auto stopBurnCycle(int) -> bool
+{
+	ArduinoOTA.handle();
+	digitalWrite(burnerRelay, LOW);
+	return true;
+}
+
+auto stopBurnCycle() -> bool
+{
+	ArduinoOTA.handle();
+	return stopBurnCycle(0);
 }
 
 bool waterCycle(int)
 {
 	ArduinoOTA.handle();
+
+	digitalWrite(waterRelay, HIGH);
+	delay(waterRunTime);
+	
 	return false;
 }
 
@@ -442,7 +532,15 @@ float ETemp()
 	if (!EThermocouple.isConnected()) return(0);
 	if (!EThermocouple.available()) return(0);
 
-	return (EThermocouple.getThermocoupleTemp(false));
+	float tempValue = 0;
+	
+	for (int numberTimes = 0; numberTimes <= averageNumber; numberTimes++)
+	{
+		ArduinoOTA.handle();
+		tempValue += EThermocouple.getThermocoupleTemp(false);
+	}
+	return(tempValue / averageNumber);
+
 
 }
 
@@ -452,7 +550,15 @@ float ITemp()
 	if (!IThermocouple.isConnected()) return(0);
 	if (!IThermocouple.available()) return(0);
 
-	return (IThermocouple.getThermocoupleTemp(false));
+	
+	float tempValue = 0;
+
+	for (int numberTimes = 0; numberTimes <= averageNumber; numberTimes++)
+	{
+		ArduinoOTA.handle();
+		tempValue += IThermocouple.getThermocoupleTemp(false);
+	}
+	return(tempValue / averageNumber);
 
 }
 
@@ -461,8 +567,15 @@ float OTemp()
 	ArduinoOTA.handle();
 	if (!OThermocouple.isConnected()) return(0);
 	if (!OThermocouple.available()) return(0);
+	
+	float tempValue = 0;
 
-	return (OThermocouple.getThermocoupleTemp(false));
+	for (int numberTimes = 0; numberTimes <= averageNumber; numberTimes++)
+	{
+		ArduinoOTA.handle();
+		tempValue += OThermocouple.getThermocoupleTemp(false);
+	}
+	return(tempValue / averageNumber);
 }
 
 float BTemp()
@@ -471,7 +584,14 @@ float BTemp()
 	if (!BThermocouple.isConnected()) return(0);
 	if (!BThermocouple.available()) return(0);
 
-	return (BThermocouple.getThermocoupleTemp(false));
+	float tempValue = 0;
+
+	for (int numberTimes = 0; numberTimes <= averageNumber; numberTimes++)
+	{
+		ArduinoOTA.handle();
+		tempValue += BThermocouple.getThermocoupleTemp(false);
+	}
+	return(tempValue / averageNumber);
 }
 
 auto updateDisplay() -> void {
