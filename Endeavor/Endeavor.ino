@@ -11,15 +11,15 @@
 
 */
 
+#include <Arduino_JSON.h>
 #include <SparkFun_MCP9600.h>
 #include <ArduinoOTA.h>
 #include <ESPmDNS.h>
 #include <SPI.h>
 #include <Adafruit_SSD1306.h>
 #include <ArduinoHttpClient.h>
-#include <WiFiClient.h>
 #include <WiFi.h>
-#include <Update.h>
+//#include <Preferences.h>
 
 
 #define SCREEN_WIDTH 128
@@ -137,6 +137,8 @@ auto restoreConfig() -> bool;
 auto commCycle() -> bool;
 auto threadCycle() -> bool;
 
+void myTests();
+
 
 //======================================================================================
 //======================================================================================
@@ -171,7 +173,6 @@ int nextRelay = 1;
 
 void setup()
 {
-
 
 
 	//======================================================================================
@@ -538,6 +539,21 @@ bool commCycle()
 bool threadCycle()
 {
 	return true;
+}
+
+void myTests()
+{
+
+	const char input[] = "{\"result\":true,\"count\":42,\"foo\":\"bar\"}";
+
+	JSONVar myObject = JSON.parse(input);
+
+	
+
+	
+	
+
+	
 }
 
 
