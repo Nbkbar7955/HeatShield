@@ -22,7 +22,15 @@ Blah Blah Blah...
 #define SCREEN_WIDTH 128
 #define SCREEN_HEIGHT 64
 
-
+///
+/// TODO: Exception Handling
+/// TODO: Safety Checking
+/// TODO: Flow Sensor install and code
+/// TODO: How to test pump running
+/// TODO: Install and code CDS cell for flameOut check
+/// TODO: refine testCycle test pin
+/// TODO: rewire and code test relay to eShutdown
+/// 
 
 //======================================================================================
 //======================================================================================
@@ -45,8 +53,8 @@ float OTempLow = 100;
 long waterRunTime = 240000;
 int averageNumber = 10;
 
-bool burnerLit = true;
-bool flameOut = false;
+int burnerLit = 1;
+int flameOut = 2;
 
 
 
@@ -58,8 +66,8 @@ bool flameOut = false;
 //======================================================================================
 //======================================================================================
 
-const char* ssid = "Wilson.Net-2.4G";
-const char* password = "wilsonwebsite.com";
+const char* networkName = "Wilson.Net-2.4G";
+const char* networkNamePassPhrase = "wilsonwebsite.com";
 
 char serverAddress[] = "192.168.0.67"; // server address
 int port = 44364;
@@ -91,6 +99,12 @@ const int burnerRelay = 16; //o BURNER RELAY
 const int waterLowRelay = 18; //o
 const int testRelay = 19;
 
+/// <summary>
+/// TODO:Test and code speaker
+/// TODO: test and code pushbuttons
+/// TODO: code mode/options with PB 
+/// </summary>
+
 const int speaker = 32; //o SOUNDALARM
 const int PB1 = 34; //i PB1
 const int PB2 = 35; //i PB2
@@ -111,6 +125,8 @@ MCP9600 IThermocouple; //61 blue
 MCP9600 BThermocouple; //60 yellow
 MCP9600 OThermocouple; //64 white
 
+/// TODO: consider other thermocouple amps
+
 
 //======================================================================================
 //======================================================================================
@@ -119,8 +135,13 @@ MCP9600 OThermocouple; //64 white
 //======================================================================================
 //
 
+
+///  TODO: Setup 2nd I2C
+///  
 Adafruit_SSD1306 displayTwo(-1);
 Adafruit_SSD1306 displayOne(-1);
+Adafruit_SSD1306 displayThree(-1);
+Adafruit_SSD1306 displayFour(-1);
 
 #define OLED1 0x3C // OLED 1
 #define OLED2 0x3D // OLED 2
@@ -136,7 +157,8 @@ Adafruit_SSD1306 displayOne(-1);
 //======================================================================================
 //
 
-auto safetyCheck(bool) -> bool;
+auto throwException(int) -> bool;
+auto safetyCheck(int) -> bool;
 auto testCycle() -> bool;
 auto opCycle(void) -> void;
 auto runHeatCycle() -> bool;
@@ -203,7 +225,6 @@ void setup()
 	
 	startUpTime = millis();
 
-	
 	//======================================================================================
 	// Display Init
 	//======================================================================================
@@ -240,7 +261,7 @@ void setup()
 	//======================================================================================
 
 	WiFi.mode(WIFI_STA);
-	WiFi.begin(ssid, password);
+	WiFi.begin(networkName, networkNamePassPhrase);
 
 	while (WiFi.waitForConnectResult() != WL_CONNECTED)
 	{
@@ -291,62 +312,63 @@ void setup()
 						else if (error == OTA_END_ERROR) Serial.println("End Failed");
 					});
 
-					ArduinoOTA.begin();
+		ArduinoOTA.begin();
 
-					//======================================================================================
-					// Serial
-					//======================================================================================
+	//======================================================================================
+	// Serial
+	//======================================================================================
 
-					Serial.println("Ready");
-					Serial.print("IP address: ");
-					Serial.println(WiFi.localIP());
+		Serial.println("Ready");
+		Serial.print("IP address: ");
+			Serial.println(WiFi.localIP());
 
 
 	//======================================================================================
 	// PinModes
 	//======================================================================================
 
-	pinMode(processorLED, OUTPUT);
-	digitalWrite(processorLED, LOW);
+		pinMode(processorLED, OUTPUT);
+		digitalWrite(processorLED, LOW);
 
-	pinMode(callForHeat, OUTPUT); // i PIN 4
-	digitalWrite(callForHeat, LOW);
+		pinMode(callForHeat, OUTPUT); // i PIN 4
+		digitalWrite(callForHeat, LOW);
 
-	pinMode(speaker, OUTPUT); // o PIN 25
-	digitalWrite(speaker, LOW);
+		pinMode(speaker, OUTPUT); // o PIN 25
+		digitalWrite(speaker, LOW);
 
 
-	pinMode(waterRelay, OUTPUT); // o PIN 26
-	digitalWrite(waterRelay, HIGH);
+		pinMode(waterRelay, OUTPUT); // o PIN 26
+		digitalWrite(waterRelay, HIGH);
 
-	pinMode(burnerRelay, OUTPUT); // o PIN 27
-	digitalWrite(burnerRelay, HIGH);
+		pinMode(burnerRelay, OUTPUT); // o PIN 27
+		digitalWrite(burnerRelay, HIGH);
 
-	pinMode(testRelay, OUTPUT);
-	digitalWrite(testRelay, HIGH);
+		pinMode(testRelay, OUTPUT);
+		digitalWrite(testRelay, HIGH);
 
-	pinMode(waterLowRelay, OUTPUT); // o PIN 18
-	digitalWrite(waterLowRelay, HIGH);
+		pinMode(waterLowRelay, OUTPUT); // o PIN 18
+		digitalWrite(waterLowRelay, HIGH);
 
-	pinMode(PB1, INPUT); // i PIN 34
-	pinMode(PB1, INPUT_PULLDOWN);
-	digitalWrite(PB1, LOW);
+		pinMode(PB1, INPUT); // i PIN 34
+		pinMode(PB1, INPUT_PULLDOWN);
+		digitalWrite(PB1, LOW);
 
-	pinMode(PB2, INPUT); // i PIN 35
-	pinMode(PB2, INPUT_PULLDOWN);
-	digitalWrite(PB2, LOW);
+		pinMode(PB2, INPUT); // i PIN 35
+		pinMode(PB2, INPUT_PULLDOWN);
+		digitalWrite(PB2, LOW);
 
-	pinMode(PB3, INPUT); // i PIN 36
-	pinMode(PB3, INPUT_PULLDOWN);
-	digitalWrite(PB3, LOW);
+		pinMode(PB3, INPUT); // i PIN 36
+		pinMode(PB3, INPUT_PULLDOWN);
+		digitalWrite(PB3, LOW);
 
-	pinMode(PB4, INPUT); // i PIN 39
-	pinMode(PB4, INPUT_PULLDOWN);
-	digitalWrite(PB4, LOW);
+		pinMode(PB4, INPUT); // i PIN 39
+		pinMode(PB4, INPUT_PULLDOWN);
+		digitalWrite(PB4, LOW);
 
 	restoreConfig();
 	restoreState();
 
+	
 
 }
 
@@ -375,19 +397,33 @@ void loop() {
 	}
 
 	
-	saveConfig();
-	saveState();
+
 	threadCycle();
 	commCycle();
+
+	
 	safetyCheck(flameOut);
 	opCycle();
+
+	
+	saveConfig();
+	saveState();
+	
+	myTests();
 }
 
 
-auto safetyCheck(bool) -> bool
+bool throwException(int)
 {
 	return true;
 }
+
+auto safetyCheck(int) -> bool
+{
+	return true;
+}
+
+
 
 auto testCycle() -> bool
 {
@@ -495,7 +531,7 @@ bool startBurnCycle(int)
 {
 	ArduinoOTA.handle();
 
-	// Put inside boiler routines here
+	/// TODO: Put inside boiler routines here
 	
 	digitalWrite(burnerRelay, HIGH);
 	
@@ -511,6 +547,7 @@ auto startBurnCycle() -> bool
 auto stopBurnCycle(int) -> bool
 {
 	ArduinoOTA.handle();
+	/// TODO: consider more logic
 	digitalWrite(burnerRelay, LOW);
 	return true;
 }
@@ -525,6 +562,7 @@ bool waterCycle(int)
 {
 	ArduinoOTA.handle();
 
+	/// TODO: more logic?
 	digitalWrite(waterRelay, HIGH);
 	delay(waterRunTime);
 	
@@ -540,6 +578,7 @@ auto waterCycle() -> bool
 
 float ETemp()
 {
+	/// TODO: better ETemp?
 	ArduinoOTA.handle();
 	if (!EThermocouple.isConnected()) return(0);
 	if (!EThermocouple.available()) return(0);
@@ -558,6 +597,7 @@ float ETemp()
 
 float ITemp()
 {
+	/// TODO: better ITemp?
 	ArduinoOTA.handle();
 	if (!IThermocouple.isConnected()) return(0);
 	if (!IThermocouple.available()) return(0);
@@ -576,6 +616,7 @@ float ITemp()
 
 float OTemp()
 {
+	/// TODO: better OTemp?
 	ArduinoOTA.handle();
 	if (!OThermocouple.isConnected()) return(0);
 	if (!OThermocouple.available()) return(0);
@@ -592,6 +633,7 @@ float OTemp()
 
 float BTemp()
 {
+	/// TODO: better BTemp?
 	ArduinoOTA.handle();
 	if (!BThermocouple.isConnected()) return(0);
 	if (!BThermocouple.available()) return(0);
@@ -645,37 +687,51 @@ auto updateDisplay() -> void {
 
 bool saveState()
 {
+	/// TODO: code saveState
 	return true;
 }
 
 bool restoreState()
 {
+	/// TODO: code restoreState
 	return true;
 }
 
 bool saveConfig()
 {
+	/// TODO: code saveConfig
 	return true;
 }
 
 bool restoreConfig()
 {
+	/// TODO: code restoreConfig
 	return true;
 }
 
 bool commCycle()
 {
+	/// TODO: code commCycle
 	return true;
 }
 
 bool threadCycle()
 {
+	/// TODO: code threadCycle
 	return true;
 }
 
 void myTests()
 {
+	/// TODO: This is test new stuff area
 
+	///////////////////////////////////////////////////////////////////////
+	///return to disable
+	///////////////////////////////////////////////////////////////////////
+	return;
+
+
+	
 	const char input[] = "{\"result\":true,\"count\":42,\"foo\":\"bar\"}";
 
 	JSONVar myObject = JSON.parse(input);
