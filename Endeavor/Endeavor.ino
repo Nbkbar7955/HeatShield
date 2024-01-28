@@ -30,6 +30,7 @@ Blah Blah Blah...
 /// TODO: Install and code CDS cell for flameOut check
 /// TODO: refine testCycle test pin
 /// TODO: rewire and code test relay to eShutdown
+/// TODO: OLED address changes
 /// 
 
 //======================================================================================
@@ -97,7 +98,7 @@ const int ssSPI = 15;
 const int waterRelay = 17; //o WATERPUMP RELAY
 const int burnerRelay = 16; //o BURNER RELAY
 const int waterLowRelay = 18; //o
-const int testRelay = 19;
+const int safetyRelay = 19;
 
 /// <summary>
 /// TODO:Test and code speaker
@@ -204,8 +205,8 @@ unsigned long previousBlinkMillis = 0;
 unsigned long previousRelayMillis = 0;
 unsigned long currentRelayMillis = 0;
 
-const long blinkInterval = 250;
-const long relayInterval = 750;
+const long blinkInterval = 125;
+const long relayInterval = 500;
 
 int nextRelay = 1;
 
@@ -346,8 +347,8 @@ void setup()
 		pinMode(burnerRelay, OUTPUT); // o PIN 27
 		digitalWrite(burnerRelay, HIGH);
 
-		pinMode(testRelay, OUTPUT);
-		digitalWrite(testRelay, HIGH);
+		pinMode(safetyRelay, OUTPUT);
+		digitalWrite(safetyRelay, HIGH);
 
 		pinMode(waterLowRelay, OUTPUT); // o PIN 18
 		digitalWrite(waterLowRelay, HIGH);
@@ -429,6 +430,7 @@ bool soundAlert() {
 
 bool throwException(int)
 {
+	digitalWrite(safetyRelay, HIGH);
 	return true;
 }
 
@@ -458,32 +460,32 @@ auto testCycle() -> bool
 			digitalWrite(burnerRelay, LOW);
 			digitalWrite(waterRelay, HIGH);
 			digitalWrite(waterLowRelay, HIGH);
-			digitalWrite(testRelay, HIGH);
+			digitalWrite(safetyRelay, HIGH);
 			break;
 		case 2:
 			digitalWrite(burnerRelay, HIGH);
 			digitalWrite(waterRelay, LOW);
 			digitalWrite(waterLowRelay, HIGH);
-			digitalWrite(testRelay, HIGH);
+			digitalWrite(safetyRelay, HIGH);
 			break;
 		case 3:
 			digitalWrite(burnerRelay, HIGH);
 			digitalWrite(waterRelay, HIGH);
 			digitalWrite(waterLowRelay, LOW);
-			digitalWrite(testRelay, HIGH);
+			digitalWrite(safetyRelay, HIGH);
 			break;
 		case 4:
 			digitalWrite(burnerRelay, HIGH);
 			digitalWrite(waterRelay, HIGH);
 			digitalWrite(waterLowRelay, HIGH);
-			digitalWrite(testRelay, LOW);
+			digitalWrite(safetyRelay, LOW);
 			//digitalWrite(speaker, HIGH);
 			break;
 		default:
 			digitalWrite(burnerRelay, LOW);
 			digitalWrite(waterRelay, LOW);
 			digitalWrite(waterLowRelay, LOW);
-			digitalWrite(testRelay, LOW);
+			digitalWrite(safetyRelay, LOW);
 			break;
 		}
 
@@ -496,6 +498,8 @@ auto testCycle() -> bool
 void opCycle()
 {
 	ArduinoOTA.handle();
+
+	digitalWrite(safetyRelay, LOW);
 
 	const auto currentETemp = ETemp();
 
@@ -594,15 +598,18 @@ float ETemp()
 {
 	/// TODO: better ETemp?
 	ArduinoOTA.handle();
+	/*
 	if (!EThermocouple.isConnected()) return(0);
 	if (!EThermocouple.available()) return(0);
-
+	*/
+	return (EThermocouple.getThermocoupleTemp(false));
 	float tempValue = 0;
 	
 	for (int numberTimes = 0; numberTimes <= averageNumber; numberTimes++)
 	{
 		ArduinoOTA.handle();
 		tempValue += EThermocouple.getThermocoupleTemp(false);
+		delay(20);
 	}
 	return(tempValue / averageNumber);
 
@@ -613,16 +620,18 @@ float ITemp()
 {
 	/// TODO: better ITemp?
 	ArduinoOTA.handle();
+	/*
 	if (!IThermocouple.isConnected()) return(0);
 	if (!IThermocouple.available()) return(0);
-
-	
+	*/
+	return (IThermocouple.getThermocoupleTemp(false));
 	float tempValue = 0;
 
 	for (int numberTimes = 0; numberTimes <= averageNumber; numberTimes++)
 	{
 		ArduinoOTA.handle();
 		tempValue += IThermocouple.getThermocoupleTemp(false);
+		delay(20);
 	}
 	return(tempValue / averageNumber);
 
@@ -632,15 +641,19 @@ float OTemp()
 {
 	/// TODO: better OTemp?
 	ArduinoOTA.handle();
+
+	/*
 	if (!OThermocouple.isConnected()) return(0);
 	if (!OThermocouple.available()) return(0);
-	
+	*/
+	return(OThermocouple.getThermocoupleTemp(false));
 	float tempValue = 0;
 
 	for (int numberTimes = 0; numberTimes <= averageNumber; numberTimes++)
 	{
 		ArduinoOTA.handle();
 		tempValue += OThermocouple.getThermocoupleTemp(false);
+		delay(20);
 	}
 	return(tempValue / averageNumber);
 }
@@ -649,15 +662,18 @@ float BTemp()
 {
 	/// TODO: better BTemp?
 	ArduinoOTA.handle();
+	/*
 	if (!BThermocouple.isConnected()) return(0);
 	if (!BThermocouple.available()) return(0);
-
+	*/
+	return (BThermocouple.getThermocoupleTemp(false));
 	float tempValue = 0;
 
 	for (int numberTimes = 0; numberTimes <= averageNumber; numberTimes++)
 	{
 		ArduinoOTA.handle();
 		tempValue += BThermocouple.getThermocoupleTemp(false);
+		delay(20);
 	}
 	return(tempValue / averageNumber);
 }
@@ -745,12 +761,6 @@ void myTests()
 	return;
 
 
-	
-	const char input[] = "{\"result\":true,\"count\":42,\"foo\":\"bar\"}";
-
-	JSONVar myObject = JSON.parse(input);
-
-	
 
 	
 	
