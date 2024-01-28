@@ -318,13 +318,13 @@ void setup()
 
 		ArduinoOTA.begin();
 
-					//======================================================================================
-					// Serial
-					//======================================================================================
+		//======================================================================================
+		// Serial
+		//======================================================================================
 
-					Serial.println("Ready");
-					Serial.print("IP address: ");
-					Serial.println(WiFi.localIP());
+		Serial.println("Ready");
+		Serial.print("IP address: ");
+		Serial.println(WiFi.localIP());
 
 
 		//======================================================================================
@@ -405,7 +405,9 @@ void loop() {
 	threadCycle();
 	commCycle();
 
-	
+	/// <summary>
+	///  TODO: does this belong here?
+	/// </summary>
 	safetyCheck(flameOut);
 	opCycle();
 
