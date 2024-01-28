@@ -157,6 +157,9 @@ Adafruit_SSD1306 displayFour(-1);
 //======================================================================================
 //
 
+auto soundAlert(int, int) -> bool;
+auto soundAlert(int) -> bool;
+auto soundAlert() -> bool;
 auto throwException(int) -> bool;
 auto safetyCheck(int) -> bool;
 auto testCycle() -> bool;
@@ -222,14 +225,14 @@ void setup()
 	//======================================================================================
 	// Temporary Var Inits
 	//======================================================================================	
-	
+
 	startUpTime = millis();
 
 	//======================================================================================
 	// Display Init
 	//======================================================================================
 
-	
+
 	displayOne.begin(SSD1306_SWITCHCAPVCC, OLED1);
 	displayOne.clearDisplay();
 	displayOne.display();
@@ -241,7 +244,7 @@ void setup()
 	//======================================================================================
 	// Thermocouple Init
 	//======================================================================================
-	
+
 	BThermocouple.begin(0x060); // yellow
 	IThermocouple.begin(0x061);   // blue  
 	OThermocouple.begin(0x62); // white
@@ -275,7 +278,7 @@ void setup()
 	//======================================================================================
 	// OTA
 	//======================================================================================
-	
+
 	// Port defaults to 3232
 	ArduinoOTA.setPort(3232);
 	ArduinoOTA.setHostname("Endeavor");
@@ -314,18 +317,18 @@ void setup()
 
 		ArduinoOTA.begin();
 
-	//======================================================================================
-	// Serial
-	//======================================================================================
+					//======================================================================================
+					// Serial
+					//======================================================================================
 
-		Serial.println("Ready");
-		Serial.print("IP address: ");
-			Serial.println(WiFi.localIP());
+					Serial.println("Ready");
+					Serial.print("IP address: ");
+					Serial.println(WiFi.localIP());
 
 
-	//======================================================================================
-	// PinModes
-	//======================================================================================
+		//======================================================================================
+		// PinModes
+		//======================================================================================
 
 		pinMode(processorLED, OUTPUT);
 		digitalWrite(processorLED, LOW);
@@ -368,7 +371,7 @@ void setup()
 	restoreConfig();
 	restoreState();
 
-	
+
 
 }
 
@@ -412,6 +415,17 @@ void loop() {
 	myTests();
 }
 
+bool soundAlert(int sound, int frequency) {
+	return true;
+}
+bool soundAlert(int sound) {
+	return soundAlert(sound, 0);
+}
+
+bool soundAlert() {
+	return soundAlert(0);
+	
+}
 
 bool throwException(int)
 {
