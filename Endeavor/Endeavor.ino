@@ -22,15 +22,30 @@ Blah Blah Blah...
 #define SCREEN_WIDTH 128
 #define SCREEN_HEIGHT 64
 
-///
+/// TODO: !! waterLow is now IgniterRelay and is required to light burner
+/// TODO: Research SPI 3 and display
+/// TODO: Look into 2.4 in OLED
 /// TODO: Exception Handling
 /// TODO: Safety Checking
 /// TODO: Flow Sensor install and code
 /// TODO: How to test pump running
-/// TODO: Install and code CDS cell for flameOut check
+/// TODO: flameOut -> Install and code CDS cell for flameOut check
 /// TODO: refine testCycle test pin
 /// TODO: rewire and code test relay to eShutdown
-/// 
+/// TODO: change testRelay to safetyRelay, rewire to force on to operate
+/// TODO: !! replace relay board
+/// TODO: confirm testPin working
+/// TODO: get OLED board working
+/// TODO: build new board for flameOut and PB's de-bounce
+/// TODO: get a display on panel
+/// TODO: mount E/I meter on panel
+/// TODO: write code for change values by mode using PB's
+/// TODO: callForHeat -> test and code
+/// TODO: implement speaker for sound
+///
+
+
+
 
 //======================================================================================
 //======================================================================================
