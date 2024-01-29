@@ -87,10 +87,12 @@ const int processorLED = 2; //o LED on MicroProcessor
 const int callForHeat = 4; //i CALLFORHEAT
 const int testPin = 5; //test mode
 
+
+ // pcell , *12,*14,*15,*27,x36,x34,x35,x39x21,x2,
 // SPI
-const int misoSPI = 12;
+const int misoSPI = 12; // --
 const int mosiSPI = 13;
-const int clkSPI = 14;
+const int clkSPI = 14; // --
 const int ssSPI = 15;
 
 
