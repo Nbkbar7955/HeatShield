@@ -451,6 +451,7 @@ void loop() {
 	if (currentBlinkMillis - previousBlinkMillis >= blinkInterval) {
 		previousBlinkMillis = currentBlinkMillis;
 		digitalWrite(processorLED, !digitalRead(processorLED));
+		digitalWrite(callForHeat, !digitalRead(callForHeat));
 	}
 
 	if (TestMode) {
