@@ -8,7 +8,14 @@ Blah Blah Blah...
 
 */
 
-#include <Arduino_JSON.h>
+
+//======================================================================================
+//======================================================================================
+// Include files
+//======================================================================================
+//======================================================================================
+
+
 #include <SparkFun_MCP9600.h>
 #include <ArduinoOTA.h>
 #include <ESPmDNS.h>
@@ -32,6 +39,137 @@ Blah Blah Blah...
 /// TODO: rewire and code test relay to eShutdown
 /// TODO: OLED address changes
 /// 
+
+
+
+
+
+//======================================================================================
+//======================================================================================
+// WiFi 
+//======================================================================================
+//======================================================================================
+
+const char* networkName = "Wilson.Net-2.4G";
+const char* networkNamePassPhrase = "wilsonwebsite.com";
+
+char serverAddress[] = "192.168.0.67"; // server address
+int port = 44364;
+
+WiFiClient wifi;
+HttpClient client = HttpClient(wifi, serverAddress, port);
+int status = WL_IDLE_STATUS;
+
+//======================================================================================
+//======================================================================================
+// Pin Definitions
+//======================================================================================
+//======================================================================================
+//
+
+const int processorLED = 2; //o LED on MicroProcessor
+const int callForHeat = 4; //i CALLFORHEAT
+const int flameOut = 5; //flame out
+
+// SPI
+const int misoSPI = 12;
+const int mosiSPI = 13;
+const int clkSPI = 14;
+const int ssSPI = 15;
+
+
+const int waterRelay = 17; //o WATERPUMP RELAY
+const int burnerRelay = 16; //o BURNER RELAY
+const int igniterRelay = 18; //o
+const int primePumpRelay = 19;
+
+/// <summary>
+/// TODO:Test and code speaker
+/// TODO: test and code pushbuttons
+/// TODO: code mode/options with PB 
+/// </summary>
+
+const int speaker = 32; //o SOUNDALARM
+const int PB1 = 34; //i PB1
+const int PB2 = 35; //i PB2
+const int PB3 = 36; //i PB3 
+const int PB4 = 39; //i PB4 
+
+
+//======================================================================================
+//======================================================================================
+// Thermocouple Definitions
+//======================================================================================
+//======================================================================================
+//
+
+MCP9600 EThermocouple;  //64 green
+MCP9600 IThermocouple; //61 blue
+MCP9600 BThermocouple; //60 yellow
+MCP9600 OThermocouple; //64 white
+
+/// TODO: consider other thermocouple amps
+
+//
+//======================================================================================
+//======================================================================================
+// OLED Definitions
+//======================================================================================
+//======================================================================================
+//
+
+
+///  TODO: Setup 2nd I2C
+///  
+Adafruit_SSD1306 displayTwo(-1);
+Adafruit_SSD1306 displayOne(-1);
+Adafruit_SSD1306 displayThree(-1);
+Adafruit_SSD1306 displayFour(-1);
+
+#define OLED1 0x3C // OLED 1
+#define OLED2 0x3D // OLED 2
+
+#define OLED3 0x3C // OLED 3
+#define OLED4 0x3D // OLED 4
+
+
+//======================================================================================
+//======================================================================================
+// Function Prototypes
+//======================================================================================
+//======================================================================================
+
+bool isFlameOut();
+void disableEndeavor();
+auto heatUp() -> void;
+auto coolDown() -> void;
+auto iTmpCheck(void) -> bool;
+auto soundAlert(int, int) -> bool;
+auto soundAlert(int) -> bool;
+auto soundAlert() -> bool;
+auto throwException(int) -> bool;
+auto safetyCheck(int) -> bool;
+auto testCycle() -> bool;
+auto opCycle(void) -> void;
+auto runHeatCycle() -> bool;
+auto stopHeatCycle() -> bool;
+auto waterCycle(int) -> bool;
+auto waterCycle(void) -> bool;
+int ETemp(void);
+int ITemp(void);
+int OTemp(void);
+int BTemp(void);
+void updateBurnTime(void);
+auto updateDisplay() -> void;
+auto saveState() -> bool;
+auto restoreState() -> bool;
+auto saveConfig() -> bool;
+auto restoreConfig() -> bool;
+auto commCycle() -> bool;
+auto threadCycle() -> bool;
+void turnOnBoiler(void);
+void turnOffBoiler(void);
+void myTests();
 
 //======================================================================================
 //======================================================================================
@@ -75,153 +213,10 @@ int waterOffDelay = 30;
 
 
 
-
-
-
 //======================================================================================
 //======================================================================================
-// WiFi 
+// Temporary Variables
 //======================================================================================
-//======================================================================================
-
-const char* networkName = "Wilson.Net-2.4G";
-const char* networkNamePassPhrase = "wilsonwebsite.com";
-
-char serverAddress[] = "192.168.0.67"; // server address
-int port = 44364;
-
-WiFiClient wifi;
-HttpClient client = HttpClient(wifi, serverAddress, port);
-int status = WL_IDLE_STATUS;
-
-//======================================================================================
-//======================================================================================
-// Pin Definitions
-//======================================================================================
-//======================================================================================
-//
-
-const int processorLED = 2; //o LED on MicroProcessor
-const int callForHeat = 4; //i CALLFORHEAT
-const int flameOut = 5; //flame out
-
-// SPI
-const int misoSPI = 12;
-const int mosiSPI = 13;
-const int clkSPI = 14;
-const int ssSPI = 15;
-
-
-const int waterRelay = 17; //o WATERPUMP RELAY
-const int burnerRelay = 16; //o BURNER RELAY
-const int igniterRelay = 18; //o
-const int safetyRelay = 19;
-
-/// <summary>
-/// TODO:Test and code speaker
-/// TODO: test and code pushbuttons
-/// TODO: code mode/options with PB 
-/// </summary>
-
-const int speaker = 32; //o SOUNDALARM
-const int PB1 = 34; //i PB1
-const int PB2 = 35; //i PB2
-const int PB3 = 36; //i PB3 
-const int PB4 = 39; //i PB4 
-
-
-//======================================================================================
-//======================================================================================
-// Thermocouple Definitions
-//======================================================================================
-//======================================================================================
-//
-
-MCP9600 EThermocouple;  //64 green
-MCP9600 IThermocouple; //61 blue
-MCP9600 BThermocouple; //60 yellow
-MCP9600 OThermocouple; //64 white
-
-/// TODO: consider other thermocouple amps
-
-
-//======================================================================================
-//======================================================================================
-// OLED Definitions
-//======================================================================================
-//======================================================================================
-//
-
-
-///  TODO: Setup 2nd I2C
-///  
-Adafruit_SSD1306 displayTwo(-1);
-Adafruit_SSD1306 displayOne(-1);
-Adafruit_SSD1306 displayThree(-1);
-Adafruit_SSD1306 displayFour(-1);
-
-#define OLED1 0x3C // OLED 1
-#define OLED2 0x3D // OLED 2
-
-#define OLED3 0x3C // OLED 3
-#define OLED4 0x3D // OLED 4
-
-
-//======================================================================================
-//======================================================================================
-// Prototypes
-//======================================================================================
-//======================================================================================
-//
-
-
-void disableEndeavor();
-
-
-auto heatUp() -> void;
-auto coolDown() -> void;
-auto iTmpCheck(void) -> bool;
-auto soundAlert(int, int) -> bool;
-auto soundAlert(int) -> bool;
-auto soundAlert() -> bool;
-auto throwException(int) -> bool;
-auto safetyCheck(int) -> bool;
-auto testCycle() -> bool;
-auto opCycle(void) -> void;
-auto runHeatCycle() -> bool;
-auto stopHeatCycle() -> bool;
-auto waterCycle(int) -> bool;
-auto waterCycle(void) -> bool;
-
-
-int ETemp(void);
-int ITemp(void);
-int OTemp(void);
-int BTemp(void);
-
-void updateBurnTime(void);
-
-auto updateDisplay() -> void;
-auto saveState() -> bool;
-auto restoreState() -> bool;
-auto saveConfig() -> bool;
-auto restoreConfig() -> bool;
-auto commCycle() -> bool;
-auto threadCycle() -> bool;
-
-void turnOnBoiler(void);
-void turnOffBoiler(void);
-
-void myTests();
-
-
-//======================================================================================
-//======================================================================================
-// Temporary Definitions
-//======================================================================================
-//
-// TESTMODE
-//
 //======================================================================================
 //
 
@@ -231,10 +226,6 @@ unsigned long prevBurnOffTime = 0;
 int testBurnOffTimeInterval = 2000;
 int testBurnerOnTimeInterval = 3000;
 unsigned long prevBurnONTime = 0;
-
-
-
-
 
 //======================================================================================
 //======================================================================================
@@ -315,9 +306,11 @@ void setup()
 
 
 
-	//======================================================================================
-	// OTA
-	//======================================================================================
+//======================================================================================
+//======================================================================================
+//	OTA Definition / Setup
+//======================================================================================
+//======================================================================================
 
 	// Port defaults to 3232
 	ArduinoOTA.setPort(3232);
@@ -357,85 +350,103 @@ void setup()
 
 		ArduinoOTA.begin();
 
-		//======================================================================================
-		// Serial
-		//======================================================================================
+
+
+	
+//======================================================================================
+//======================================================================================
+//	Serial
+//======================================================================================
+//======================================================================================
 
 		Serial.println("Ready");
 		Serial.print("IP address: ");
 		Serial.println(WiFi.localIP());
 
 
-		//======================================================================================
-		// PinModes
-		//======================================================================================
-
-		pinMode(processorLED, OUTPUT);
-		digitalWrite(processorLED, LOW);
-
-		pinMode(callForHeat, OUTPUT); // i PIN 4
-		digitalWrite(callForHeat, LOW);
-
-		pinMode(speaker, OUTPUT); // o PIN 25
-		digitalWrite(speaker, LOW);
+//======================================================================================
+//======================================================================================
+// Pin Modes
+//======================================================================================
+//======================================================================================
 
 
-		pinMode(waterRelay, OUTPUT); // o PIN 26
-		digitalWrite(waterRelay, HIGH);
+	pinMode(processorLED, OUTPUT);
+	digitalWrite(processorLED, LOW);
 
-		pinMode(burnerRelay, OUTPUT); // o PIN 27
-		digitalWrite(burnerRelay, HIGH);
+	pinMode(callForHeat, OUTPUT); // i PIN 4
+	digitalWrite(callForHeat, LOW);
 
-		pinMode(safetyRelay, OUTPUT);
-		digitalWrite(safetyRelay, HIGH);
+	pinMode(speaker, OUTPUT); // o PIN 25
+	digitalWrite(speaker, LOW);
 
-		pinMode(igniterRelay, OUTPUT); // o PIN 18
-		digitalWrite(igniterRelay, HIGH);
 
-		pinMode(PB1, INPUT); // i PIN 34
-		pinMode(PB1, INPUT_PULLDOWN);
-		digitalWrite(PB1, LOW);
+	pinMode(waterRelay, OUTPUT); // o PIN 26
+	digitalWrite(waterRelay, HIGH);
 
-		pinMode(PB2, INPUT); // i PIN 35
-		pinMode(PB2, INPUT_PULLDOWN);
-		digitalWrite(PB2, LOW);
+	pinMode(burnerRelay, OUTPUT); // o PIN 27
+	digitalWrite(burnerRelay, HIGH);
 
-		pinMode(PB3, INPUT); // i PIN 36
-		pinMode(PB3, INPUT_PULLDOWN);
-		digitalWrite(PB3, LOW);
+	pinMode(primePumpRelay, OUTPUT);
+	digitalWrite(primePumpRelay, HIGH);
 
-		pinMode(PB4, INPUT); // i PIN 39
-		pinMode(PB4, INPUT_PULLDOWN);
-		digitalWrite(PB4, LOW);
+	pinMode(igniterRelay, OUTPUT); // o PIN 18
+	digitalWrite(igniterRelay, HIGH);
 
+	pinMode(PB1, INPUT); // i PIN 34
+	pinMode(PB1, INPUT_PULLDOWN);
+	digitalWrite(PB1, LOW);
+
+	pinMode(PB2, INPUT); // i PIN 35
+	pinMode(PB2, INPUT_PULLDOWN);
+	digitalWrite(PB2, LOW);
+
+	pinMode(PB3, INPUT); // i PIN 36
+	pinMode(PB3, INPUT_PULLDOWN);
+	digitalWrite(PB3, LOW);
+
+	pinMode(PB4, INPUT); // i PIN 39
+	pinMode(PB4, INPUT_PULLDOWN);
+	digitalWrite(PB4, LOW);
+
+//======================================================================================
+//======================================================================================
+// Startup functions
+//======================================================================================
+//======================================================================================
+	
 	restoreConfig();
 	restoreState();
-
-
-	//**********************************************************************************************
-	//**********************************************************************************************
-	//**********************************************************************************************
-	// TODO: REMOVE This turnOnBoiler()
-//turnOnBoiler();
-	//**********************************************************************************************
-	//**********************************************************************************************
-	//**********************************************************************************************
-
-
+//======================================================================================
+//======================================================================================
 }
 
-
+//======================================================================================
+//======================================================================================
 //======================================================================================
 //======================================================================================
 // Loop
 //======================================================================================
 //======================================================================================
-////======================================================================================
-/////======================================================================================
-/////======================================================================================
-/////======================================================================================
-/////======================================================================================
-//
+//======================================================================================
+//======================================================================================
+//======================================================================================
+//======================================================================================
+//======================================================================================
+//======================================================================================
+//======================================================================================
+//======================================================================================
+//======================================================================================
+//======================================================================================
+//======================================================================================
+//======================================================================================
+// Loop
+//======================================================================================
+//======================================================================================
+//======================================================================================
+//======================================================================================
+
+
 
 
 
@@ -443,7 +454,7 @@ void setup()
 void loop() {
 
 	ArduinoOTA.handle();
-	digitalWrite(safetyRelay, LOW);
+
 	updateDisplay();
 
 	currentBlinkMillis = millis();
@@ -471,7 +482,7 @@ void loop() {
 void opCycle()
 {
 	ArduinoOTA.handle();
-	digitalWrite(safetyRelay, LOW);
+	
 	updateDisplay();
 
 	const auto currentETemp = ETemp();
@@ -485,12 +496,12 @@ void opCycle()
 auto runHeatCycle() -> bool
 {
 	ArduinoOTA.handle();
-	digitalWrite(safetyRelay, LOW);
+	
 	
 	while (ETemp() <= ETempLow)
 	{
 		ArduinoOTA.handle();
-		digitalWrite(safetyRelay, LOW);
+		
 		updateDisplay();
 
 		heatUp();
@@ -505,7 +516,7 @@ auto runHeatCycle() -> bool
 auto stopHeatCycle() -> bool
 {
 	ArduinoOTA.handle();
-	digitalWrite(safetyRelay, LOW);
+	
 
 	updateDisplay();
 	
@@ -514,10 +525,26 @@ auto stopHeatCycle() -> bool
 	return true;
 }
 
+
+
+bool isFlameOut()
+{
+	
+	int flame = 0;
+	
+	flame = analogRead(map(flame, 0, 1023, 0, 255));
+
+	if (flame == 0) return false;
+	if (flame == 255) return true;
+
+	return false;
+}
+
+
 void disableEndeavor()
 {
 	ArduinoOTA.handle();
-	digitalWrite(safetyRelay, LOW);
+	
 	updateDisplay();
 
 	digitalWrite(burnerRelay, HIGH);
@@ -531,14 +558,14 @@ void disableEndeavor()
 auto heatUp() -> void
 {
 	ArduinoOTA.handle();
-	digitalWrite(safetyRelay, LOW);
+	
 
 	auto currentBTemp = BTemp();
 	
 	while (currentBTemp < BTempHigh)
 	{
 		ArduinoOTA.handle();
-		digitalWrite(safetyRelay, LOW);
+		
 		updateDisplay();
 
 		turnOnBoiler();
@@ -552,7 +579,7 @@ auto heatUp() -> void
 auto coolDown() -> void
 {
 	ArduinoOTA.handle();
-	digitalWrite(safetyRelay, LOW);
+	
 	updateDisplay();
 	
 	int currentBTemp = BTemp();
@@ -560,7 +587,7 @@ auto coolDown() -> void
 	while (currentBTemp >= BTempLow)
 	{
 		ArduinoOTA.handle();
-		digitalWrite(safetyRelay, LOW);
+		
 		updateDisplay();
 		
 		turnOffBoiler();
@@ -574,7 +601,7 @@ auto coolDown() -> void
 auto iTmpCheck() -> bool
 {
 	ArduinoOTA.handle();
-	digitalWrite(safetyRelay, LOW);
+	
 	updateDisplay();
 
 	if(ITemp() < ITempHigh)
@@ -588,7 +615,7 @@ auto iTmpCheck() -> bool
 void turnOnBoiler()
 {
 	ArduinoOTA.handle();
-	digitalWrite(safetyRelay, LOW);
+	
 
 
 	
@@ -600,7 +627,7 @@ void turnOnBoiler()
 void turnOffBoiler()
 {
 	ArduinoOTA.handle();
-	digitalWrite(safetyRelay, LOW);
+	
 	
 	digitalWrite(burnerRelay, HIGH);
 	digitalWrite(igniterRelay, HIGH);
@@ -610,7 +637,7 @@ bool waterCycle(int runTime)
 {
 	
 	ArduinoOTA.handle();
-	digitalWrite(safetyRelay, LOW);
+	
 	updateDisplay();
 
 	/// TODO: wrong logic?
@@ -626,7 +653,7 @@ bool waterCycle(int runTime)
 auto waterCycle() -> bool
 {
 	ArduinoOTA.handle();
-	digitalWrite(safetyRelay, LOW);
+	
 	
 	return waterCycle(0);
 }
@@ -635,7 +662,7 @@ auto waterCycle() -> bool
 int  ETemp()
 {
 	ArduinoOTA.handle();
-	digitalWrite(safetyRelay, LOW);
+	
 	
 	return int(EThermocouple.getThermocoupleTemp(false));
 
@@ -644,7 +671,7 @@ int  ETemp()
 int ITemp()
 {
 	ArduinoOTA.handle();
-	digitalWrite(safetyRelay, LOW);
+	
 
 	return int(IThermocouple.getThermocoupleTemp(false));
 
@@ -653,7 +680,7 @@ int ITemp()
 auto OTemp() -> int
 {
 	ArduinoOTA.handle();
-	digitalWrite(safetyRelay, LOW);
+	
 
 	return int(OThermocouple.getThermocoupleTemp(false));
 
@@ -662,7 +689,7 @@ auto OTemp() -> int
 int BTemp()
 {
 	ArduinoOTA.handle();
-	digitalWrite(safetyRelay, LOW);
+	
 
 	return int(BThermocouple.getThermocoupleTemp(false));
 
@@ -670,10 +697,13 @@ int BTemp()
 
 
 
+
+
+
 void updateBurnTime()
 {
 	ArduinoOTA.handle();
-	digitalWrite(safetyRelay, LOW);
+	
 
 	if (digitalRead(burnerRelay) == LOW)
 	{
@@ -684,7 +714,7 @@ void updateBurnTime()
 auto updateDisplay() -> void {
 
 	ArduinoOTA.handle();
-	digitalWrite(safetyRelay, LOW);
+	
 
 	displayOne.clearDisplay();
 	displayOne.setTextSize(1);
@@ -735,7 +765,7 @@ void myTests()
 auto testCycle() -> bool
 {
 	ArduinoOTA.handle();
-	digitalWrite(safetyRelay, LOW);
+	
 
 	unsigned long curTime = millis();
 	
@@ -797,13 +827,13 @@ bool soundAlert() {
 
 bool throwException(int)
 {
-	digitalWrite(safetyRelay, HIGH);
+
 	return true;
 }
 
 auto safetyCheck(int) -> bool
 {
-	digitalWrite(safetyRelay, LOW);
+	
 	return true;
 }
 
