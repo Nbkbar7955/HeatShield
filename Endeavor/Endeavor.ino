@@ -4,8 +4,6 @@
  Created: 8/27/2022 3:36:02 PM
  Author:  david
 
-Blah Blah Blah...
-
 */
 
 
@@ -72,10 +70,10 @@ const int callForHeat = 4; //i CALLFORHEAT
 const int flameOut = 5; //flame out
 
 // SPI
-const int misoSPI = 12;
-const int mosiSPI = 13;
-const int clkSPI = 14;
-const int ssSPI = 15;
+const int misoSpi = 12;
+const int mosiSpi = 13;
+const int clkSpi = 14;
+const int ssSpi = 15;
 
 
 const int waterRelay = 17; //o WATERPUMP RELAY
@@ -223,7 +221,7 @@ String displayFourLineTwo = "";
 String displayFourLineThree = "";
 
 
-long blinkInterval = 750;
+unsigned long blinkInterval = 750;
 unsigned long savedBlinkTime = 0;
 unsigned long burnTime = 0;
 long startUpTime = 0;
@@ -560,14 +558,16 @@ void turnOffBoiler()
 }
 
 bool waterCycle(int runTime)
-{
-	
+{	
 	runMaintenance();
-	/// TODO: wrong logic?
-	digitalWrite(waterRelay, LOW);
 
-	if (runTime == 0) runTime = waterRunTime;
-		
+	//TODO: waterCycle Blocks
+
+	
+	/// TODO: wrong logic?
+
+	if (runTime == 0) runTime = waterRunTime;	
+	digitalWrite(waterRelay, LOW);
 	delay(runTime * 1000);
 	digitalWrite(waterRelay, HIGH);
 	return true;
@@ -766,7 +766,7 @@ void myTests()
 
 void blink()
 {
-	long currentBlinkTime = millis();
+	unsigned long currentBlinkTime = millis();
 
 	if (currentBlinkTime - savedBlinkTime >= blinkInterval) {
 		savedBlinkTime = currentBlinkTime;
@@ -786,11 +786,6 @@ void runMaintenance()
 auto testCycle() -> bool
 {
 	runMaintenance();
-	
-
-	unsigned long curTime = millis();
-	
-	updateDisplay();
 
 	return true;
 }
