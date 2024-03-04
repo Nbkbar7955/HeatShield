@@ -38,7 +38,21 @@
 /// TODO: OLED address changes
 /// 
 
+//
+// temperatures
+//
 
+float boilerHighTemp = 900;
+float boilerLowTemp = 350;
+
+float insideWaterHighTenp = 155;
+float insideWaterLowTemp = 125;
+
+float environmentHighTemp = 66;
+float environmentLowTemp = 64;
+
+float outsideWaterHighTemp = 200;
+float outsideWaterLowTemp = 100;
 
 
 
@@ -187,21 +201,7 @@ int ambientTemp();
 
 Preferences preferences;
 
-//
-// temperatures
-//
 
-float boilerHighTemp = 900;
-float boilerLowTemp = 350;
-
-float insideWaterHighTenp = 155;
-float insideWaterLowTemp = 125;
-
-float environmentHighTemp = 66;
-float environmentLowTemp = 64;
-
-float outsideWaterHighTemp = 200;
-float outsideWaterLowTemp = 100;
 
 //
 // others
