@@ -41,6 +41,8 @@
 //
 // temperatures
 //
+float environmentHighTemp = 66;
+float environmentLowTemp = 64;
 
 float boilerHighTemp = 900;
 float boilerLowTemp = 350;
@@ -48,8 +50,7 @@ float boilerLowTemp = 350;
 float insideWaterHighTenp = 155;
 float insideWaterLowTemp = 125;
 
-float environmentHighTemp = 66;
-float environmentLowTemp = 64;
+
 
 float outsideWaterHighTemp = 200;
 float outsideWaterLowTemp = 100;
