@@ -41,8 +41,8 @@
 //
 // temperatures
 //
-float environmentHighTemp = 66;
-float environmentLowTemp = 64;
+float environmentHighTemp = 70;
+float environmentLowTemp = 66;
 
 float boilerHighTemp = 900;
 float boilerLowTemp = 350;
@@ -462,7 +462,7 @@ void loop() {
 	updateDisplay();
 	
 	if (TestMode) testCycle();
-	opCycle();
+	//opCycle();
 }
 
 
@@ -788,13 +788,14 @@ void runMaintenance()
 {
 	ArduinoOTA.handle();
 	blink();
-	updateDisplay();
+	
 }
 
 
 bool testCycle()
 {
 	runMaintenance();
+	updateDisplay();
 
 
 	
