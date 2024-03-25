@@ -53,13 +53,13 @@
 //======================================================================================
 //======================================================================================
 
-float environmentHighTemp = 70;
-float environmentLowTemp = 67;
+float environmentHighTemp = 68;
+float environmentLowTemp = 65;
 
-float boilerHighTemp = 950;
+float boilerHighTemp = 940;
 float boilerLowTemp = 350;
 
-float insideWaterHighTemp = 140;
+float insideWaterHighTemp = 145;
 float insideWaterLowTemp = 110;
 
 // 30,000 = 30 seconds
@@ -79,7 +79,7 @@ unsigned long savedOffWaterRunTime = 0;
 float outsideWaterHighTemp = 200;
 float outsideWaterLowTemp = 100;
 
-unsigned long blinkInterval = 300;
+unsigned long blinkInterval = 250;
 unsigned long savedBlinkTime = 0;
 unsigned long burnTime = 0;
 long startUpTime = 0;
@@ -239,7 +239,7 @@ void turnOffBoiler(void);
 void myTests();
 void blink();
 void runMaintenance();
-bool isEnvironmentTempMet();
+bool runEnvironmentTempCycle();
 void runHeatCycle();
 void runWaterCycle();
 bool waterOnTimeNotFinished();
@@ -484,14 +484,9 @@ void opCycle()
 	runMaintenance();
 	updateDisplay();
 
-	if (!isEnvironmentTempMet()) {
-
-		digitalWrite(callForHeat, HIGH);
-		
-		heatUpTheHouse();
-
-		digitalWrite(callForHeat, LOW);
-	}
+	digitalWrite(callForHeat, HIGH);
+	heatUpTheHouse();
+	digitalWrite(callForHeat, LOW);
 }
 
 void heatUpTheHouse()
@@ -499,13 +494,8 @@ void heatUpTheHouse()
 	runMaintenance();
 	updateDisplay();
 
-	while (!isEnvironmentTempMet()) {
-		runMaintenance();
-		updateDisplay();
-
-		runHeatCycle();
-		runWaterCycle();
-	}
+	runHeatCycle();
+	runWaterCycle();
 }
 
 void runHeatCycle() {
@@ -513,19 +503,14 @@ void runHeatCycle() {
 	runMaintenance();
 	updateDisplay();
 
-	if (isEnvironmentTempMet()) return;
 	while (insideWaterTemp() < insideWaterHighTemp)
 	{
 		runMaintenance();
 		updateDisplay();
 
-		turnOffWaterPump();
-		if (isEnvironmentTempMet()) return;
-		
+		turnOffWaterPump();		
 		heatUpBoiler();
 		coolDownBoiler();
-
-		if (isEnvironmentTempMet()) return;
 	}
 }
 
@@ -535,40 +520,21 @@ void runWaterCycle() {
 	updateDisplay();
 
 	turnOffBoiler();
-	if (isEnvironmentTempMet()) return;
 
 	while (insideWaterTemp() >= insideWaterLowTemp) {
 		runMaintenance();
 		updateDisplay();
-		if (isEnvironmentTempMet()) break;
+
 		turnOffBoiler();
 		turnOnWaterPump();
 	}
 	turnOffWaterPump();
-
-
-	
-	/*
-	while (waterOnTimeNotFinished()) {
-		runMaintenance();
-		updateDisplay();
-		if (isEnvironmentTempMet()) break;
-	}
-	
-	while (waterOffTimeNotFinished()) {
-		runMaintenance();
-		updateDisplay();
-		if (isEnvironmentTempMet()) break;;
-	}
-	*/
 }
 
 void heatUpBoiler()
 {
 	runMaintenance();
 	updateDisplay();
-
-	if (isInsideWaterHighTempMet()) return;
 	
 	while (boilerTemp() <= boilerHighTemp)
 	{
@@ -576,7 +542,6 @@ void heatUpBoiler()
 		updateDisplay();
 
 		turnOnBoiler();
-		if (isInsideWaterHighTempMet()) break;
 	}	
 }
 
@@ -592,7 +557,6 @@ void coolDownBoiler()
 		updateDisplay();
 		
 		turnOffBoiler();
-		if (isInsideWaterHighTempMet()) return;
 	}
 }
 
@@ -601,7 +565,6 @@ bool waterOnTimeNotFinished() {
 	runMaintenance();
 	updateDisplay();
 	
-	if (isInsideWaterHighTempMet()) return false;
 	unsigned long currentOnWaterRunTime = millis();
 
 	if (currentOnWaterRunTime - savedWaterOnRunTime < waterOnRunTime) {
@@ -615,7 +578,6 @@ bool waterOffTimeNotFinished()
 	runMaintenance();
 	updateDisplay();
 
-	if (isInsideWaterHighTempMet()) return false;
 	unsigned long currentWaterOffRunTime = millis();
 
 	if (currentWaterOffRunTime - savedOffWaterRunTime < waterOffRunTime) {
@@ -627,14 +589,14 @@ bool waterOffTimeNotFinished()
 
 bool isInsideWaterHighTempMet()
 {
-
 	if(insideWaterTemp() < insideWaterHighTemp)	return false;
 	return true;
 }
 
-bool isEnvironmentTempMet()
-{
-	runMaintenance();
+bool runEnvironmentTempCycle() {
+	
+	ArduinoOTA.handle();
+	blink();
 	updateDisplay();
 	
 	if ((environmentTemperature()+ 1) >= environmentHighTemp) {
@@ -642,7 +604,9 @@ bool isEnvironmentTempMet()
 		turnOffWaterPump();
 		
 		while (environmentTemperature() >= environmentLowTemp) {
-			runMaintenance();
+
+			ArduinoOTA.handle();
+			blink();
 			updateDisplay();
 			
 			turnOffBoiler();
@@ -877,6 +841,7 @@ void runMaintenance()
 {
 	ArduinoOTA.handle();
 	blink();
+	runEnvironmentTempCycle();
 	
 }
 
