@@ -24,9 +24,6 @@
 #include <WiFi.h>
 
 
-#define SCREEN_WIDTH 128
-#define SCREEN_HEIGHT 64
-
 ///
 /// TODO: Exception Handling
 /// TODO: Safety Checking
@@ -39,33 +36,64 @@
 /// 
 
 
+//======================================================================================
+//======================================================================================
+// Setup Vars
+//======================================================================================
+//======================================================================================
+//======================================================================================
+//======================================================================================
+//======================================================================================
+//======================================================================================
+//======================================================================================
+//======================================================================================
+//======================================================================================
+//======================================================================================
+//======================================================================================
+//======================================================================================
+//======================================================================================
 
+float environmentHighTemp = 70;
+float environmentLowTemp = 67;
 
-float environmentHighTemp = 71;
-float environmentLowTemp = 66;
-
-float boilerHighTemp = 800;
+float boilerHighTemp = 950;
 float boilerLowTemp = 350;
 
 float insideWaterHighTemp = 140;
-float insideWaterLowTemp = 125;
+float insideWaterLowTemp = 110;
 
-// 30000 = 30 seconds
-// 60000 = 1 min
-// 240000 = 4 mins
-// 300000 = 5 mins
-// 600000 = 10 mins
+// 30,000 = 30 seconds
+// 60,000 = 1 min
+// 120,000 = 2 min
+// 180,000 = 3 min
+// 240,000 = 4 mins
+// 300,000 = 5 mins
+// 600,000 = 10 mins
 
-unsigned long waterOnRunTime = 30000;
+unsigned long waterOnRunTime = 30000; // water on
 unsigned long savedWaterOnRunTime = 0;
 
-unsigned long waterOffRunTime = 240000;
+unsigned long waterOffRunTime = 180000; // water off
 unsigned long savedOffWaterRunTime = 0;
 
 float outsideWaterHighTemp = 200;
 float outsideWaterLowTemp = 100;
 
+unsigned long blinkInterval = 300;
+unsigned long savedBlinkTime = 0;
+unsigned long burnTime = 0;
+long startUpTime = 0;
 
+int boilerOnDelay = 30000; // seconds delay on and off to prevent cycling too fast (temp bouncing)
+int boilerOffDelay = 30000; //seconds
+int waterOnDelay = 30000; // seconds
+int waterOffDelay = 30000; // seconds
+long primePumpRunTime = 15000; // seconds (15)
+
+unsigned long prevBurnOffTime = 0;
+int testBurnOffTimeInterval = 2000;
+int testBurnerOnTimeInterval = 3000;
+unsigned long prevBurnONTime = 0;
 
 
 //======================================================================================
@@ -137,7 +165,7 @@ MCP9600 outsideWaterThermocouple; //64 white
 //
 //======================================================================================
 //======================================================================================
-// OLED Definitions
+// Display Definitions
 //======================================================================================
 //======================================================================================
 //
@@ -155,6 +183,22 @@ Adafruit_SSD1306 displayFour(-1);
 
 #define OLED3 0x3C // OLED 3
 #define OLED4 0x3D // OLED 4
+
+String displayOneLineOne = "";
+String displayOneLineTwo = "";
+String displayOneLineThree = "";
+
+String displayTwoLineOne = "";
+String displayTwoLineTwo = "";
+String displayTwoLineThree = "";
+
+String displayThreeLineOne = "";
+String displayThreeLineTwo = "";
+String displayThreeLineThree = "";
+
+String displayFourLineOne = "";
+String displayFourLineTwo = "";
+String displayFourLineThree = "";
 
 
 //======================================================================================
@@ -203,60 +247,11 @@ bool waterOffTimeNotFinished();
 void turnOffWaterPump();
 int ambientTemp();
 
-//======================================================================================
-//======================================================================================
-// operational Variables
-//======================================================================================
-//======================================================================================
-
-
 //
 // writing
 //
 
 Preferences preferences;
-
-
-
-//
-// others
-//
-
-String displayOneLineOne = "";
-String displayOneLineTwo = "";
-String displayOneLineThree = "";
-
-String displayTwoLineOne = "";
-String displayTwoLineTwo = "";
-String displayTwoLineThree = "";
-
-String displayThreeLineOne = "";
-String displayThreeLineTwo = "";
-String displayThreeLineThree = "";
-
-String displayFourLineOne = "";
-String displayFourLineTwo = "";
-String displayFourLineThree = "";
-
-
-unsigned long blinkInterval = 150;
-unsigned long savedBlinkTime = 0;
-unsigned long burnTime = 0;
-long startUpTime = 0;
-
-int boilerOnDelay = 30000; // seconds delay on and off to prevent cycling too fast (temp bouncing)
-int boilerOffDelay = 30000; //seconds
-int waterOnDelay = 30000; // seconds
-int waterOffDelay = 30000; // seconds
-long primePumpRunTime = 15000; // seconds
-
-
-
-
-unsigned long prevBurnOffTime = 0;
-int testBurnOffTimeInterval = 2000;
-int testBurnerOnTimeInterval = 3000;
-unsigned long prevBurnONTime = 0;
 
 //======================================================================================
 //======================================================================================
@@ -467,7 +462,7 @@ void setup()
 //======================================================================================
 
 
-bool TestMode = true;
+bool TestMode = false;
 bool testBoilerHighTemp = false;
 bool testInsideWaterHighTemp = false;
 bool testEnvironmentHighTemp = true;
@@ -491,11 +486,11 @@ void opCycle()
 
 	if (!isEnvironmentTempMet()) {
 
-		//digitalWrite(callForHeat, HIGH);
+		digitalWrite(callForHeat, HIGH);
 		
 		heatUpTheHouse();
 
-		//digitalWrite(callForHeat, LOW);
+		digitalWrite(callForHeat, LOW);
 	}
 }
 
@@ -541,7 +536,19 @@ void runWaterCycle() {
 
 	turnOffBoiler();
 	if (isEnvironmentTempMet()) return;
+
+	while (insideWaterTemp() >= insideWaterLowTemp) {
+		runMaintenance();
+		updateDisplay();
+		if (isEnvironmentTempMet()) break;
+		turnOffBoiler();
+		turnOnWaterPump();
+	}
+	turnOffWaterPump();
+
+
 	
+	/*
 	while (waterOnTimeNotFinished()) {
 		runMaintenance();
 		updateDisplay();
@@ -553,6 +560,7 @@ void runWaterCycle() {
 		updateDisplay();
 		if (isEnvironmentTempMet()) break;;
 	}
+	*/
 }
 
 void heatUpBoiler()
@@ -629,10 +637,17 @@ bool isEnvironmentTempMet()
 	runMaintenance();
 	updateDisplay();
 	
-	if (environmentTemperature() >= environmentHighTemp) {
+	if ((environmentTemperature()+ 1) >= environmentHighTemp) {
 		turnOffBoiler();
 		turnOffWaterPump();
-		return true;
+		
+		while (environmentTemperature() >= environmentLowTemp) {
+			runMaintenance();
+			updateDisplay();
+			
+			turnOffBoiler();
+			turnOffWaterPump();
+		} 
 	}
 	return false;
 }
@@ -870,7 +885,7 @@ bool testCycle()
 {
 	runMaintenance();
 
-	
+	digitalWrite(waterRelay, LOW);
 
 
 	return true;
