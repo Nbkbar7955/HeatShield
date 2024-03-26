@@ -53,8 +53,8 @@
 //======================================================================================
 //======================================================================================
 
-float environmentHighTemp = 68;
-float environmentLowTemp = 65;
+float environmentHighTemp = 70;
+float environmentLowTemp = 68;
 
 float boilerHighTemp = 940;
 float boilerLowTemp = 350;
