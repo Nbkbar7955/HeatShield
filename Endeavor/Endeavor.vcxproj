@@ -209,6 +209,7 @@
     <ClCompile Include="..\..\..\..\Documents\Arduino\libraries\Arduino_JSON\src\JSON.cpp" />
     <ClCompile Include="..\..\..\..\Documents\Arduino\libraries\Arduino_JSON\src\JSONVar.cpp" />
     <ClCompile Include="..\..\..\..\Documents\Arduino\libraries\SparkFun_MCP9600_Thermocouple_Library-1.0.5\src\SparkFun_MCP9600.cpp" />
+    <ClCompile Include="Documents\FlowSensor01.cpp" />
     <ClCompile Include="Endeavor.ino">
       <FileType>CppCode</FileType>
       <DeploymentContent>true</DeploymentContent>
