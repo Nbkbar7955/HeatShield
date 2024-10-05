@@ -338,7 +338,7 @@ void setup()
 
 		// Port defaults to 3232
 	ArduinoOTA.setPort(3232);
-	ArduinoOTA.setHostname("Endeavor");
+	ArduinoOTA.setHostname("ENDEAVOR_87");
 
 
 
