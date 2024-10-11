@@ -17,7 +17,7 @@
 long currentMillis = 0;
 long previousMillis = 0;
 int interval = 1000;
-boolean ledState = LOW;
+bool ledState = LOW;
 float calibrationFactor = 4.5;
 volatile byte pulseCount;
 byte pulse1Sec = 0;
