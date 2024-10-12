@@ -696,5 +696,8 @@
     <ClCompile Include="..\..\..\..\Documents\Arduino\libraries\Adafruit_BusIO\Adafruit_SPIDevice.cpp">
       <Filter>src\_micro-api-readonly\libraries\Adafruit_BusIO</Filter>
     </ClCompile>
+    <ClCompile Include="Documents\FlowSensor01.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

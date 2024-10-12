@@ -1,8 +1,10 @@
-	
+
 /*
  Name:    Endeavor 2324
  Created: 8/27/2022 3:36:02 PM
  Author:  david
+
+ version: 0.8.067
 
 */
 
@@ -24,9 +26,6 @@
 #include <WiFi.h>
 
 
-#define SCREEN_WIDTH 128
-#define SCREEN_HEIGHT 64
-
 ///
 /// TODO: Exception Handling
 /// TODO: Safety Checking
@@ -39,7 +38,64 @@
 /// 
 
 
+//======================================================================================
+//======================================================================================
+// Setup Vars
+//======================================================================================
+//======================================================================================
+//======================================================================================
+//======================================================================================
+//======================================================================================
+//======================================================================================
+//======================================================================================
+//======================================================================================
+//======================================================================================
+//======================================================================================
+//======================================================================================
+//======================================================================================
+//======================================================================================
 
+int environmentHighTemp = 70;
+int environmentLowTemp = 68;
+
+int boilerHighTemp = 940;
+int boilerLowTemp = 350;
+
+int insideWaterHighTemp = 145;
+int insideWaterLowTemp = 110;
+
+// 30,000 = 30 seconds
+// 60,000 = 1 min
+// 120,000 = 2 min
+// 180,000 = 3 min
+// 240,000 = 4 mins
+// 300,000 = 5 mins
+// 600,000 = 10 mins
+
+unsigned long waterOnRunTime = 30000; // water on
+unsigned long savedWaterOnRunTime = 0;
+
+unsigned long waterOffRunTime = 180000; // water off
+unsigned long savedOffWaterRunTime = 0;
+
+float outsideWaterHighTemp = 200;
+float outsideWaterLowTemp = 100;
+
+unsigned long blinkInterval = 300;
+unsigned long savedBlinkTime = 0;
+unsigned long burnTime = 0;
+long startUpTime = 0;
+
+int boilerOnDelay = 30000; // seconds delay on and off to prevent cycling too fast (temp bouncing)
+int boilerOffDelay = 30000; //seconds
+int waterOnDelay = 30000; // seconds
+int waterOffDelay = 30000; // seconds
+long primePumpRunTime = 15000; // seconds (15)
+
+unsigned long prevBurnOffTime = 0;
+int testBurnOffTimeInterval = 2000;
+int testBurnerOnTimeInterval = 3000;
+unsigned long prevBurnONTime = 0;
 
 
 //======================================================================================
@@ -65,21 +121,21 @@ int status = WL_IDLE_STATUS;
 //======================================================================================
 //
 
-const int processorLED = 2; //o LED on MicroProcessor
-const int callForHeat = 4; //i CALLFORHEAT
-const int flameOut = 5; //flame out
+constexpr int processorLed = 2; //o LED on MicroProcessor
+constexpr int callForHeat = 4; //i CALLFORHEAT
+constexpr int flameOut = 5; //flame out
 
 // SPI
-const int misoSpi = 12;
-const int mosiSpi = 13;
-const int clkSpi = 14;
-const int ssSpi = 15;
+constexpr int misoSpi = 12;
+constexpr int mosiSpi = 13;
+constexpr int clkSpi = 14;
+constexpr int ssSpi = 15;
 
 
-const int waterRelay = 17; //o WATERPUMP RELAY
-const int burnerRelay = 16; //o BURNER RELAY
-const int igniterRelay = 18; //o
-const int primePumpRelay = 19;
+constexpr int waterRelay = 17; //o WATERPUMP RELAY
+constexpr int burnerRelay = 16; //o BURNER RELAY
+constexpr int zoneTwoRelay = 18; //o
+constexpr int primePumpRelay = 19;
 
 /// <summary>
 /// TODO:Test and code speaker
@@ -87,11 +143,11 @@ const int primePumpRelay = 19;
 /// TODO: code mode/options with PB 
 /// </summary>
 
-const int speaker = 32; //o SOUNDALARM
-const int PB1 = 34; //i PB1
-const int PB2 = 35; //i PB2
-const int PB3 = 36; //i PB3 
-const int PB4 = 39; //i PB4 
+constexpr int speaker = 32; //o SOUNDALARM
+constexpr int PB1 = 34; //i PB1
+constexpr int PB2 = 35; //i PB2
+constexpr int PB3 = 36; //i PB3 
+constexpr int PB4 = 39; //i PB4 
 
 
 //======================================================================================
@@ -101,17 +157,17 @@ const int PB4 = 39; //i PB4
 //======================================================================================
 //
 
-MCP9600 EThermocouple;  //64 green
-MCP9600 IThermocouple; //61 blue
-MCP9600 BThermocouple; //60 yellow
-MCP9600 OThermocouple; //64 white
+MCP9600 environmentThermocouple;  //64 green
+MCP9600 insideWaterThermocouple; //61 blue
+MCP9600 boilerThermocouple; //60 yellow
+MCP9600 outsideWaterThermocouple; //64 white
 
 /// TODO: consider other thermocouple amps
 
 //
 //======================================================================================
 //======================================================================================
-// OLED Definitions
+// Display Definitions
 //======================================================================================
 //======================================================================================
 //
@@ -130,80 +186,6 @@ Adafruit_SSD1306 displayFour(-1);
 #define OLED3 0x3C // OLED 3
 #define OLED4 0x3D // OLED 4
 
-
-//======================================================================================
-//======================================================================================
-// Function Prototypes
-//======================================================================================
-//======================================================================================
-
-void primePump();
-bool isFlameOut();
-void disableEndeavor();
-auto heatUp() -> void;
-auto coolDown() -> void;
-auto isITempHighMet(void) -> bool;
-auto soundAlert(int, int) -> bool;
-auto soundAlert(int) -> bool;
-auto soundAlert() -> bool;
-auto throwException(int) -> bool;
-auto safetyCheck(int) -> bool;
-auto testCycle() -> bool;
-auto opCycle(void) -> void;
-void runHeatCycle();
-auto waterCycle(int) -> bool;
-auto waterCycle(void) -> bool;
-int ETemp(void);
-int ITemp(void);
-int OTemp(void);
-int BTemp(void);
-void updateBurnTime(void);
-auto updateDisplay() -> void;
-auto saveState() -> bool;
-auto restoreState() -> bool;
-auto saveConfig() -> bool;
-auto restoreConfig() -> bool;
-auto commCycle() -> bool;
-auto threadCycle() -> bool;
-void turnOnBoiler(void);
-void turnOffBoiler(void);
-void myTests();
-void blink();
-void runMaintenance();
-
-//======================================================================================
-//======================================================================================
-// operational Variables
-//======================================================================================
-//======================================================================================
-
-
-//
-// writing
-//
-
-Preferences preferences;
-
-//
-// temperatures
-//
-
-float bTempHigh = 950;
-float bTempLow = 300;
-
-float iTempHigh = 125;
-float iTempLow = 90;
-
-float eTempHigh = 69;
-float eTempLow = 65;
-
-float oTempHigh = 200;
-float oTempLow = 100;
-
-//
-// others
-//
-
 String displayOneLineOne = "";
 String displayOneLineTwo = "";
 String displayOneLineThree = "";
@@ -221,32 +203,57 @@ String displayFourLineTwo = "";
 String displayFourLineThree = "";
 
 
-unsigned long blinkInterval = 750;
-unsigned long savedBlinkTime = 0;
-unsigned long burnTime = 0;
-long startUpTime = 0;
+//======================================================================================
+//======================================================================================
+// Function Prototypes
+//======================================================================================
+//======================================================================================
 
-int boilerOnDelay = 30; // seconds delay on and off to prevent cycling too fast (temp bouncing)
-int boilerOffDelay = 30; //seconds
-int waterOnDelay = 30; // seconds
-int waterOffDelay = 30; // seconds
-long primePumpRunTime = 15; // seconds
+void primePump();
+bool isFlameOut();
+void disableEndeavor();
+void heatUpBoiler();
+void coolDownBoiler();
+bool isInsideWaterHighTempMet(void);
+bool soundAlert(int, int);
+bool soundAlert(int);
+bool soundAlert();
+bool throwException(int);
+bool safetyCheck(int);
+bool testCycle();
+void opCycle(void);
+void heatUpTheHouse();
+void turnOnWaterPump(void);
+int environmentTemperature(void);
+int insideWaterTemp(void);
+int outsideWaterTemp(void);
+int boilerTemp(void);
+void updateBurnTime(void);
+void updateDisplay();
+bool saveState();
+bool restoreState();
+bool saveConfig();
+bool restoreConfig();
+bool commCycle();
+bool threadCycle();
+void turnOnBoiler(void);
+void turnOffBoiler(void);
+void myTests();
+void blink();
+void runMaintenance();
+bool isEnvironmentTempMet();
+void runHeatCycle();
+void runWaterCycle();
+bool waterOnTimeNotFinished();
+bool waterOffTimeNotFinished();
+void turnOffWaterPump();
+int ambientTemp();
 
-long waterRunTime = 4 * 60; // minutes
-
-//======================================================================================
-//======================================================================================
-// Temporary Variables
-//======================================================================================
-//======================================================================================
+//
+// writing
 //
 
-bool TestMode = true;
-
-unsigned long prevBurnOffTime = 0;
-int testBurnOffTimeInterval = 2000;
-int testBurnerOnTimeInterval = 3000;
-unsigned long prevBurnONTime = 0;
+Preferences preferences;
 
 //======================================================================================
 //======================================================================================
@@ -258,25 +265,25 @@ unsigned long prevBurnONTime = 0;
 void setup()
 {
 
-/*
-  preferences.begin("HSConfig",false);
+	/*
+	  preferences.begin("HSConfig",false);
 
-  preferences.getUInt("counter",counter);
+	  preferences.getUInt("counter",counter);
 
-  // do something with counter
+	  // do something with counter
 
-  preferences.putUInt("counter", counter);
-
-
-  preferences.end();
-
-  */
+	  preferences.putUInt("counter", counter);
 
 
+	  preferences.end();
 
-	//======================================================================================
-	// Temporary Var Inits
-	//======================================================================================	
+	  */
+
+
+
+	  //======================================================================================
+	  // time  Var Inits
+	  //======================================================================================	
 
 	startUpTime = millis();
 
@@ -297,15 +304,11 @@ void setup()
 	// Thermocouple Init
 	//======================================================================================
 
-	BThermocouple.begin(0x060); // yellow
-	IThermocouple.begin(0x061);   // blue  
-	OThermocouple.begin(0x62); // white
-	EThermocouple.begin(0x064); // pink
+	boilerThermocouple.begin(0x060); // yellow
+	insideWaterThermocouple.begin(0x061);   // blue  
+	outsideWaterThermocouple.begin(0x62); // white
+	environmentThermocouple.begin(0x064); // pink
 
-
-	//======================================================================================
-	// Serial
-	//======================================================================================
 
 	Serial.begin(115200);
 	Serial.println("Booting");
@@ -327,15 +330,15 @@ void setup()
 
 
 
-//======================================================================================
-//======================================================================================
-//	OTA Definition / Setup
-//======================================================================================
-//======================================================================================
+	//======================================================================================
+	//======================================================================================
+	//	OTA Definition / Setup
+	//======================================================================================
+	//======================================================================================
 
-	// Port defaults to 3232
+		// Port defaults to 3232
 	ArduinoOTA.setPort(3232);
-	ArduinoOTA.setHostname("Endeavor");
+	ArduinoOTA.setHostname("ENDEAVOR_87");
 
 
 
@@ -369,77 +372,70 @@ void setup()
 						else if (error == OTA_END_ERROR) Serial.println("End Failed");
 					});
 
-		ArduinoOTA.begin();
+					ArduinoOTA.begin();
 
 
 
-	
-//======================================================================================
-//======================================================================================
-//	Serial
-//======================================================================================
-//======================================================================================
-
-		Serial.println("Ready");
-		Serial.print("IP address: ");
-		Serial.println(WiFi.localIP());
+					Serial.println("Ready");
+					Serial.print("IP address: ");
+					Serial.println(WiFi.localIP());
 
 
-//======================================================================================
-//======================================================================================
-// Pin Modes
-//======================================================================================
-//======================================================================================
+					//======================================================================================
+					//======================================================================================
+					// Pin Modes
+					//======================================================================================
+					//======================================================================================
 
 
-	pinMode(processorLED, OUTPUT);
-	digitalWrite(processorLED, LOW);
+					pinMode(processorLed, OUTPUT);
+					digitalWrite(processorLed, LOW);
 
-	pinMode(callForHeat, OUTPUT); // i PIN 4
-	digitalWrite(callForHeat, LOW);
+					pinMode(callForHeat, OUTPUT); // i PIN 4
+					digitalWrite(callForHeat, LOW);
 
-	pinMode(speaker, OUTPUT); // o PIN 25
-	digitalWrite(speaker, LOW);
+					pinMode(speaker, OUTPUT); // o PIN 25
+					digitalWrite(speaker, LOW);
 
 
-	pinMode(waterRelay, OUTPUT); // o PIN 26
-	digitalWrite(waterRelay, HIGH);
+					pinMode(waterRelay, OUTPUT); // o PIN 26
+					digitalWrite(waterRelay, HIGH);
 
-	pinMode(burnerRelay, OUTPUT); // o PIN 27
-	digitalWrite(burnerRelay, HIGH);
+					pinMode(burnerRelay, OUTPUT); // o PIN 27
+					digitalWrite(burnerRelay, HIGH);
 
-	pinMode(primePumpRelay, OUTPUT);
-	digitalWrite(primePumpRelay, HIGH);
+					pinMode(primePumpRelay, OUTPUT);
+					digitalWrite(primePumpRelay, HIGH);
 
-	pinMode(igniterRelay, OUTPUT); // o PIN 18
-	digitalWrite(igniterRelay, HIGH);
+					pinMode(zoneTwoRelay, OUTPUT); // o PIN 18
+					digitalWrite(zoneTwoRelay, HIGH);
 
-	pinMode(PB1, INPUT); // i PIN 34
-	pinMode(PB1, INPUT_PULLDOWN);
-	digitalWrite(PB1, LOW);
+					pinMode(PB1, INPUT); // i PIN 34
+					pinMode(PB1, INPUT_PULLDOWN);
+					digitalWrite(PB1, LOW);
 
-	pinMode(PB2, INPUT); // i PIN 35
-	pinMode(PB2, INPUT_PULLDOWN);
-	digitalWrite(PB2, LOW);
+					pinMode(PB2, INPUT); // i PIN 35
+					pinMode(PB2, INPUT_PULLDOWN);
+					digitalWrite(PB2, LOW);
 
-	pinMode(PB3, INPUT); // i PIN 36
-	pinMode(PB3, INPUT_PULLDOWN);
-	digitalWrite(PB3, LOW);
+					pinMode(PB3, INPUT); // i PIN 36
+					pinMode(PB3, INPUT_PULLDOWN);
+					digitalWrite(PB3, LOW);
 
-	pinMode(PB4, INPUT); // i PIN 39
-	pinMode(PB4, INPUT_PULLDOWN);
-	digitalWrite(PB4, LOW);
+					pinMode(PB4, INPUT); // i PIN 39
+					pinMode(PB4, INPUT_PULLDOWN);
+					digitalWrite(PB4, LOW);
 
-//======================================================================================
-//======================================================================================
-// Startup functions
-//======================================================================================
-//======================================================================================
-	
-	restoreConfig();
-	restoreState();
-//======================================================================================
-//======================================================================================
+					//======================================================================================
+					//======================================================================================
+					// Startup functions
+					//======================================================================================
+					//======================================================================================
+
+					restoreConfig();
+					restoreState();
+					//======================================================================================
+					//======================================================================================
 }
 
 //======================================================================================
@@ -468,146 +464,262 @@ void setup()
 //======================================================================================
 
 
+bool TestMode = false;
+bool testBoilerHighTemp = false;
+bool testInsideWaterHighTemp = false;
+bool testEnvironmentHighTemp = true;
+bool testOutsideWaterTempHighTemp = false;
+
 
 void loop() {
 
+
 	runMaintenance();
-	
-	if (TestMode) testCycle();
-	opCycle();
+	updateDisplay();
+
+	if (TestMode)
+	{
+		testCycle();
+	}
+	else
+	{
+		opCycle();
+	}
 }
 
 
 void opCycle()
 {
 	runMaintenance();
-	while (ETemp() <= eTempLow) runHeatCycle();
-}
+	updateDisplay();
 
-void runHeatCycle()
-{
-	runMaintenance();
-	
-	while (ITemp() < iTempHigh)
-	{
-		ArduinoOTA.handle();
-		updateDisplay();
-		blink();
+	if (!isEnvironmentTempMet()) {
 
-		heatUp();
-		coolDown();
+		digitalWrite(callForHeat, HIGH);
+
+		heatUpTheHouse();
+
+		digitalWrite(callForHeat, LOW);
 	}
-	waterCycle();
-	
 }
 
-
-auto heatUp() -> void
+void heatUpTheHouse()
 {
 	runMaintenance();
-	
-	while (BTemp() <= bTempHigh)
-	{
-		ArduinoOTA.handle();
+	updateDisplay();
+
+	while (!isEnvironmentTempMet()) {
+		runMaintenance();
 		updateDisplay();
-		blink();
+
+		runHeatCycle();
+		runWaterCycle();
+	}
+}
+
+void runHeatCycle() {
+
+	runMaintenance();
+	updateDisplay();
+
+	if (isEnvironmentTempMet()) return;
+	while (insideWaterTemp() < insideWaterHighTemp)
+	{
+		runMaintenance();
+		updateDisplay();
+
+		turnOffWaterPump();
+		if (isEnvironmentTempMet()) return;
+
+		heatUpBoiler();
+		coolDownBoiler();
+
+		if (isEnvironmentTempMet()) return;
+	}
+}
+
+void runWaterCycle() {
+
+	runMaintenance();
+	updateDisplay();
+
+	turnOffBoiler();
+	if (isEnvironmentTempMet()) return;
+
+	while (insideWaterTemp() >= insideWaterLowTemp) {
+		runMaintenance();
+		updateDisplay();
+		if (isEnvironmentTempMet()) break;
+		turnOffBoiler();
+		turnOnWaterPump();
+	}
+	turnOffWaterPump();
+
+
+
+	/*
+	while (waterOnTimeNotFinished()) {
+		runMaintenance();
+		updateDisplay();
+		if (isEnvironmentTempMet()) break;
+	}
+
+	while (waterOffTimeNotFinished()) {
+		runMaintenance();
+		updateDisplay();
+		if (isEnvironmentTempMet()) break;;
+	}
+	*/
+}
+
+void heatUpBoiler()
+{
+	runMaintenance();
+	updateDisplay();
+
+	if (isInsideWaterHighTempMet()) return;
+
+	while (boilerTemp() <= boilerHighTemp)
+	{
+		runMaintenance();
+		updateDisplay();
 
 		turnOnBoiler();
-		if (isITempHighMet()) break;
-	}	
-}
-
-
-auto coolDown() -> void
-{
-	runMaintenance();
-
-	while (BTemp() >= bTempLow)
-	{
-		ArduinoOTA.handle();	
-		updateDisplay();
-		blink();
-		
-		turnOffBoiler();
-		if (isITempHighMet()) break;
+		if (isInsideWaterHighTempMet()) break;
 	}
 }
 
-auto isITempHighMet() -> bool
+
+void coolDownBoiler()
 {
 	runMaintenance();
-	if(ITemp() < iTempHigh)	return false;
+	updateDisplay();
+
+	while (boilerTemp() >= boilerLowTemp)
+	{
+		runMaintenance();
+		updateDisplay();
+
+		turnOffBoiler();
+		if (isInsideWaterHighTempMet()) return;
+	}
+}
+
+bool waterOnTimeNotFinished() {
+
+	runMaintenance();
+	updateDisplay();
+
+	if (isInsideWaterHighTempMet()) return false;
+	unsigned long currentOnWaterRunTime = millis();
+
+	if (currentOnWaterRunTime - savedWaterOnRunTime < waterOnRunTime) {
+		savedWaterOnRunTime = currentOnWaterRunTime;
+		return true;
+	}
+	return false;
+}
+bool waterOffTimeNotFinished()
+{
+	runMaintenance();
+	updateDisplay();
+
+	if (isInsideWaterHighTempMet()) return false;
+	unsigned long currentWaterOffRunTime = millis();
+
+	if (currentWaterOffRunTime - savedOffWaterRunTime < waterOffRunTime) {
+		savedWaterOnRunTime = currentWaterOffRunTime;
+		return true;
+	}
+	return false;
+}
+
+bool isInsideWaterHighTempMet()
+{
+
+	if (insideWaterTemp() < insideWaterHighTemp)	return false;
 	return true;
+}
+
+bool isEnvironmentTempMet()
+{
+	runMaintenance();
+	updateDisplay();
+
+	if ((environmentTemperature() + 1) >= environmentHighTemp) {
+		turnOffBoiler();
+		turnOffWaterPump();
+
+		while (environmentTemperature() >= environmentLowTemp) {
+			runMaintenance();
+			updateDisplay();
+
+			turnOffBoiler();
+			turnOffWaterPump();
+		}
+	}
+	return false;
 }
 
 
 void turnOnBoiler()
 {
-	runMaintenance();
+
 	digitalWrite(burnerRelay, LOW);
-	digitalWrite(igniterRelay, LOW);
-	updateBurnTime();
+	//isFlameOut();
+	//updateBurnTime();
 }
 
 
 void turnOffBoiler()
 {
-	runMaintenance();
 	digitalWrite(burnerRelay, HIGH);
-	digitalWrite(igniterRelay, HIGH);
+	//isFlameOut();
 }
 
-bool waterCycle(int runTime)
-{	
-	runMaintenance();
 
-	//TODO: waterCycle Blocks
-
-	
-	/// TODO: wrong logic?
-
-	if (runTime == 0) runTime = waterRunTime;	
+// TODO flowCheck();
+void turnOnWaterPump()
+{
 	digitalWrite(waterRelay, LOW);
-	delay(runTime * 1000);
+}
+
+void turnOffWaterPump() {
 	digitalWrite(waterRelay, HIGH);
-	return true;
 }
 
-auto waterCycle() -> bool
-{
-	runMaintenance();	
-	return waterCycle(0);
-}
-
-
-int  ETemp()
+int  environmentTemperature()
 {
 	runMaintenance();
-	return int(EThermocouple.getThermocoupleTemp(false));
+	return int(environmentThermocouple.getThermocoupleTemp(false));
 
 }
 
-int ITemp()
+int insideWaterTemp()
 {
 	runMaintenance();
-	return int(IThermocouple.getThermocoupleTemp(false));
+	return int(insideWaterThermocouple.getThermocoupleTemp(false));
 
 }
 
-auto OTemp() -> int
+int outsideWaterTemp()
 {
 	runMaintenance();
-	return int(OThermocouple.getThermocoupleTemp(false));
+	return int(outsideWaterThermocouple.getThermocoupleTemp(false));
 
 }
 
-int BTemp()
+int boilerTemp()
 {
 	runMaintenance();
-	return int(BThermocouple.getThermocoupleTemp(false));
+	return int(boilerThermocouple.getThermocoupleTemp(false));
 
 }
 
+// TODO get Ambient thermocoiuple
+int ambientTemp() {
+	return 0;
+}
 
 
 // TODO: get realtime values
@@ -616,14 +728,9 @@ int BTemp()
 bool isFlameOut()
 {
 	runMaintenance();
-	int flame = 0;
 
-	flame = analogRead(map(flame, 0, 1023, 0, 255));
-
-	if (flame == 0) return false;
-	if (flame == 255) return true;
-
-	return false;
+	if (digitalRead(flameOut)) return false;
+	return true;
 }
 
 void primePump()
@@ -638,20 +745,13 @@ void primePump()
 
 }
 
-
-
-
 void disableEndeavor()
 {
 	runMaintenance();
-	digitalWrite(burnerRelay, HIGH);
-	digitalWrite(igniterRelay, HIGH);
-	digitalWrite(waterRelay, HIGH);
+	digitalWrite(burnerRelay, HIGH); // Burner ESTOP
+	digitalWrite(waterRelay, HIGH); //Water ESTOP
 
 }
-
-
-
 
 
 void updateBurnTime()
@@ -660,20 +760,22 @@ void updateBurnTime()
 	burnTime += millis();
 }
 
-auto updateDisplay() -> void {
+void updateDisplay() {
+	// b+
+	// w+
+	// e+
 
-	runMaintenance();
-	
-	if (displayOneLineOne == "") {displayOneLineOne = "UP: " + String(int((millis() - startUpTime) / 1000));}
-	if (displayOneLineTwo == "") {displayOneLineTwo = "B0: " + String(BTemp()) + " | " + String(BThermocouple.getThermocoupleTemp(false)); }
-	if (displayOneLineThree == "") {displayOneLineThree = "I1: " + String(ITemp()) + " | " + String(IThermocouple.getThermocoupleTemp(false));}
-	if (displayTwoLineOne == "") {displayTwoLineOne = "BT: " + String(((burnTime / 1000 / 60) / 60));}
-	if (displayTwoLineTwo == "") {displayTwoLineTwo = "O4: " + String(OTemp()) + " | " + String(OThermocouple.getThermocoupleTemp(false));}
-	if (displayTwoLineThree == "") {displayTwoLineThree = "E5: " + String(ETemp()) + " | " + String(EThermocouple.getThermocoupleTemp(false));}
+	if (displayOneLineOne == "") { displayOneLineOne = "UP: " + String(int((millis() - startUpTime) / 1000)); }
+	if (displayOneLineTwo == "") { displayOneLineTwo = "B: " + String(boilerTemp()) + " |I: " + String(insideWaterTemp()); }
+	if (displayOneLineThree == "") { displayOneLineThree = "E: " + String(environmentTemperature()) + " |O: " + String(outsideWaterTemp()); }
 
-	
+	if (displayTwoLineOne == "") { displayOneLineOne = "UP: " + String(int((millis() - startUpTime) / 1000)); }
+	if (displayTwoLineTwo == "") { displayOneLineTwo = "B: " + String(boilerTemp()) + " |I: " + String(insideWaterTemp()); }
+	if (displayTwoLineThree == "") { displayOneLineThree = "E: " + String(environmentTemperature()) + " |O: " + String(outsideWaterTemp()); }
+
+
 	// Display 1
-	
+
 	displayOne.clearDisplay();
 	displayOne.setTextColor(1);
 	displayOne.setTextSize(1);
@@ -687,10 +789,10 @@ auto updateDisplay() -> void {
 
 	displayOne.setCursor(11, 22);
 	displayOne.println(displayOneLineThree);
-	
+
 	displayOne.display();
 
-	
+
 	// Display 2
 
 	displayTwo.clearDisplay();
@@ -702,19 +804,19 @@ auto updateDisplay() -> void {
 
 	displayTwo.setCursor(11, 11);
 	displayOne.println(displayTwoLineTwo);
-	
+
 	displayTwo.setCursor(11, 22);
 	displayOne.println(displayTwoLineThree);
-	
+
 	displayTwo.display();
 
-	
-	if (displayThreeLineOne == "") {displayThreeLineOne = "UP: " + String(int((millis() - startUpTime) / 1000));}
-	if (displayThreeLineTwo == "") {displayThreeLineTwo = "B0: " + String(BTemp()) + " | " + String(BThermocouple.getThermocoupleTemp(false)); }
-	if (displayThreeLineThree == "") {displayThreeLineThree = "I1: " + String(ITemp()) + " | " + String(IThermocouple.getThermocoupleTemp(false));}
-	if (displayFourLineOne == "") {displayFourLineOne = "BT: " + String(((burnTime / 1000 / 60) / 60));}
-	if (displayFourLineTwo == "") {displayFourLineTwo = "O4: " + String(OTemp()) + " | " + String(OThermocouple.getThermocoupleTemp(false));}
-	if (displayFourLineThree == "") {displayFourLineThree = "E5: " + String(ETemp()) + " | " + String(EThermocouple.getThermocoupleTemp(false));}
+
+	if (displayThreeLineOne == "") { displayThreeLineOne = "UP: " + String(int((millis() - startUpTime) / 1000)); }
+	if (displayThreeLineTwo == "") { displayThreeLineTwo = "B0: " + String(boilerTemp()) + " | " + String(boilerThermocouple.getThermocoupleTemp(false)); }
+	if (displayThreeLineThree == "") { displayThreeLineThree = "I1: " + String(insideWaterTemp()) + " | " + String(insideWaterThermocouple.getThermocoupleTemp(false)); }
+	if (displayFourLineOne == "") { displayFourLineOne = "BT: " + String(((burnTime / 1000 / 60) / 60)); }
+	if (displayFourLineTwo == "") { displayFourLineTwo = "O4: " + String(outsideWaterTemp()) + " | " + String(outsideWaterThermocouple.getThermocoupleTemp(false)); }
+	if (displayFourLineThree == "") { displayFourLineThree = "E5: " + String(environmentTemperature()) + " | " + String(environmentThermocouple.getThermocoupleTemp(false)); }
 
 
 	/*
@@ -746,22 +848,19 @@ auto updateDisplay() -> void {
 
 	displayFour.setCursor(11, 11);
 	displayFour.println(displayTwoLineTwo);
-	
+
 	displayFour.setCursor(11, 22);
 	displayFour.println(displayTwoLineThree);
-	
+
 	displayFour.display();
 	*/
-
 }
-
-
 
 void myTests()
 {
 	runMaintenance();
 	/// TODO: This is test new stuff area
-	
+
 }
 
 void blink()
@@ -770,22 +869,24 @@ void blink()
 
 	if (currentBlinkTime - savedBlinkTime >= blinkInterval) {
 		savedBlinkTime = currentBlinkTime;
-		digitalWrite(processorLED, !digitalRead(processorLED));
-		digitalWrite(callForHeat, !digitalRead(callForHeat));
+		digitalWrite(processorLed, !digitalRead(processorLed));
 	}
 }
 
 void runMaintenance()
 {
 	ArduinoOTA.handle();
-	updateDisplay();
 	blink();
+
 }
 
 
-auto testCycle() -> bool
+bool testCycle()
 {
 	runMaintenance();
+
+	digitalWrite(waterRelay, LOW);
+
 
 	return true;
 }
@@ -794,7 +895,7 @@ auto testCycle() -> bool
 bool saveState()
 {
 	runMaintenance();
-	
+
 	/// TODO: code saveState
 	return true;
 }
@@ -837,18 +938,18 @@ bool threadCycle()
 
 
 bool soundAlert(int sound, int frequency) {
-	
+
 	runMaintenance();
 	return true;
 }
 bool soundAlert(int sound) {
-	
+
 	runMaintenance();
 	return soundAlert(sound, 0);
 }
 
 bool soundAlert() {
-	
+
 	runMaintenance();
 	return soundAlert(0);
 
@@ -860,21 +961,11 @@ bool throwException(int)
 	return true;
 }
 
-auto safetyCheck(int) -> bool
+bool safetyCheck(int)
 {
 	runMaintenance();
 	return true;
 }
-
-
-
-
-
-
-
-
-
-
 
 
 
