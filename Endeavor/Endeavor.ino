@@ -55,14 +55,14 @@
 //======================================================================================
 //======================================================================================
 
-float environmentHighTemp = 70;
-float environmentLowTemp = 68;
+int environmentHighTemp = 70;
+int environmentLowTemp = 68;
 
-float boilerHighTemp = 940;
-float boilerLowTemp = 350;
+int boilerHighTemp = 940;
+int boilerLowTemp = 350;
 
-float insideWaterHighTemp = 145;
-float insideWaterLowTemp = 110;
+int insideWaterHighTemp = 145;
+int insideWaterLowTemp = 110;
 
 // 30,000 = 30 seconds
 // 60,000 = 1 min
@@ -121,21 +121,21 @@ int status = WL_IDLE_STATUS;
 //======================================================================================
 //
 
-const int processorLED = 2; //o LED on MicroProcessor
-const int callForHeat = 4; //i CALLFORHEAT
-const int flameOut = 5; //flame out
+constexpr int processorLed = 2; //o LED on MicroProcessor
+constexpr int callForHeat = 4; //i CALLFORHEAT
+constexpr int flameOut = 5; //flame out
 
 // SPI
-const int misoSpi = 12;
-const int mosiSpi = 13;
-const int clkSpi = 14;
-const int ssSpi = 15;
+constexpr int misoSpi = 12;
+constexpr int mosiSpi = 13;
+constexpr int clkSpi = 14;
+constexpr int ssSpi = 15;
 
 
-const int waterRelay = 17; //o WATERPUMP RELAY
-const int burnerRelay = 16; //o BURNER RELAY
-const int igniterRelay = 18; //o
-const int primePumpRelay = 19;
+constexpr int waterRelay = 17; //o WATERPUMP RELAY
+constexpr int burnerRelay = 16; //o BURNER RELAY
+constexpr int zoneTwoRelay = 18; //o
+constexpr int primePumpRelay = 19;
 
 /// <summary>
 /// TODO:Test and code speaker
@@ -143,11 +143,11 @@ const int primePumpRelay = 19;
 /// TODO: code mode/options with PB 
 /// </summary>
 
-const int speaker = 32; //o SOUNDALARM
-const int PB1 = 34; //i PB1
-const int PB2 = 35; //i PB2
-const int PB3 = 36; //i PB3 
-const int PB4 = 39; //i PB4 
+constexpr int speaker = 32; //o SOUNDALARM
+constexpr int PB1 = 34; //i PB1
+constexpr int PB2 = 35; //i PB2
+constexpr int PB3 = 36; //i PB3 
+constexpr int PB4 = 39; //i PB4 
 
 
 //======================================================================================
@@ -388,8 +388,8 @@ void setup()
 					//======================================================================================
 
 
-					pinMode(processorLED, OUTPUT);
-					digitalWrite(processorLED, LOW);
+					pinMode(processorLed, OUTPUT);
+					digitalWrite(processorLed, LOW);
 
 					pinMode(callForHeat, OUTPUT); // i PIN 4
 					digitalWrite(callForHeat, LOW);
@@ -407,8 +407,8 @@ void setup()
 					pinMode(primePumpRelay, OUTPUT);
 					digitalWrite(primePumpRelay, HIGH);
 
-					pinMode(igniterRelay, OUTPUT); // o PIN 18
-					digitalWrite(igniterRelay, HIGH);
+					pinMode(zoneTwoRelay, OUTPUT); // o PIN 18
+					digitalWrite(zoneTwoRelay, HIGH);
 
 					pinMode(PB1, INPUT); // i PIN 34
 					pinMode(PB1, INPUT_PULLDOWN);
@@ -473,11 +473,18 @@ bool testOutsideWaterTempHighTemp = false;
 
 void loop() {
 
+
 	runMaintenance();
 	updateDisplay();
 
-	if (TestMode) testCycle();
-	opCycle();
+	if (TestMode)
+	{
+		testCycle();
+	}
+	else
+	{
+		opCycle();
+	}
 }
 
 
@@ -659,7 +666,6 @@ void turnOnBoiler()
 {
 
 	digitalWrite(burnerRelay, LOW);
-	digitalWrite(igniterRelay, LOW);
 	//isFlameOut();
 	//updateBurnTime();
 }
@@ -668,7 +674,6 @@ void turnOnBoiler()
 void turnOffBoiler()
 {
 	digitalWrite(burnerRelay, HIGH);
-	digitalWrite(igniterRelay, HIGH);
 	//isFlameOut();
 }
 
@@ -740,20 +745,13 @@ void primePump()
 
 }
 
-
-
-
 void disableEndeavor()
 {
 	runMaintenance();
-	digitalWrite(burnerRelay, HIGH);
-	digitalWrite(igniterRelay, HIGH);
-	digitalWrite(waterRelay, HIGH);
+	digitalWrite(burnerRelay, HIGH); // Burner ESTOP
+	digitalWrite(waterRelay, HIGH); //Water ESTOP
 
 }
-
-
-
 
 
 void updateBurnTime()
@@ -871,7 +869,7 @@ void blink()
 
 	if (currentBlinkTime - savedBlinkTime >= blinkInterval) {
 		savedBlinkTime = currentBlinkTime;
-		digitalWrite(processorLED, !digitalRead(processorLED));
+		digitalWrite(processorLed, !digitalRead(processorLed));
 	}
 }
 
