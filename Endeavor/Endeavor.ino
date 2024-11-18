@@ -2,6 +2,7 @@
 /*
  Name:    Endeavor 2324
  Created: 8/27/2022 3:36:02 PM
+ Update: 11/17/2024
  Author:  david
 
  version: 0.8.067
@@ -58,10 +59,10 @@
 float environmentHighTemp = 70;
 float environmentLowTemp = 68;
 
-float boilerHighTemp = 940;
-float boilerLowTemp = 350;
+float boilerHighTemp = 975;
+float boilerLowTemp = 300;
 
-float insideWaterHighTemp = 145;
+float insideWaterHighTemp = 140;
 float insideWaterLowTemp = 110;
 
 // 30,000 = 30 seconds
@@ -134,8 +135,8 @@ const int ssSpi = 15;
 
 const int waterRelay = 17; //o WATERPUMP RELAY
 const int burnerRelay = 16; //o BURNER RELAY
-const int igniterRelay = 18; //o
-const int primePumpRelay = 19;
+const int standbyRelay = 18; //o
+const int zoneTwoRelay = 19; //o Upstairs
 
 /// <summary>
 /// TODO:Test and code speaker
@@ -404,11 +405,11 @@ void setup()
 					pinMode(burnerRelay, OUTPUT); // o PIN 27
 					digitalWrite(burnerRelay, HIGH);
 
-					pinMode(primePumpRelay, OUTPUT);
-					digitalWrite(primePumpRelay, HIGH);
+					pinMode(zoneTwoRelay, OUTPUT);
+					digitalWrite(zoneTwoRelay, HIGH);
 
-					pinMode(igniterRelay, OUTPUT); // o PIN 18
-					digitalWrite(igniterRelay, HIGH);
+					pinMode(standbyRelay, OUTPUT); // o PIN 18
+					digitalWrite(standbyRelay, HIGH);
 
 					pinMode(PB1, INPUT); // i PIN 34
 					pinMode(PB1, INPUT_PULLDOWN);
@@ -464,7 +465,7 @@ void setup()
 //======================================================================================
 
 
-bool TestMode = false;
+bool TestMode = true;
 bool testBoilerHighTemp = false;
 bool testInsideWaterHighTemp = false;
 bool testEnvironmentHighTemp = true;
@@ -476,6 +477,7 @@ void loop() {
 	runMaintenance();
 	updateDisplay();
 
+	TestMode = true;
 	if (TestMode) testCycle();
 	opCycle();
 }
@@ -659,7 +661,7 @@ void turnOnBoiler()
 {
 
 	digitalWrite(burnerRelay, LOW);
-	digitalWrite(igniterRelay, LOW);
+	//digitalWrite(standbyRelay, LOW);
 	//isFlameOut();
 	//updateBurnTime();
 }
@@ -668,7 +670,7 @@ void turnOnBoiler()
 void turnOffBoiler()
 {
 	digitalWrite(burnerRelay, HIGH);
-	digitalWrite(igniterRelay, HIGH);
+	//digitalWrite(standbyRelay, HIGH);
 	//isFlameOut();
 }
 
@@ -734,9 +736,9 @@ void primePump()
 	long currentTime = millis();
 
 	// turn it on
-	if (currentTime < primePumpRunTime * 1000) digitalWrite(primePumpRelay, LOW);
+	//if (currentTime < primePumpRunTime * 1000) digitalWrite(zoneTwoRelay, LOW);
 	// turn it off
-	else digitalWrite(primePumpRelay, HIGH);
+	//else digitalWrite(zoneTwoRelay, HIGH);
 
 }
 
@@ -747,7 +749,7 @@ void disableEndeavor()
 {
 	runMaintenance();
 	digitalWrite(burnerRelay, HIGH);
-	digitalWrite(igniterRelay, HIGH);
+	digitalWrite(standbyRelay, HIGH);
 	digitalWrite(waterRelay, HIGH);
 
 }
@@ -887,8 +889,9 @@ bool testCycle()
 {
 	runMaintenance();
 
-	digitalWrite(waterRelay, LOW);
+	//digitalWrite(waterRelay, LOW);
 
+	digitalWrite(zoneTwoRelay, LOW);
 
 	return true;
 }

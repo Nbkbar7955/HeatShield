@@ -1,0 +1,409 @@
+/* vMicro -------------------------- */
+
+li>a.active, li>a.active:hover {
+	background-color: purple;
+	color: white;
+}
+
+#debugCharts canvas {
+    min-height: 450px;
+}
+
+.portRow input {
+	width: 100%;
+}
+
+button.removePort {
+	background-color: red;
+	color: white;
+	font-weight: bold;
+	padding-left:10px;
+	padding-right:10px;
+}
+
+button#addPort {
+	background-color: green;
+	color: white;
+	font-weight: bold;
+}
+
+/* Sliders ------------------------- */
+.slidecontainer {
+  text-align: center;
+}
+
+.tilecontainer {
+	text-align: center;
+    background-color: #d3d3d36e;
+    border-radius: 15px;
+}
+
+.tilecontainer>p:first-of-type {
+	font-weight: bold;
+	margin-top: 1.25rem;
+}
+
+/* The slider itself */
+.slider {
+  -webkit-appearance: none;  /* Override default CSS styles */
+  appearance: none;
+  width: 100%; /* Full-width */
+  height: 25px; /* Specified height */
+  background: #d3d3d3; /* Grey background */
+  outline: none; /* Remove outline */
+  opacity: 0.7; /* Set transparency (for mouse-over effects on hover) */
+  -webkit-transition: .2s; /* 0.2 seconds transition on hover */
+  transition: opacity .2s;
+}
+
+/* Mouse-over effects */
+.slider:hover {
+  opacity: 1; /* Fully shown on mouse-over */
+}
+
+
+/* Spinner */
+
+.cubespinner {
+    -webkit-animation-timing-function: ease-in-out;
+    animation-name: spincube;
+    animation-timing-function: ease-in-out;
+    animation-iteration-count: infinite;
+    -webkit-transform-style: preserve-3d;
+    -moz-transform-style: preserve-3d;
+    -ms-transform-style: preserve-3d;
+    transform-style: preserve-3d;
+    -webkit-transform-origin: 50px 50px 0;
+    -moz-transform-origin: 50px 50px 0;
+    -ms-transform-origin: 50px 50px 0;
+    transform-origin: 50px 50px 0;
+    display: inline-block;
+}
+
+    .cubespinner div {
+        position: absolute;
+        width: 100px;
+        height: 100px;
+        border: 0px solid #ccc;
+        background: rgba(255,255,255,0.8);
+        box-shadow: inset 0 0 20px rgba(0,0,0,0.2);
+        line-height: 40px;
+        text-align: center;
+        font-size: 100px;
+    }
+
+    .cubespinner .face1 {
+        -webkit-transform: translateZ(50px);
+        -moz-transform: translateZ(50px);
+        -ms-transform: translateZ(50px);
+        transform: translateZ(50px);
+    }
+
+    .cubespinner .face2 {
+        -webkit-transform: rotateY(90deg) translateZ(50px);
+        -moz-transform: rotateY(90deg) translateZ(50px);
+        -ms-transform: rotateY(90deg) translateZ(50px);
+        transform: rotateY(90deg) translateZ(50px);
+    }
+
+    .cubespinner .face3 {
+        -webkit-transform: rotateY(90deg) rotateX(90deg) translateZ(50px);
+        -moz-transform: rotateY(90deg) rotateX(90deg) translateZ(50px);
+        -ms-transform: rotateY(90deg) rotateX(90deg) translateZ(50px);
+        transform: rotateY(90deg) rotateX(90deg) translateZ(50px);
+    }
+
+    .cubespinner .face4 {
+        -webkit-transform: rotateY(180deg) rotateZ(90deg) translateZ(50px);
+        -moz-transform: rotateY(180deg) rotateZ(90deg) translateZ(50px);
+        -ms-transform: rotateY(180deg) rotateZ(90deg) translateZ(50px);
+        transform: rotateY(180deg) rotateZ(90deg) translateZ(50px);
+    }
+
+    .cubespinner .face5 {
+        -webkit-transform: rotateY(-90deg) rotateZ(90deg) translateZ(50px);
+        -moz-transform: rotateY(-90deg) rotateZ(90deg) translateZ(50px);
+        -ms-transform: rotateY(-90deg) rotateZ(90deg) translateZ(50px);
+        transform: rotateY(-90deg) rotateZ(90deg) translateZ(50px);
+    }
+
+    .cubespinner .face6 {
+        -webkit-transform: rotateX(-90deg) translateZ(50px);
+        -moz-transform: rotateX(-90deg) translateZ(50px);
+        -ms-transform: rotateX(-90deg) translateZ(50px);
+        transform: rotateX(-90deg) translateZ(50px);
+    }
+
+
+#debugExpr td, #debugExpr th {
+    text-align: center;
+}
+
+.digiPins, .analogPins {
+    margin-bottom: 5px;
+}
+
+@media (min-width: 768px) {
+    .col-md-2 {
+        max-width: 14.666667%;
+    }
+
+    .digiPin, .analogPin {
+        margin-right: 2px;
+    }
+}
+
+    /* Theming According to Browser Colouring */
+    /* Apply a default color scheme */
+    @media (prefers-color-scheme: no-preference) {
+    }
+
+    /* Apply a light color scheme */
+    @media (prefers-color-scheme: light) {
+    }
+
+    /* Apply a dark color scheme */
+    /* NOTE - All Charting Colurs are applied using same @media inspection 
+    from Javascript...
+*/
+    @media (prefers-color-scheme: dark) {
+        body, legend {
+            background-color: #272727 !important;
+            color: white !important;
+        }
+
+        input, textarea, select, .btn-primary, .btn {
+            background-color: #121212 !important;
+            color: white !important;
+            border: none !important;
+        }
+
+        a {
+            color: #fff !important;
+        }
+
+        .tilecontainer, code {
+            background-color: rgba(101, 101, 101, 0.33) !important;
+        }
+
+
+        .card {
+            background-color: rgba(255, 255, 255, 0.06) !important;
+            border: 1px solid rgba(255, 255, 255, 0.10) !important;
+        }
+
+        .card-header {
+            background-color: rgba(255, 255, 255, 0.10) !important;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.71) !important;
+        }
+    }
+
+    /* Dark Theming for Charts Specifically */
+    /* Tip: Apply Opacity to the Body Colours, None to the Borders */
+    .ChartThemePallette_dark.idx1 {
+        background-color: rgba(27, 38, 44, 0.2);
+    }
+
+    .ChartThemePallette_dark.idx2 {
+        background-color: rgba(15, 76, 117, 0.2);
+    }
+
+    .ChartThemePallette_dark.idx3 {
+        background-color: rgba(50, 130, 184, 0.2);
+    }
+
+    .ChartThemePallette_dark.idx4 {
+        background-color: rgba(187, 225, 250, 0.2);
+    }
+
+    .ChartThemePallette_dark.idx5 {
+        background-color: rgba(21, 25, 101, 0.2);
+    }
+
+    .ChartThemePallette_dark.idx6 {
+        background-color: rgba(50, 64, 123, 0.2);
+    }
+
+    .ChartThemePallette_Border_dark.idx1 {
+        background-color: rgba(27, 38, 44, 1);
+    }
+
+    .ChartThemePallette_Border_dark.idx2 {
+        background-color: rgba(15, 76, 117, 1);
+    }
+
+    .ChartThemePallette_Border_dark.idx3 {
+        background-color: rgba(50, 130, 184, 1);
+    }
+
+    .ChartThemePallette_Border_dark.idx4 {
+        background-color: rgba(187, 225, 250, 1);
+    }
+
+    .ChartThemePallette_Border_dark.idx5 {
+        background-color: rgba(21, 25, 101, 1);
+    }
+
+    .ChartThemePallette_Border_dark.idx6 {
+        background-color: rgba(50, 64, 123, 1);
+    }
+
+    /* Light Theming for Charts Specifically */
+    .ChartThemePallette_light.idx1 {
+        background-color: rgba(5, 223, 215, 0.2);
+    }
+
+    .ChartThemePallette_light.idx2 {
+        background-color: rgba(236, 115, 115, 0.2);
+    }
+
+    .ChartThemePallette_light.idx3 {
+        background-color: rgba(216, 181, 181, 0.2);
+    }
+
+    .ChartThemePallette_light.idx4 {
+        background-color: rgba(255, 225, 150, 0.2);
+    }
+
+    .ChartThemePallette_light.idx5 {
+        background-color: rgba(255, 174, 143, 0.2);
+    }
+
+    .ChartThemePallette_light.idx6 {
+        background-color: rgba(205, 102, 132, 0.2);
+    }
+
+    .ChartThemePallette_Border_light.idx1 {
+        background-color: rgba(5, 223, 215, 1);
+    }
+
+    .ChartThemePallette_Border_light.idx2 {
+        background-color: rgba(236, 115, 115, 1);
+    }
+
+    .ChartThemePallette_Border_light.idx3 {
+        background-color: rgba(216, 181, 181, 1);
+    }
+
+    .ChartThemePallette_Border_light.idx4 {
+        background-color: rgba(255, 225, 150, 1);
+    }
+
+    .ChartThemePallette_Border_light.idx5 {
+        background-color: rgba(255, 174, 143, 1);
+    }
+
+    .ChartThemePallette_Border_light.idx6 {
+        background-color: rgba(205, 102, 132, 1);
+    }
+
+
+    /* Bootstrap Adjustments -------------------------------------------------------------- */
+    /* Ensure Hidden Tabs are really hidden not just transparent */
+    .tab-pane {
+        display: none;
+    }
+
+        .tab-pane.show, .tab-pane.active {
+            display: block;
+            margin-bottom: 10%;
+        }
+
+    /* Add Underline to Tabs */
+    li.nav-item > a:not(.active) {
+        border-color: grey;
+        border-style: solid;
+        border-radius: 5px !important;
+    }
+
+    li.nav-item > a {
+        border-width: 1px;
+        margin: 5px;
+    }
+
+    .nav-pills .nav-link.active, .nav-pills .show > .nav-link {
+        color: #fff;
+        background-color: #5e368f;
+    }
+    /* Add Underline to Tab Bar */
+    #v-pills-tab {
+        border-width: 1px;
+        border-bottom-color: grey;
+        border-bottom-style: solid;
+        margin-top: 20px;
+    }
+
+
+    .nav-item {
+        margin-top: 12px;
+        margin-bottom: 20px;
+    }
+    /* Pad the top of each Tab Body */
+    .tab-pane.container {
+        margin-top: 5%;
+    }
+
+    .nav-link {
+        display: inline !important;
+    }
+
+    .vmdownload-data-image {
+        max-height: 2rem;
+    }
+
+    .vmCardHeading {
+        font-size: 1.25rem;
+        font-weight: bold;
+    }
+
+
+
+
+
+    /* MUURI Grid System */
+    .grid {
+        position: relative;
+    }
+
+    .item {
+        display: block;
+        position: absolute;
+        max-width: 100%;
+        max-height: 100%;
+        margin: 5px;
+        z-index: 1;
+        background: red; /*#000*/
+        color: #fff;
+    }
+
+        .item.muuri-item-dragging {
+            z-index: 3;
+        }
+
+        .item.muuri-item-releasing {
+            z-index: 2;
+        }
+
+        .item.muuri-item-hidden {
+            z-index: 0;
+        }
+
+    .item-content {
+        position: relative;
+        width: 100%;
+        height: 100%;
+    }
+
+
+    .card {
+        margin-bottom: 10px;
+    }
+
+    .card-body {
+        min-height: 100px;
+    }
+
+
+    #debugExpr, #debugSrcCard, #analogPinsCard, #digitalPinsCard {
+        display: none;
+    }

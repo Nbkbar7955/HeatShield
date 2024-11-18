@@ -1,0 +1,232 @@
+﻿ <!DOCTYPE html>
+ <!-- Skeleton for now -- Look at https://haltu.github.io/muuri/ once basics done -->
+ <html lang="en">
+ <head>
+
+     <!-- Basic Page Needs
+    –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+     <meta charset="utf-8">
+     <title>vMicro Web Tools</title>
+     <meta name="description" content="">
+     <meta name="author" content="">
+
+     <!-- Mobile Specific Metas
+    –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+     <!-- FONT
+    –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+     <link rel="stylesheet" href="css/Raleway.css">
+
+     <!-- CSS Bootstrap
+    ---------------------------------------------------- -->
+     <link rel="stylesheet" href="css/bootstrap.min.css">
+     <link rel="stylesheet" href="css/vmicro.css">
+
+     <script type="text/javascript" src="js/jquery-3.4.1.min.js"></script>
+     <script type="text/javascript" src="js/popper-1-16-0.js"></script>
+     <script type="text/javascript" src="js/bootstrap.min.js"></script>
+
+     <!-- Custom –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+     <!-- Branding
+    –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+     <link rel="icon" type="image/png" href="images/favicon.png">
+     <!-- Charting::https://www.chartjs.org/
+    –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+     <link rel="stylesheet" href="css/Chart_2-8-0.min.css">
+     <script type="text/javascript" src="js/Chart_2-8-0.min.js"></script>
+     <!-- File Saving:: https://github.com/eligrey/FileSaver.js
+    –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+     <script type="text/javascript" src="js/FileSaver.min.js"></script>
+     <!-- Local Storage Management:: https://github.com/localForage/localForage
+    -->
+     <script type="text/javascript" src="js/localforage.min.js"></script>
+     <!-- Code Prettifier: Google https://github.com/google/code-prettify
+    ----------------------------------------------------------------------
+         Doesnt work at present.... possibly different formatter needed
+     <script type="text/javascript" src="js/run_prettify.js"></script>
+         -->
+     <!-- Muuri Grid System: https://haltu.github.io/muuri/
+         [Uses https://unpkg.com/web-animations-js@2.3.2/web-animations.min.js]
+    -->
+     <script src="js/web-animations.min.js"></script>
+     <script src="js/muuri.min.js"></script>
+
+ </head>
+<body>
+    <!-- Theme Pallette to be stripped into Charting JS -->
+    <div style="display:none;">
+        <div class="ChartThemePallette_dark idx1"></div>
+        <div class="ChartThemePallette_dark idx2"></div>
+        <div class="ChartThemePallette_dark idx3"></div>
+        <div class="ChartThemePallette_dark idx4"></div>
+        <div class="ChartThemePallette_dark idx5"></div>
+        <div class="ChartThemePallette_dark idx6"></div>
+        <div class="ChartThemePallette_Border_dark idx1"></div>
+        <div class="ChartThemePallette_Border_dark idx2"></div>
+        <div class="ChartThemePallette_Border_dark idx3"></div>
+        <div class="ChartThemePallette_Border_dark idx4"></div>
+        <div class="ChartThemePallette_Border_dark idx5"></div>
+        <div class="ChartThemePallette_Border_dark idx6"></div>
+        <div class="ChartThemePallette_light idx1"></div>
+        <div class="ChartThemePallette_light idx2"></div>
+        <div class="ChartThemePallette_light idx3"></div>
+        <div class="ChartThemePallette_light idx4"></div>
+        <div class="ChartThemePallette_light idx5"></div>
+        <div class="ChartThemePallette_light idx6"></div>
+        <div class="ChartThemePallette_Border_light idx1"></div>
+        <div class="ChartThemePallette_Border_light idx2"></div>
+        <div class="ChartThemePallette_Border_light idx3"></div>
+        <div class="ChartThemePallette_Border_light idx4"></div>
+        <div class="ChartThemePallette_Border_light idx5"></div>
+        <div class="ChartThemePallette_Border_light idx6"></div>
+    </div>
+  <!-- Primary Page Layout
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+
+    <div class="container">
+
+        <div class="tab-content" style="display:none;">
+            <div id="settingsPanel" class="tab-pane">
+                <div id="settingsControls">
+                    <button id="addPort">+ Port</button>
+                </div>
+                <!-- will become dynamic later -->
+                <div id="SerialPort_0_Panel" class="row portRow">
+                    <div class="col-md-1">
+                        <label for="SerialPort_0_Remove">&nbsp;</label>
+                        <button id="SerialPort_0_Remove" class="removePort">-</button>
+                    </div>
+                    <div class="col-md-5">
+                        <label for="SerialPort_0_Address">IPAddress</label>
+                        <input id="SerialPort_0_Address" type="text"></button>
+                    </div>
+                    <div class="col-md-2">
+                        <label for="SerialPort_0_COM">COM</label>
+                        <button id="SerialPort_0_COM" type="text"></button>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="SerialPort_0_Name">Friendly Name</label>
+                        <button id="SerialPort_0_Name" type="text"></button>
+                    </div>
+                    <div class="col-md-1">
+                        <label for="SerialPort_0_Apply">&nbsp;</label>
+                        <button id="SerialPort_0_Apply">Apply</button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+
+        <ul class="nav nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+            <li class="nav-item">
+                <a class="nav-link" id="v-pills-website-tab" data-toggle="pill" href="#v-pills-website" href="#v-pills-website" role="tab" aria-controls="v-pills-website" aria-selected="false"><img style="max-height:30px;" src="/images/VMLogo_64x64.png" /></a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link active" id="v-pills-debug-tab" data-toggle="pill" href="#v-pills-debug" role="tab" aria-controls="v-pills-debug" aria-selected="true">Debug</a>
+            </li>
+            <!--<li class="nav-item">
+                <a class="nav-link" id="v-pills-settings-tab" data-toggle="pill" href="#v-pills-settings" role="tab" aria-controls="v-pills-settings" aria-selected="false">Settings</a>
+            </li>-->
+        </ul>
+
+        <div id="userPanels">
+            <div class="tab-pane container fade show active" id="v-pills-debug" role="tabpanel" aria-labelledby="v-pills-debug-tab">
+                <div class="tab-content">
+                    <div id="debugPanel" class="tab-pane active">
+                        <div class="row">
+                            <div class="col-md-12" style="margin-top: 5%">
+                                <div class="card">
+
+                                    <h3 class="card-header">
+                                        <div class="row">
+                                            <span id="comPort" class="col-lg-6"></span>
+
+                                            <div class="col-lg-6">
+                                                <input class="col-lg-4" id="userInput" type="text"></input>
+                                                <button id="send" class="btn btn-primary" style="margin-left:5px">Send</button>
+                                                <button id="step" class="btn btn-outline-success" style="margin-left:5px">Continue</button>
+                                            </div>
+                                        </div>
+                                    </h3>
+
+                                    <div class="card-body">
+                                        <div id="output" style="overflow:scroll; height:200px; font-size: small; line-height: 0em; padding-top: 20px; "></div>
+                                    </div>
+
+                                </div>
+                            </div>
+
+                        </div>
+                        <div style="padding-top:5%; " class="row">
+                            <div class="col-md-12">
+                                <div id="debugExpr" class="card">
+                                    <h5 class="card-header"><span>Expressions</span></h5>
+                                    <div id="debugExpr" class="card-body">
+
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-12" style="margin-top: 20px">
+                                <div id="debugSrcCard" class="card">
+                                    <h5 class="card-header"><span>Source</span></h5>
+                                    <div class="card-body">
+                                        <div id="debugSrc">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-12" style="margin-top: 20px">
+                                <div id="digitalPinsCard" class="card">
+                                    <h5 class="card-header"><span>Digital Pins</span></h5>
+                                    <div class="card-body">
+                                        <div id="digitalPins" class="digitalPinItems" style="display: none;">
+
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-12" style="margin-top: 20px">
+                                <div id="analogPinsCard" class="card">
+                                    <h5 class="card-header"><span>Analog Pins</span></h5>
+                                    <div class="card-body">
+                                        <div id="analogPins" class="analogPinItems" style="display: none;">
+
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="tab-pane container fade" id="v-pills-website" role="tabpanel" aria-labelledby="v-pills-website-tab">
+                <p>Learn more about the <a href="https://www.visualmicro.com/page/Export-Web-Debugger.aspx" title="vMicro Web Debugger: Information" target="_blank">Web Debugging Toolkit here</a>.</p>
+                <br />
+                <p>More information about this tool can be found on the website <a href="https://www.visualmicro.com" target="_blank" title="Open www.visualmicro.com">visualmicro.com</a>.</p>
+
+            </div>
+            <!--<div class="tab-pane container fade" id="v-pills-settings" role="tabpanel" aria-labelledby="v-pills-settings-tab">...</div>-->
+    </div>
+
+
+
+
+
+       
+    </div>
+  
+  
+  
+<!-- End Document
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <script language="javascript" type="text/javascript" src="js/jquery-3.4.1.min.js"></script>
+  
+   
+  
+  <script src="js/vmicro.js">
+  </script>
