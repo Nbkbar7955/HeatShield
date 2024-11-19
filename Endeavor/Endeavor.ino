@@ -135,8 +135,8 @@ const int ssSpi = 15;
 
 const int waterRelay = 17; //o WATERPUMP RELAY
 const int burnerRelay = 16; //o BURNER RELAY
-const int standbyRelay = 18; //o
-const int zoneTwoRelay = 19; //o Upstairs
+const int zoneTwoRelay = 18; //o
+const int standbyRelay = 19; //o Upstairs
 
 /// <summary>
 /// TODO:Test and code speaker
@@ -405,11 +405,11 @@ void setup()
 					pinMode(burnerRelay, OUTPUT); // o PIN 27
 					digitalWrite(burnerRelay, HIGH);
 
-					pinMode(zoneTwoRelay, OUTPUT);
-					digitalWrite(zoneTwoRelay, HIGH);
-
-					pinMode(standbyRelay, OUTPUT); // o PIN 18
+					pinMode(standbyRelay, OUTPUT);
 					digitalWrite(standbyRelay, HIGH);
+
+					pinMode(zoneTwoRelay, OUTPUT); // o PIN 18
+					digitalWrite(zoneTwoRelay, HIGH);
 
 					pinMode(PB1, INPUT); // i PIN 34
 					pinMode(PB1, INPUT_PULLDOWN);
@@ -661,7 +661,7 @@ void turnOnBoiler()
 {
 
 	digitalWrite(burnerRelay, LOW);
-	//digitalWrite(standbyRelay, LOW);
+	//digitalWrite(zoneTwoRelay, LOW);
 	//isFlameOut();
 	//updateBurnTime();
 }
@@ -670,7 +670,7 @@ void turnOnBoiler()
 void turnOffBoiler()
 {
 	digitalWrite(burnerRelay, HIGH);
-	//digitalWrite(standbyRelay, HIGH);
+	//digitalWrite(zoneTwoRelay, HIGH);
 	//isFlameOut();
 }
 
@@ -736,9 +736,9 @@ void primePump()
 	long currentTime = millis();
 
 	// turn it on
-	//if (currentTime < primePumpRunTime * 1000) digitalWrite(zoneTwoRelay, LOW);
+	//if (currentTime < primePumpRunTime * 1000) digitalWrite(standbyRelay, LOW);
 	// turn it off
-	//else digitalWrite(zoneTwoRelay, HIGH);
+	//else digitalWrite(standbyRelay, HIGH);
 
 }
 
@@ -749,7 +749,7 @@ void disableEndeavor()
 {
 	runMaintenance();
 	digitalWrite(burnerRelay, HIGH);
-	digitalWrite(standbyRelay, HIGH);
+	digitalWrite(zoneTwoRelay, HIGH);
 	digitalWrite(waterRelay, HIGH);
 
 }
@@ -891,6 +891,7 @@ bool testCycle()
 
 	//digitalWrite(waterRelay, LOW);
 
+	//digitalWrite(standbyRelay, LOW);
 	digitalWrite(zoneTwoRelay, LOW);
 
 	return true;
