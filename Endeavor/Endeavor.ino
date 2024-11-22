@@ -56,14 +56,14 @@
 //======================================================================================
 //======================================================================================
 
-float environmentHighTemp = 70;
-float environmentLowTemp = 68;
+int environmentHighTemp = 70;
+int environmentLowTemp = 67;
 
-float boilerHighTemp = 975;
-float boilerLowTemp = 300;
+int boilerHighTemp = 975;
+int boilerLowTemp = 300;
 
-float insideWaterHighTemp = 140;
-float insideWaterLowTemp = 110;
+int insideWaterHighTemp = 140;
+int insideWaterLowTemp = 110;
 
 // 30,000 = 30 seconds
 // 60,000 = 1 min
@@ -79,8 +79,8 @@ unsigned long savedWaterOnRunTime = 0;
 unsigned long waterOffRunTime = 180000; // water off
 unsigned long savedOffWaterRunTime = 0;
 
-float outsideWaterHighTemp = 200;
-float outsideWaterLowTemp = 100;
+int outsideWaterHighTemp = 200;
+int outsideWaterLowTemp = 100;
 
 unsigned long blinkInterval = 300;
 unsigned long savedBlinkTime = 0;
@@ -406,10 +406,10 @@ void setup()
 					digitalWrite(burnerRelay, HIGH);
 
 					pinMode(standbyRelay, OUTPUT);
-					digitalWrite(standbyRelay, HIGH);
+					digitalWrite(standbyRelay, LOW);
 
 					pinMode(zoneTwoRelay, OUTPUT); // o PIN 18
-					digitalWrite(zoneTwoRelay, HIGH);
+					digitalWrite(zoneTwoRelay, LOW);
 
 					pinMode(PB1, INPUT); // i PIN 34
 					pinMode(PB1, INPUT_PULLDOWN);
@@ -465,7 +465,7 @@ void setup()
 //======================================================================================
 
 
-bool TestMode = true;
+bool TestMode = false;
 bool testBoilerHighTemp = false;
 bool testInsideWaterHighTemp = false;
 bool testEnvironmentHighTemp = true;
@@ -477,7 +477,7 @@ void loop() {
 	runMaintenance();
 	updateDisplay();
 
-	TestMode = true;
+	TestMode = false;
 	if (TestMode) testCycle();
 	opCycle();
 }
@@ -544,6 +544,7 @@ void runWaterCycle() {
 	while (insideWaterTemp() >= insideWaterLowTemp) {
 		runMaintenance();
 		updateDisplay();
+
 		if (isEnvironmentTempMet()) break;
 		turnOffBoiler();
 		turnOnWaterPump();
