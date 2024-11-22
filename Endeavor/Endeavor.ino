@@ -887,13 +887,30 @@ void runMaintenance()
 
 bool testCycle()
 {
-	runMaintenance();
+	unsigned long savedCycle = 0;
+	unsigned long cycleInterval = 2000;
 
-	//digitalWrite(waterRelay, LOW);
-
-	//digitalWrite(standbyRelay, LOW);
 	digitalWrite(zoneTwoRelay, LOW);
+	digitalWrite(standbyRelay, HIGH);
 
+
+	while (true)
+	{
+		runMaintenance();
+
+
+
+
+		unsigned long currentCycle = millis();
+
+		if (currentCycle - savedCycle >= cycleInterval) {
+			savedCycle = currentCycle;
+
+			digitalWrite(zoneTwoRelay, !digitalRead(standbyRelay));
+			digitalWrite(standbyRelay, !digitalRead(zoneTwoRelay));
+
+		}
+	}
 	return true;
 }
 
