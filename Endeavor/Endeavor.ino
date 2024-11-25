@@ -39,6 +39,9 @@
 /// 
 
 
+#define OFF 0x0		
+#define ON 0x1
+
 //======================================================================================
 //======================================================================================
 // Setup Vars
@@ -382,61 +385,61 @@ void setup()
 					Serial.println(WiFi.localIP());
 
 
-					//======================================================================================
-					//======================================================================================
-					// Pin Modes
-					//======================================================================================
-					//======================================================================================
+			//======================================================================================
+			//======================================================================================
+			// Pin Modes
+			//======================================================================================
+			//======================================================================================
 
 
-					pinMode(processorLED, OUTPUT);
-					digitalWrite(processorLED, LOW);
+			pinMode(processorLED, OUTPUT);
+			digitalWrite(processorLED, OFF);
 
-					pinMode(callForHeat, OUTPUT); // i PIN 4
-					digitalWrite(callForHeat, LOW);
+			pinMode(callForHeat, OUTPUT); // i PIN 4
+			digitalWrite(callForHeat, OFF);
 
-					pinMode(speaker, OUTPUT); // o PIN 25
-					digitalWrite(speaker, LOW);
+			pinMode(speaker, OUTPUT); // o PIN 25
+			digitalWrite(speaker, OFF);
 
 
-					pinMode(waterRelay, OUTPUT); // o PIN 26
-					digitalWrite(waterRelay, HIGH);
+			pinMode(waterRelay, OUTPUT); // o PIN 26
+			digitalWrite(waterRelay, OFF);
 
-					pinMode(burnerRelay, OUTPUT); // o PIN 27
-					digitalWrite(burnerRelay, HIGH);
+			pinMode(burnerRelay, OUTPUT); // o PIN 27
+			digitalWrite(burnerRelay, OFF);
 
-					pinMode(standbyRelay, OUTPUT);
-					digitalWrite(standbyRelay, LOW);
+			pinMode(standbyRelay, OUTPUT);
+			digitalWrite(standbyRelay, OFF);
 
-					pinMode(zoneTwoRelay, OUTPUT); // o PIN 18
-					digitalWrite(zoneTwoRelay, LOW);
+			pinMode(zoneTwoRelay, OUTPUT); // o PIN 18
+			digitalWrite(zoneTwoRelay, OFF);
 
-					pinMode(PB1, INPUT); // i PIN 34
-					pinMode(PB1, INPUT_PULLDOWN);
-					digitalWrite(PB1, LOW);
+			pinMode(PB1, INPUT); // i PIN 34
+			pinMode(PB1, INPUT_PULLDOWN);
+			digitalWrite(PB1, OFF);
 
-					pinMode(PB2, INPUT); // i PIN 35
-					pinMode(PB2, INPUT_PULLDOWN);
-					digitalWrite(PB2, LOW);
+			pinMode(PB2, INPUT); // i PIN 35
+			pinMode(PB2, INPUT_PULLDOWN);
+			digitalWrite(PB2, OFF);
 
-					pinMode(PB3, INPUT); // i PIN 36
-					pinMode(PB3, INPUT_PULLDOWN);
-					digitalWrite(PB3, LOW);
+			pinMode(PB3, INPUT); // i PIN 36
+			pinMode(PB3, INPUT_PULLDOWN);
+			digitalWrite(PB3, OFF);
 
-					pinMode(PB4, INPUT); // i PIN 39
-					pinMode(PB4, INPUT_PULLDOWN);
-					digitalWrite(PB4, LOW);
+			pinMode(PB4, INPUT); // i PIN 39
+			pinMode(PB4, INPUT_PULLDOWN);
+			digitalWrite(PB4, OFF);
 
-					//======================================================================================
-					//======================================================================================
-					// Startup functions
-					//======================================================================================
-					//======================================================================================
+			//======================================================================================
+			//======================================================================================
+			// Startup functions
+			//======================================================================================
+			//======================================================================================
 
-					restoreConfig();
-					restoreState();
-					//======================================================================================
-					//======================================================================================
+			restoreConfig();
+			restoreState();
+			//======================================================================================
+			//======================================================================================
 }
 
 //======================================================================================
@@ -465,7 +468,9 @@ void setup()
 //======================================================================================
 
 
-bool TestMode = false;
+bool TestMode = true;
+
+
 bool testBoilerHighTemp = false;
 bool testInsideWaterHighTemp = false;
 bool testEnvironmentHighTemp = true;
@@ -477,7 +482,6 @@ void loop() {
 	runMaintenance();
 	updateDisplay();
 
-	TestMode = false;
 	if (TestMode) testCycle();
 	opCycle();
 }
@@ -490,11 +494,11 @@ void opCycle()
 
 	if (!isEnvironmentTempMet()) {
 
-		digitalWrite(callForHeat, HIGH);
+		digitalWrite(callForHeat, ON);
 
 		heatUpTheHouse();
 
-		digitalWrite(callForHeat, LOW);
+		digitalWrite(callForHeat, OFF);
 	}
 }
 
@@ -661,8 +665,8 @@ bool isEnvironmentTempMet()
 void turnOnBoiler()
 {
 
-	digitalWrite(burnerRelay, LOW);
-	//digitalWrite(zoneTwoRelay, LOW);
+	digitalWrite(burnerRelay, ON);
+
 	//isFlameOut();
 	//updateBurnTime();
 }
@@ -670,8 +674,8 @@ void turnOnBoiler()
 
 void turnOffBoiler()
 {
-	digitalWrite(burnerRelay, HIGH);
-	//digitalWrite(zoneTwoRelay, HIGH);
+	digitalWrite(burnerRelay, OFF);
+
 	//isFlameOut();
 }
 
@@ -679,11 +683,11 @@ void turnOffBoiler()
 // TODO flowCheck();
 void turnOnWaterPump()
 {
-	digitalWrite(waterRelay, LOW);
+	digitalWrite(waterRelay, ON);
 }
 
 void turnOffWaterPump() {
-	digitalWrite(waterRelay, HIGH);
+	digitalWrite(waterRelay, OFF);
 }
 
 int  environmentTemperature()
@@ -736,11 +740,6 @@ void primePump()
 	runMaintenance();
 	long currentTime = millis();
 
-	// turn it on
-	//if (currentTime < primePumpRunTime * 1000) digitalWrite(standbyRelay, LOW);
-	// turn it off
-	//else digitalWrite(standbyRelay, HIGH);
-
 }
 
 
@@ -749,9 +748,9 @@ void primePump()
 void disableEndeavor()
 {
 	runMaintenance();
-	digitalWrite(burnerRelay, HIGH);
-	digitalWrite(zoneTwoRelay, HIGH);
-	digitalWrite(waterRelay, HIGH);
+	digitalWrite(burnerRelay, OFF);
+	digitalWrite(zoneTwoRelay, OFF);
+	digitalWrite(waterRelay, OFF);
 
 }
 
@@ -765,10 +764,21 @@ void updateBurnTime()
 	burnTime += millis();
 }
 
+String getStatusString()
+{
+	String retVal = "";
+
+
+	return retVal;
+}
+
+
 void updateDisplay() {
 	// b+
 	// w+
 	// e+
+	
+
 
 	if (displayOneLineOne == "") { displayOneLineOne = "UP: " + String(int((millis() - startUpTime) / 1000)); }
 	if (displayOneLineTwo == "") { displayOneLineTwo = "B: " + String(boilerTemp()) + " |I: " + String(insideWaterTemp()); }
@@ -778,7 +788,7 @@ void updateDisplay() {
 	if (displayTwoLineTwo == "") { displayOneLineTwo = "B: " + String(boilerTemp()) + " |I: " + String(insideWaterTemp()); }
 	if (displayTwoLineThree == "") { displayOneLineThree = "E: " + String(environmentTemperature()) + " |O: " + String(outsideWaterTemp()); }
 
-
+displayOneLineOne = "TESTMODE: " + String("B+W+V+F-T+"); 
 	// Display 1
 
 	displayOne.clearDisplay();
@@ -888,16 +898,20 @@ void runMaintenance()
 
 bool testCycle()
 {
-	unsigned long savedCycle = 0;
-	unsigned long cycleInterval = 2000;
+	runMaintenance();
+	updateDisplay();
 
-	digitalWrite(zoneTwoRelay, LOW);
-	digitalWrite(standbyRelay, HIGH);
+	unsigned long savedCycle = 0;
+	unsigned long cycleInterval = 1000;
+
+	digitalWrite(zoneTwoRelay, OFF);
+	digitalWrite(standbyRelay, ON);
 
 
 	while (true)
 	{
 		runMaintenance();
+		updateDisplay();
 
 
 
@@ -907,12 +921,11 @@ bool testCycle()
 		if (currentCycle - savedCycle >= cycleInterval) {
 			savedCycle = currentCycle;
 
-			digitalWrite(zoneTwoRelay, !digitalRead(standbyRelay));
-			digitalWrite(standbyRelay, !digitalRead(zoneTwoRelay));
+			digitalWrite(zoneTwoRelay, !digitalRead(zoneTwoRelay));
+			digitalWrite(standbyRelay, !digitalRead(standbyRelay));
 
 		}
 	}
-	return true;
 }
 
 
