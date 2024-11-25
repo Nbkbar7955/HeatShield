@@ -818,9 +818,13 @@ void updateDisplay() {
 
 	if (displayTwoLineOne == "") { displayOneLineOne = "UP: " + String(int((millis() - startUpTime) / 1000)); }
 	if (displayTwoLineTwo == "") { displayOneLineTwo = "B: " + String(boilerTemp()) + " |I: " + String(insideWaterTemp()); }
-	if (displayTwoLineThree == "") { displayOneLineThree = "E: " + String(environmentTemperature()) + " |O: " + String(outsideWaterTemp()); }
+	//if (displayTwoLineThree == "") { displayOneLineThree = "E: " + String(environmentTemperature()) + " |O: " + String(outsideWaterTemp()); }//
+	if (displayTwoLineThree == "") {
+		displayOneLineThree = "E: " + String(environmentTemperature()); }
 
-displayOneLineOne = "TESTMODE: " + String("B+W+V+F-T+"); 
+	displayOneLineOne = String("B+ W+ V+ F- S- T+"); 
+
+
 	// Display 1
 
 	displayOne.clearDisplay();
