@@ -502,6 +502,38 @@ void opCycle()
 	}
 }
 
+bool testCycle()
+{
+	runMaintenance();
+	updateDisplay();
+
+	unsigned long savedCycle = 0;
+	unsigned long cycleInterval = 1000;
+
+	digitalWrite(zoneTwoRelay, OFF);
+	digitalWrite(standbyRelay, ON);
+
+
+	while (true)
+	{
+		runMaintenance();
+		updateDisplay();
+
+
+
+
+		unsigned long currentCycle = millis();
+
+		if (currentCycle - savedCycle >= cycleInterval) {
+			savedCycle = currentCycle;
+
+			digitalWrite(zoneTwoRelay, !digitalRead(zoneTwoRelay));
+			digitalWrite(standbyRelay, !digitalRead(standbyRelay));
+
+		}
+	}
+}
+
 void heatUpTheHouse()
 {
 	runMaintenance();
@@ -896,38 +928,10 @@ void runMaintenance()
 }
 
 
-bool testCycle()
-{
-	runMaintenance();
-	updateDisplay();
-
-	unsigned long savedCycle = 0;
-	unsigned long cycleInterval = 1000;
-
-	digitalWrite(zoneTwoRelay, OFF);
-	digitalWrite(standbyRelay, ON);
-
-
-	while (true)
-	{
-		runMaintenance();
-		updateDisplay();
 
 
 
-
-		unsigned long currentCycle = millis();
-
-		if (currentCycle - savedCycle >= cycleInterval) {
-			savedCycle = currentCycle;
-
-			digitalWrite(zoneTwoRelay, !digitalRead(zoneTwoRelay));
-			digitalWrite(standbyRelay, !digitalRead(standbyRelay));
-
-		}
-	}
-}
-
+// ----------------------------------------------------------------------------------------------------------------------
 
 bool saveState()
 {
