@@ -738,7 +738,21 @@ void turnOffBoiler()
 }
 
 
-// TODO flowCheck();
+String getStatus()
+{
+	String retval = "";
+
+	// condition ? expression1 : expression2;
+
+	retval += String(digitalRead(burnerRelay) ? "B+ " : "B- ");
+	retval += String(digitalRead(waterRelay) ? "W+ " : "W- ");
+	retval += String(digitalRead(zoneTwoRelay) ? "V+ " : "V- ");
+	retval += String(digitalRead(flameOut) ? "F+ " : "F- ");
+	retval += String(digitalRead(callForHeat) ? "H+ " : "H- ");
+
+	return retval;
+}
+
 void turnOnWaterPump()
 {
 	digitalWrite(waterRelay, ON);
@@ -852,7 +866,7 @@ void updateDisplay() {
 	if (displayTwoLineThree == "") {
 		displayOneLineThree = "E: " + String(environmentTemperature()); }
 
-	displayOneLineOne = String("B+ W+ V+ F- S- T+"); 
+	displayOneLineOne = getStatus();
 
 
 	// Display 1
