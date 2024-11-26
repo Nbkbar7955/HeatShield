@@ -233,7 +233,7 @@ void heatUpTheHouse();
 void turnOnWaterPump(void);
 int environmentTemperature(void);
 int insideWaterTemp(void);
-int outsideWaterTemp(void);
+//int outsideWaterTemp(void);
 int boilerTemp(void);
 void updateBurnTime(void);
 void updateDisplay();
@@ -311,9 +311,9 @@ void setup()
 	// Thermocouple Init
 	//======================================================================================
 
-	boilerThermocouple.begin(0x060); // yellow
+	//.begin(0x060); // yellow
 	insideWaterThermocouple.begin(0x061);   // blue  
-	outsideWaterThermocouple.begin(0x62); // white
+	boilerThermocouple.begin(0x60); // white
 	environmentThermocouple.begin(0x064); // pink
 
 
@@ -776,12 +776,12 @@ int insideWaterTemp()
 
 }
 
-int outsideWaterTemp()
-{
-	runMaintenance();
-	return int(outsideWaterThermocouple.getThermocoupleTemp(false));
-
-}
+//int outsideWaterTemp()
+//{
+//	runMaintenance();
+//	return int(outsideWaterThermocouple.getThermocoupleTemp(false));
+//
+//}
 
 int boilerTemp()
 {
@@ -910,7 +910,7 @@ void updateDisplay() {
 	if (displayThreeLineTwo == "") { displayThreeLineTwo = "B0: " + String(boilerTemp()) + " | " + String(boilerThermocouple.getThermocoupleTemp(false)); }
 	if (displayThreeLineThree == "") { displayThreeLineThree = "I1: " + String(insideWaterTemp()) + " | " + String(insideWaterThermocouple.getThermocoupleTemp(false)); }
 	if (displayFourLineOne == "") { displayFourLineOne = "BT: " + String(((burnTime / 1000 / 60) / 60)); }
-	if (displayFourLineTwo == "") { displayFourLineTwo = "O4: " + String(outsideWaterTemp()) + " | " + String(outsideWaterThermocouple.getThermocoupleTemp(false)); }
+	//if (displayFourLineTwo == "") { displayFourLineTwo = "O4: " + String(outsideWaterTemp()) + " | " + String(outsideWaterThermocouple.getThermocoupleTemp(false)); }
 	if (displayFourLineThree == "") { displayFourLineThree = "E5: " + String(environmentTemperature()) + " | " + String(environmentThermocouple.getThermocoupleTemp(false)); }
 
 
