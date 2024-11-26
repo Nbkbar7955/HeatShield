@@ -39,8 +39,8 @@
 /// 
 
 
-#define OFF 0x0		
-#define ON 0x1
+#define ON 0x0		
+#define OFF 0x1
 
 //======================================================================================
 //======================================================================================
@@ -60,12 +60,14 @@
 //======================================================================================
 
 int environmentHighTemp = 70;
-int environmentLowTemp = 67;
+int offsetHigh = 1;
+int environmentLowTemp = 68;
+int offsetLow = -2;
 
 int boilerHighTemp = 975;
 int boilerLowTemp = 300;
 
-int insideWaterHighTemp = 140;
+int insideWaterHighTemp = 135;
 int insideWaterLowTemp = 110;
 
 // 30,000 = 30 seconds
@@ -213,6 +215,7 @@ String displayFourLineThree = "";
 //======================================================================================
 //======================================================================================
 
+void runWater();
 void primePump();
 bool isFlameOut();
 void disableEndeavor();
@@ -406,13 +409,13 @@ void setup()
 			digitalWrite(waterRelay, OFF);
 
 			pinMode(burnerRelay, OUTPUT); // o PIN 27
-			digitalWrite(burnerRelay, OFF);
+			digitalWrite(burnerRelay, LOW);
 
 			pinMode(standbyRelay, OUTPUT);
 			digitalWrite(standbyRelay, OFF);
 
 			pinMode(zoneTwoRelay, OUTPUT); // o PIN 18
-			digitalWrite(zoneTwoRelay, OFF);
+			digitalWrite(zoneTwoRelay, ON);
 
 			pinMode(PB1, INPUT); // i PIN 34
 			pinMode(PB1, INPUT_PULLDOWN);
@@ -468,7 +471,7 @@ void setup()
 //======================================================================================
 
 
-bool TestMode = true;
+bool TestMode = false;
 
 
 bool testBoilerHighTemp = false;
@@ -510,7 +513,7 @@ bool testCycle()
 	unsigned long savedCycle = 0;
 	unsigned long cycleInterval = 1000;
 
-	digitalWrite(zoneTwoRelay, OFF);
+	digitalWrite(zoneTwoRelay, ON);
 	digitalWrite(standbyRelay, ON);
 
 
@@ -519,7 +522,10 @@ bool testCycle()
 		runMaintenance();
 		updateDisplay();
 
-
+		//digitalWrite(burnerRelay, HIGH);
+		//digitalWrite(waterRelay, ON);
+		digitalWrite(zoneTwoRelay, ON);
+		digitalWrite(standbyRelay, ON);
 
 
 		unsigned long currentCycle = millis();
@@ -527,8 +533,8 @@ bool testCycle()
 		if (currentCycle - savedCycle >= cycleInterval) {
 			savedCycle = currentCycle;
 
-			digitalWrite(zoneTwoRelay, !digitalRead(zoneTwoRelay));
-			digitalWrite(standbyRelay, !digitalRead(standbyRelay));
+			//digitalWrite(zoneTwoRelay, !digitalRead(zoneTwoRelay));
+			//digitalWrite(standbyRelay, !digitalRead(standbyRelay));
 
 		}
 	}
@@ -554,6 +560,7 @@ void runHeatCycle() {
 	updateDisplay();
 
 	if (isEnvironmentTempMet()) return;
+
 	while (insideWaterTemp() < insideWaterHighTemp)
 	{
 		runMaintenance();
@@ -563,6 +570,10 @@ void runHeatCycle() {
 		if (isEnvironmentTempMet()) return;
 
 		heatUpBoiler();
+
+
+
+
 		coolDownBoiler();
 
 		if (isEnvironmentTempMet()) return;
@@ -617,7 +628,19 @@ void heatUpBoiler()
 		updateDisplay();
 
 		turnOnBoiler();
+		runWater();
+
 		if (isInsideWaterHighTempMet()) break;
+	}
+}
+
+void runWater()
+{
+	if (insideWaterTemp() >= insideWaterLowTemp) {
+		digitalWrite(waterRelay, ON);
+	}
+	else {
+		digitalWrite(waterRelay, OFF);
 	}
 }
 
@@ -633,6 +656,9 @@ void coolDownBoiler()
 		updateDisplay();
 
 		turnOffBoiler();
+
+		runWater();
+
 		if (isInsideWaterHighTempMet()) return;
 	}
 }
@@ -678,11 +704,11 @@ bool isEnvironmentTempMet()
 	runMaintenance();
 	updateDisplay();
 
-	if ((environmentTemperature() + 1) >= environmentHighTemp) {
+	if ((environmentTemperature() + offsetLow) >= environmentHighTemp + offsetHigh) {
 		turnOffBoiler();
 		turnOffWaterPump();
 
-		while (environmentTemperature() >= environmentLowTemp) {
+		while (environmentTemperature() >= environmentLowTemp + offsetLow) {
 			runMaintenance();
 			updateDisplay();
 
@@ -697,7 +723,7 @@ bool isEnvironmentTempMet()
 void turnOnBoiler()
 {
 
-	digitalWrite(burnerRelay, ON);
+	digitalWrite(burnerRelay, HIGH);
 
 	//isFlameOut();
 	//updateBurnTime();
@@ -706,7 +732,7 @@ void turnOnBoiler()
 
 void turnOffBoiler()
 {
-	digitalWrite(burnerRelay, OFF);
+	digitalWrite(burnerRelay, LOW);
 
 	//isFlameOut();
 }
@@ -780,7 +806,7 @@ void primePump()
 void disableEndeavor()
 {
 	runMaintenance();
-	digitalWrite(burnerRelay, OFF);
+	digitalWrite(burnerRelay, LOW);
 	digitalWrite(zoneTwoRelay, OFF);
 	digitalWrite(waterRelay, OFF);
 
@@ -814,11 +840,15 @@ void updateDisplay() {
 
 	if (displayOneLineOne == "") { displayOneLineOne = "UP: " + String(int((millis() - startUpTime) / 1000)); }
 	if (displayOneLineTwo == "") { displayOneLineTwo = "B: " + String(boilerTemp()) + " |I: " + String(insideWaterTemp()); }
-	if (displayOneLineThree == "") { displayOneLineThree = "E: " + String(environmentTemperature()) + " |O: " + String(outsideWaterTemp()); }
+	// if (displayOneLineThree == "") { displayOneLineThree = "E: " + String(environmentTemperature()) + " |O: " + String(outsideWaterTemp()); }
+	if (displayOneLineThree == "") { displayOneLineThree = "E: " + String(environmentTemperature()); }
 
 	if (displayTwoLineOne == "") { displayOneLineOne = "UP: " + String(int((millis() - startUpTime) / 1000)); }
 	if (displayTwoLineTwo == "") { displayOneLineTwo = "B: " + String(boilerTemp()) + " |I: " + String(insideWaterTemp()); }
 	//if (displayTwoLineThree == "") { displayOneLineThree = "E: " + String(environmentTemperature()) + " |O: " + String(outsideWaterTemp()); }//
+	if (displayOneLineThree == "") { displayOneLineThree = "E: " + String(environmentTemperature()) + " |"; }
+
+
 	if (displayTwoLineThree == "") {
 		displayOneLineThree = "E: " + String(environmentTemperature()); }
 
