@@ -59,10 +59,11 @@
 //======================================================================================
 //======================================================================================
 
-int environmentHighTemp = 70;
-int offsetHigh = 1;
-int environmentLowTemp = 68;
-int offsetLow = -2;
+int environmentHighTemp = 69;
+int highOffSet = 0;
+
+int environmentLowTemp = 66;
+int lowOffSet = 0;
 
 int boilerHighTemp = 975;
 int boilerLowTemp = 300;
@@ -98,6 +99,10 @@ int waterOnDelay = 30000; // seconds
 int waterOffDelay = 30000; // seconds
 long primePumpRunTime = 15000; // seconds (15)
 
+int currentBoilerTemp = 2000; // set hi to start for compare
+int currentWaterTemp = 2000; //""
+int currentEnvironmentTemp = 2000; // ""
+
 unsigned long prevBurnOffTime = 0;
 int testBurnOffTimeInterval = 2000;
 int testBurnerOnTimeInterval = 3000;
@@ -114,7 +119,7 @@ const char* networkName = "Wilson.Net-2.4G";
 const char* networkNamePassPhrase = "wilsonwebsite.com";
 
 char serverAddress[] = "192.168.0.67"; // server address
-int port = 44364;
+uint16_t port = 44364;
 
 WiFiClient wifi;
 HttpClient client = HttpClient(wifi, serverAddress, port);
@@ -215,7 +220,7 @@ String displayFourLineThree = "";
 //======================================================================================
 //======================================================================================
 
-void runWater();
+auto getStatus(void) -> String;
 void primePump();
 bool isFlameOut();
 void disableEndeavor();
@@ -233,7 +238,6 @@ void heatUpTheHouse();
 void turnOnWaterPump(void);
 int environmentTemperature(void);
 int insideWaterTemp(void);
-//int outsideWaterTemp(void);
 int boilerTemp(void);
 void updateBurnTime(void);
 void updateDisplay();
@@ -471,7 +475,7 @@ void setup()
 //======================================================================================
 
 
-bool TestMode = false;
+bool TestMode = true;
 
 
 bool testBoilerHighTemp = false;
@@ -511,9 +515,9 @@ bool testCycle()
 	updateDisplay();
 
 	unsigned long savedCycle = 0;
-	unsigned long cycleInterval = 1000;
+	unsigned long cycleInterval = 1500;
 
-	digitalWrite(zoneTwoRelay, ON);
+	digitalWrite(zoneTwoRelay, OFF);
 	digitalWrite(standbyRelay, ON);
 
 
@@ -522,19 +526,14 @@ bool testCycle()
 		runMaintenance();
 		updateDisplay();
 
-		//digitalWrite(burnerRelay, HIGH);
-		//digitalWrite(waterRelay, ON);
-		digitalWrite(zoneTwoRelay, ON);
-		digitalWrite(standbyRelay, ON);
-
 
 		unsigned long currentCycle = millis();
 
 		if (currentCycle - savedCycle >= cycleInterval) {
 			savedCycle = currentCycle;
 
-			//digitalWrite(zoneTwoRelay, !digitalRead(zoneTwoRelay));
-			//digitalWrite(standbyRelay, !digitalRead(standbyRelay));
+			digitalWrite(zoneTwoRelay, !digitalRead(zoneTwoRelay));
+			digitalWrite(standbyRelay, !digitalRead(standbyRelay));
 
 		}
 	}
@@ -628,22 +627,10 @@ void heatUpBoiler()
 		updateDisplay();
 
 		turnOnBoiler();
-		runWater();
 
 		if (isInsideWaterHighTempMet()) break;
 	}
 }
-
-void runWater()
-{
-	if (insideWaterTemp() >= insideWaterLowTemp) {
-		digitalWrite(waterRelay, ON);
-	}
-	else {
-		digitalWrite(waterRelay, OFF);
-	}
-}
-
 
 void coolDownBoiler()
 {
@@ -656,8 +643,6 @@ void coolDownBoiler()
 		updateDisplay();
 
 		turnOffBoiler();
-
-		runWater();
 
 		if (isInsideWaterHighTempMet()) return;
 	}
@@ -704,11 +689,11 @@ bool isEnvironmentTempMet()
 	runMaintenance();
 	updateDisplay();
 
-	if ((environmentTemperature() + offsetLow) >= environmentHighTemp + offsetHigh) {
+	if ((environmentTemperature() + lowOffSet) >= environmentHighTemp + highOffSet) {
 		turnOffBoiler();
 		turnOffWaterPump();
 
-		while (environmentTemperature() >= environmentLowTemp + offsetLow) {
+		while (environmentTemperature() >= environmentLowTemp + lowOffSet) {
 			runMaintenance();
 			updateDisplay();
 
@@ -740,17 +725,15 @@ void turnOffBoiler()
 
 String getStatus()
 {
-	String retval = "";
-
 	// condition ? expression1 : expression2;
 
-	retval += String(digitalRead(burnerRelay) ? "B+ " : "B- ");
-	retval += String(digitalRead(waterRelay) ? "W+ " : "W- ");
-	retval += String(digitalRead(zoneTwoRelay) ? "V+ " : "V- ");
-	retval += String(digitalRead(flameOut) ? "F+ " : "F- ");
-	retval += String(digitalRead(callForHeat) ? "H+ " : "H- ");
 
-	return retval;
+	const auto burnStat = String(digitalRead(burnerRelay) ? "B+ " : "B- ");
+	const auto  waterStat = String(digitalRead(waterRelay) ? "W+ " : "W- ");
+	const auto  zoneTwoStat = String(digitalRead(zoneTwoRelay) ? "V+ " : "V- ");
+	const auto cHeatStat = String(digitalRead(callForHeat) ? "H+ " : "H- ");
+
+	return burnStat + waterStat + zoneTwoStat + cHeatStat;
 }
 
 void turnOnWaterPump()
@@ -764,53 +747,72 @@ void turnOffWaterPump() {
 
 int  environmentTemperature()
 {
-	runMaintenance();
-	return int(environmentThermocouple.getThermocoupleTemp(false));
+	//runMaintenance();
+	//return int(environmentThermocouple.getThermocoupleTemp(false));
+
+
+	for (int ndx = 0; ndx < 5; ndx++)
+	{
+		runMaintenance();
+		int result = static_cast<int>(floor(environmentThermocouple.getThermocoupleTemp(false)));
+		currentEnvironmentTemp = result < currentEnvironmentTemp ? result : currentEnvironmentTemp;
+		//sleep(50);  // NOLINT(concurrency-mt-unsafe)
+	}
+	updateDisplay();
+	return currentEnvironmentTemp;
+
 
 }
 
 int insideWaterTemp()
 {
-	runMaintenance();
-	return int(insideWaterThermocouple.getThermocoupleTemp(false));
+	//runMaintenance();
+	//return static_cast<int>(insideWaterThermocouple.getThermocoupleTemp(false));
+
+
+	for (int ndx = 0; ndx < 5; ndx++)
+	{
+		runMaintenance();
+		int result = static_cast<int>(floor(insideWaterThermocouple.getThermocoupleTemp(false)));
+		currentWaterTemp = result < currentWaterTemp ? result : currentWaterTemp;
+		//sleep(50);  // NOLINT(concurrency-mt-unsafe)
+	}
+	updateDisplay();
+	return currentWaterTemp;
+	
+}
+
+int boilerTemp() {
+	//runMaintenance();
+	//return int(boilerThermocouple.getThermocoupleTemp(false));
+
+
+	for (int ndx = 0; ndx < 5; ndx++)
+	{
+		runMaintenance();
+		int result = static_cast<int>(floor(boilerThermocouple.getThermocoupleTemp(false)));
+		currentBoilerTemp = result < currentBoilerTemp ? result : currentBoilerTemp;
+		//sleep(50);  // NOLINT(concurrency-mt-unsafe)
+	}
+	updateDisplay();
+	return currentBoilerTemp;
 
 }
 
-//int outsideWaterTemp()
-//{
-//	runMaintenance();
-//	return int(outsideWaterThermocouple.getThermocoupleTemp(false));
-//
-//}
 
-int boilerTemp()
-{
-	runMaintenance();
-	return int(boilerThermocouple.getThermocoupleTemp(false));
-
-}
-
-// TODO get Ambient thermocoiuple
-int ambientTemp() {
-	return 0;
-}
-
-
-// TODO: get realtime values
-// TODO: write flameOut logic
+/// TODO: get realtime values
+/// TODO: write flameOut logic
 
 bool isFlameOut()
 {
 	runMaintenance();
 
-	if (digitalRead(flameOut)) return false;
-	return true;
+	return digitalRead(flameOut) ? true : false;
 }
 
 void primePump()
 {
 	runMaintenance();
-	long currentTime = millis();
 
 }
 
@@ -846,25 +848,15 @@ String getStatusString()
 
 
 void updateDisplay() {
-	// b+
-	// w+
-	// e+
+
 	
+	environmentTemperature();
+	insideWaterTemp();
+	boilerTemp();
 
-
-	if (displayOneLineOne == "") { displayOneLineOne = "UP: " + String(int((millis() - startUpTime) / 1000)); }
-	if (displayOneLineTwo == "") { displayOneLineTwo = "B: " + String(boilerTemp()) + " |I: " + String(insideWaterTemp()); }
-	// if (displayOneLineThree == "") { displayOneLineThree = "E: " + String(environmentTemperature()) + " |O: " + String(outsideWaterTemp()); }
-	if (displayOneLineThree == "") { displayOneLineThree = "E: " + String(environmentTemperature()); }
-
-	if (displayTwoLineOne == "") { displayOneLineOne = "UP: " + String(int((millis() - startUpTime) / 1000)); }
-	if (displayTwoLineTwo == "") { displayOneLineTwo = "B: " + String(boilerTemp()) + " |I: " + String(insideWaterTemp()); }
-	//if (displayTwoLineThree == "") { displayOneLineThree = "E: " + String(environmentTemperature()) + " |O: " + String(outsideWaterTemp()); }//
-	if (displayOneLineThree == "") { displayOneLineThree = "E: " + String(environmentTemperature()) + " |"; }
-
-
-	if (displayTwoLineThree == "") {
-		displayOneLineThree = "E: " + String(environmentTemperature()); }
+	if (displayOneLineOne == "") { displayOneLineOne = "UP: " + String(static_cast<int>((millis() - startUpTime) / 1000)); }
+	if (displayOneLineTwo == "") { displayOneLineTwo = "B: " + String(currentBoilerTemp) + " |W: " + String(currentWaterTemp); }
+	if (displayOneLineThree == "") { displayOneLineThree = "E: " + String(currentEnvironmentTemp); }
 
 	displayOneLineOne = getStatus();
 
@@ -887,6 +879,16 @@ void updateDisplay() {
 
 	displayOne.display();
 
+	/*  
+
+	if (displayTwoLineThree == "") {
+		displayOneLineThree = "E: " + String(environmentTemperature()); }
+	if (displayTwoLineOne == "") { displayOneLineOne = "UP: " + String(static_cast<int>((millis() - startUpTime) / 1000)); }
+	if (displayTwoLineTwo == "") { displayOneLineTwo = "B: " + String(boilerTemp()) + " |I: " + String(insideWaterTemp()); }
+	//if (displayTwoLineThree == "") { displayOneLineThree = "E: " + String(environmentTemperature()) + " |O: " + String(outsideWaterTemp()); }//
+	if (displayOneLineThree == "") { displayOneLineThree = "E: " + String(environmentTemperature()) + " |"; }
+
+
 
 	// Display 2
 
@@ -906,7 +908,7 @@ void updateDisplay() {
 	displayTwo.display();
 
 
-	if (displayThreeLineOne == "") { displayThreeLineOne = "UP: " + String(int((millis() - startUpTime) / 1000)); }
+	if (displayThreeLineOne == "") { displayThreeLineOne = "UP: " + String(static_cast<int>((millis() - startUpTime) / 1000)); }
 	if (displayThreeLineTwo == "") { displayThreeLineTwo = "B0: " + String(boilerTemp()) + " | " + String(boilerThermocouple.getThermocoupleTemp(false)); }
 	if (displayThreeLineThree == "") { displayThreeLineThree = "I1: " + String(insideWaterTemp()) + " | " + String(insideWaterThermocouple.getThermocoupleTemp(false)); }
 	if (displayFourLineOne == "") { displayFourLineOne = "BT: " + String(((burnTime / 1000 / 60) / 60)); }
@@ -948,6 +950,7 @@ void updateDisplay() {
 	displayFour.println(displayTwoLineThree);
 
 	displayFour.display();
+
 	*/
 }
 
