@@ -1,11 +1,12 @@
 
 /*
- Name:    Endeavor 2425
- Created: 8/27/2022 3:36:02 PM
- Update: 11/17/2024 09:45
- Author:  david
+ Name:		Endeavor 2425
+ Created:	8/27/2022 3:36:02 PM
+ Update:	11/17/2024 09:45
+			11/28/2024 15:00
+ Author:	david
 
- version: 0.8.067
+ version:	0.8.068
 
 */
 
@@ -62,7 +63,7 @@
 int environmentHighTemp = 69;
 int highOffSet = 0;
 
-int environmentLowTemp = 66;
+int environmentLowTemp = 67;
 int lowOffSet = 0;
 
 int boilerHighTemp = 975;
@@ -478,7 +479,7 @@ void setup()
 //======================================================================================
 
 
-bool TestMode = true;
+bool TestMode = false;
 
 
 bool testBoilerHighTemp = false;
@@ -494,7 +495,7 @@ void loop() {
 
 	if (TestMode) testCycle();
 
-	return;
+	
 
 	opCycle();
 }
@@ -575,12 +576,9 @@ void runHeatCycle() {
 
 		turnOffWaterPump();
 		if (isEnvironmentTempMet()) return;
+		if (insideWaterTemp() >= 99) turnOnWaterPump();
 
 		heatUpBoiler();
-
-
-
-
 		coolDownBoiler();
 
 		if (isEnvironmentTempMet()) return;
@@ -595,7 +593,7 @@ void runWaterCycle() {
 	turnOffBoiler();
 	if (isEnvironmentTempMet()) return;
 
-	while (insideWaterTemp() >= insideWaterLowTemp) {
+	while (insideWaterTemp() > insideWaterLowTemp) {
 		runMaintenance();
 		updateDisplay();
 
@@ -605,21 +603,6 @@ void runWaterCycle() {
 	}
 	turnOffWaterPump();
 
-
-
-	/*
-	while (waterOnTimeNotFinished()) {
-		runMaintenance();
-		updateDisplay();
-		if (isEnvironmentTempMet()) break;
-	}
-
-	while (waterOffTimeNotFinished()) {
-		runMaintenance();
-		updateDisplay();
-		if (isEnvironmentTempMet()) break;;
-	}
-	*/
 }
 
 void heatUpBoiler()
@@ -697,24 +680,16 @@ bool isEnvironmentTempMet()
 	runMaintenance();
 	updateDisplay();
 
-	if ((environmentTemperature() + lowOffSet) >= environmentHighTemp + highOffSet) {
-		turnOffBoiler();
-		turnOffWaterPump();
-
-		while (environmentTemperature() >= environmentLowTemp + lowOffSet) {
-			runMaintenance();
-			updateDisplay();
-
-			turnOffBoiler();
-			turnOffWaterPump();
-		}
-	}
+	if ((environmentTemperature() + highOffSet) >= environmentHighTemp + highOffSet) return true;
+	if ((environmentTemperature() + lowOffSet) <= environmentLowTemp + lowOffSet) return false;
 	return false;
 }
 
 
 void turnOnBoiler()
 {
+	runMaintenance();
+	updateDisplay();
 
 	digitalWrite(burnerRelay, HIGH);
 
@@ -725,6 +700,9 @@ void turnOnBoiler()
 
 void turnOffBoiler()
 {
+	runMaintenance();
+	updateDisplay();
+
 	digitalWrite(burnerRelay, LOW);
 
 	//isFlameOut();
@@ -753,37 +731,29 @@ void turnOffWaterPump() {
 	digitalWrite(waterRelay, OFF);
 }
 
-int  environmentTemperature()
-{
-	//runMaintenance();
-	//return int(environmentThermocouple.getThermocoupleTemp(false));
-
+int  environmentTemperature() {
 
 	for (int ndx = 0; ndx < 5; ndx++)
 	{
 		runMaintenance();
+
 		int result = static_cast<int>(floor(environmentThermocouple.getThermocoupleTemp(false)));
 		currentEnvironmentTemp = result < currentEnvironmentTemp ? result : currentEnvironmentTemp;
 		//sleep(50);  // NOLINT(concurrency-mt-unsafe)
 	}
 	updateDisplay();
 	return currentEnvironmentTemp;
-
-
 }
 
-int insideWaterTemp()
-{
-	//runMaintenance();
-	//return static_cast<int>(insideWaterThermocouple.getThermocoupleTemp(false));
-
+int insideWaterTemp() {
 
 	for (int ndx = 0; ndx < 5; ndx++)
 	{
 		runMaintenance();
 		int result = static_cast<int>(floor(insideWaterThermocouple.getThermocoupleTemp(false)));
 		currentWaterTemp = result < currentWaterTemp ? result : currentWaterTemp;
-		//sleep(50);  // NOLINT(concurrency-mt-unsafe)
+		//sleep(20);  // NOLINT(concurrency-mt-unsafe)
+		
 	}
 	updateDisplay();
 	return currentWaterTemp;
@@ -791,9 +761,6 @@ int insideWaterTemp()
 }
 
 int boilerTemp() {
-	//runMaintenance();
-	//return int(boilerThermocouple.getThermocoupleTemp(false));
-
 
 	for (int ndx = 0; ndx < 5; ndx++)
 	{
