@@ -220,7 +220,7 @@ String displayFourLineThree = "";
 //======================================================================================
 //======================================================================================
 
-auto getStatus(void) -> String;
+auto getStatus(void)->String;
 void primePump();
 bool isFlameOut();
 void disableEndeavor();
@@ -390,63 +390,66 @@ void setup()
 					Serial.println("Ready");
 					Serial.print("IP address: ");
 					Serial.println(WiFi.localIP());
+					Serial.println("MAC:  ");
+					Serial.println(WiFi.macAddress());
 
 
-			//======================================================================================
-			//======================================================================================
-			// Pin Modes
-			//======================================================================================
-			//======================================================================================
+
+					//======================================================================================
+					//======================================================================================
+					// Pin Modes
+					//======================================================================================
+					//======================================================================================
 
 
-			pinMode(processorLED, OUTPUT);
-			digitalWrite(processorLED, OFF);
+					pinMode(processorLED, OUTPUT);
+					digitalWrite(processorLED, OFF);
 
-			pinMode(callForHeat, OUTPUT); // i PIN 4
-			digitalWrite(callForHeat, OFF);
+					pinMode(callForHeat, OUTPUT); // i PIN 4
+					digitalWrite(callForHeat, OFF);
 
-			pinMode(speaker, OUTPUT); // o PIN 25
-			digitalWrite(speaker, OFF);
+					pinMode(speaker, OUTPUT); // o PIN 25
+					digitalWrite(speaker, OFF);
 
 
-			pinMode(waterRelay, OUTPUT); // o PIN 26
-			digitalWrite(waterRelay, OFF);
+					pinMode(waterRelay, OUTPUT); // o PIN 26
+					digitalWrite(waterRelay, OFF);
 
-			pinMode(burnerRelay, OUTPUT); // o PIN 27
-			digitalWrite(burnerRelay, LOW);
+					pinMode(burnerRelay, OUTPUT); // o PIN 27
+					digitalWrite(burnerRelay, LOW);
 
-			pinMode(standbyRelay, OUTPUT);
-			digitalWrite(standbyRelay, OFF);
+					pinMode(standbyRelay, OUTPUT);
+					digitalWrite(standbyRelay, OFF);
 
-			pinMode(zoneTwoRelay, OUTPUT); // o PIN 18
-			digitalWrite(zoneTwoRelay, ON);
+					pinMode(zoneTwoRelay, OUTPUT); // o PIN 18
+					digitalWrite(zoneTwoRelay, ON);
 
-			pinMode(PB1, INPUT); // i PIN 34
-			pinMode(PB1, INPUT_PULLDOWN);
-			digitalWrite(PB1, OFF);
+					pinMode(PB1, INPUT); // i PIN 34
+					pinMode(PB1, INPUT_PULLDOWN);
+					digitalWrite(PB1, OFF);
 
-			pinMode(PB2, INPUT); // i PIN 35
-			pinMode(PB2, INPUT_PULLDOWN);
-			digitalWrite(PB2, OFF);
+					pinMode(PB2, INPUT); // i PIN 35
+					pinMode(PB2, INPUT_PULLDOWN);
+					digitalWrite(PB2, OFF);
 
-			pinMode(PB3, INPUT); // i PIN 36
-			pinMode(PB3, INPUT_PULLDOWN);
-			digitalWrite(PB3, OFF);
+					pinMode(PB3, INPUT); // i PIN 36
+					pinMode(PB3, INPUT_PULLDOWN);
+					digitalWrite(PB3, OFF);
 
-			pinMode(PB4, INPUT); // i PIN 39
-			pinMode(PB4, INPUT_PULLDOWN);
-			digitalWrite(PB4, OFF);
+					pinMode(PB4, INPUT); // i PIN 39
+					pinMode(PB4, INPUT_PULLDOWN);
+					digitalWrite(PB4, OFF);
 
-			//======================================================================================
-			//======================================================================================
-			// Startup functions
-			//======================================================================================
-			//======================================================================================
+					//======================================================================================
+					//======================================================================================
+					// Startup functions
+					//======================================================================================
+					//======================================================================================
 
-			restoreConfig();
-			restoreState();
-			//======================================================================================
-			//======================================================================================
+					restoreConfig();
+					restoreState();
+					//======================================================================================
+					//======================================================================================
 }
 
 //======================================================================================
@@ -490,6 +493,9 @@ void loop() {
 	updateDisplay();
 
 	if (TestMode) testCycle();
+
+	return;
+
 	opCycle();
 }
 
@@ -509,17 +515,19 @@ void opCycle()
 	}
 }
 
+unsigned long savedCycle = 0;
+unsigned long cycleInterval = 1500;
+
 bool testCycle()
 {
 	runMaintenance();
 	updateDisplay();
 
-	unsigned long savedCycle = 0;
-	unsigned long cycleInterval = 1500;
+
 
 	digitalWrite(zoneTwoRelay, OFF);
 	digitalWrite(standbyRelay, ON);
-
+	return true;
 
 	while (true)
 	{
@@ -779,7 +787,7 @@ int insideWaterTemp()
 	}
 	updateDisplay();
 	return currentWaterTemp;
-	
+
 }
 
 int boilerTemp() {
@@ -849,7 +857,7 @@ String getStatusString()
 
 void updateDisplay() {
 
-	
+
 	environmentTemperature();
 	insideWaterTemp();
 	boilerTemp();
@@ -879,7 +887,7 @@ void updateDisplay() {
 
 	displayOne.display();
 
-	/*  
+	/*
 
 	if (displayTwoLineThree == "") {
 		displayOneLineThree = "E: " + String(environmentTemperature()); }
