@@ -200,17 +200,16 @@ Adafruit_SSD1306 displayTwo(-1);
 Adafruit_SSD1306 displayThree(-1);
 Adafruit_SSD1306 displayFour(-1);
 
-enum
-{
-	OLED1 = 0x3C, // OLED 1
-	OLED2 = 0x3D // OLED 2
-};
 
-enum
-{
-	OLED3 = 0x3C, // OLED 3
-	OLED4 = 0x3D // OLED 4
-};
+
+#define OLED1 0x3C // OLED 1
+#define OLED2 0x3D // OLED 2
+
+
+
+//#define OLED3 = 0x3C // OLED 3
+//#define	OLED4 = 0x3D // OLED 4
+
 
 String displayOneLineOne = "";
 String displayOneLineTwo = "";
@@ -746,8 +745,8 @@ void disableEndeavor()
 
 void updateDisplay() {
 
-	if (displayOneLineOne == "") { displayOneLineOne = getStatus(); }
-	//if (displayOneLineOne == "") { displayOneLineOne = "UP: " + String(static_cast<int>((millis() - startUpTime) / 1000)); }
+	//if (displayOneLineOne == "") { displayOneLineOne = getStatus(); }
+	if (displayOneLineOne == "") { displayOneLineOne = "UP: " + String(static_cast<int>((millis() - startUpTime) / 1000)); }
 	if (displayOneLineTwo == "") { displayOneLineTwo = "B: " + String(boilerTemp()) + " |W: " + String(insideWaterTemp()); }
 	if (displayOneLineThree == "") { displayOneLineThree = "E: " + String(environmentTemperature()); }
 
