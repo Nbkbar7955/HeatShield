@@ -14,6 +14,6 @@ SET USERTS=false
 REM The below are optional if accessing socket from a remote source (e.g. via DDNS)
 SET REMOTEWEBSOCKETADDRESS=
 SET REMOTEWEBSOCKETPORT=
-SET TEENSYTOOLSFOLDER=C:\\Users\\david\\AppData\\Local\\arduino15\\packages\\esp32\\hardware\\esp32\\..
+SET TEENSYTOOLSFOLDER=c:\\Users\\david\\AppData\\Local\\Arduino15\\packages\\esp32\\hardware\\esp32\\..
 REM Kick off the Webserver
 start "vMicro Webserver" /D "%~dp0" "MicroWebserver.exe" %SERIALPORT% %BAUDRATE% %IPADDRESS% %HTMLPORT% %WEBSOCKETPORT%  %USEDTR% %USERTS% "%REMOTEWEBSOCKETADDRESS%" "%REMOTEWEBSOCKETPORT%" "%TEENSYTOOLSFOLDER%"
