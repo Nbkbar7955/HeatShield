@@ -83,12 +83,12 @@ int envLowTemp = 65;
 int envLowOffSet = 0;
 
 int boilerHighTemp = 975;
-int boilerLowTemp = 350;
+int boilerLowTemp = 400;
 
 int waterHighTemp = 160;
 int waterLowTemp = 140;
 
-int waterTempMaintMode = 125;
+int waterTempMaintMode = 120;
 
 unsigned long waterPreRunTime = 30000; // 30 sec // 120000; // 2 mins  240000; // 4mins
 unsigned long waterPreRunHold = 0;
