@@ -3,11 +3,12 @@
 /*
  Name:		Endeavor 2425
  Created:	8/27/2022 3:36:02 PM
- Update:	11/29/2024 00:30:00
+ Updates:	11/29/2024 00:30:00
 			11/28/2024 15:00.00
 			12/06/2024 02:28.00
 			12/11/2024
 			12/15/2024 23:00
+			12/16/2024 22:00
 
 
  Author:	David Wilson
@@ -84,8 +85,10 @@ int envLowOffSet = 0;
 int boilerHighTemp = 975;
 int boilerLowTemp = 350;
 
-int waterHighTemp = 140;
-int waterLowTemp = 130;
+int waterHighTemp = 160;
+int waterLowTemp = 140;
+
+int waterTempMaintMode = 125;
 
 unsigned long waterPreRunTime = 30000; // 30 sec // 120000; // 2 mins  240000; // 4mins
 unsigned long waterPreRunHold = 0;
@@ -109,6 +112,7 @@ unsigned long savedOffWaterRunTime = 0;
 
 int outsideWaterHighTemp = 200;
 int outsideWaterLowTemp = 100;
+
 
 unsigned long blinkInterval = 250;
 unsigned long savedBlinkTime = 0;
@@ -289,6 +293,8 @@ void turnOffWater();
 bool isWaterTempLow();
 void turnOnWater();
 int ambientTemp();
+void maintMode();
+bool isMaintWaterTempMet();
 
 //
 // writing
@@ -586,24 +592,55 @@ void heatTheHouse()
 }
 
 
-void waterPreRun()
+bool isMaintWaterTempMet() {
+
+	if ((int)waterTC.getThermocoupleTemp(false) >= waterTempMaintMode) return true;
+	return false;
+
+}
+
+void maintMode()
 {
+	runMaintenance();
+	updateDisplay();
 
-	ArduinoOTA.handle();
+	// Start fcrom the begining
+	turnOffWater();
+	turnOffBoiler();
 
-
-	unsigned long currentPreRunTime = millis();
-	
-	if (currentPreRunTime - waterPreRunHold >= waterPreRunTime)
+	// let's start
+	while (!isMaintWaterTempMet())
 	{
-		waterPreRunHold = currentPreRunTime;
-		turnOffWater();
-		
+		runMaintenance();
+		updateDisplay();
+
+		// FIRE
+		// fire the boiler until we reach the highest temp (boilerHighTemp) and water on met
+
+		while ((int)boilerTC.getThermocoupleTemp(false) <= boilerHighTemp && !isMaintWaterTempMet())
+		{
+			runMaintenance();
+			updateDisplay();
+
+			turnOnBoiler();
+
+		}
+		turnOffBoiler();
+
+
+		// COOL
+		// now let it cool down while still heating the water
+
+		while ((int)boilerTC.getThermocoupleTemp(false) >= boilerLowTemp && !isMaintWaterTempMet())
+		{
+			runMaintenance();
+			updateDisplay();
+
+			turnOffBoiler();
+		}
 	}
-	else
-	{
-		turnOnWater();
-	}
+	turnOffBoiler();
+
 }
 
 
