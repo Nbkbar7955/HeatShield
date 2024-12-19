@@ -122,9 +122,6 @@
     <ClInclude Include="resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="__vm\.Endeavor.vsarduino.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\AppData\Local\Arduino15\packages\esp32\hardware\esp32\3.0.7\cores\esp32\Arduino.h">
       <Filter>src\_micro-api-readonly\core</Filter>
     </ClInclude>
@@ -442,6 +439,9 @@
     </ClInclude>
     <ClInclude Include="..\..\..\..\AppData\Local\Arduino15\packages\esp32\hardware\esp32\3.0.7\libraries\Update\src\Update.h">
       <Filter>src\_micro-api-readonly\libraries\Update</Filter>
+    </ClInclude>
+    <ClInclude Include="__vm\.Endeavor.vsarduino.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
