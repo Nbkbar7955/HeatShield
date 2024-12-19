@@ -10,12 +10,12 @@
 			12/15/2024 23:00
 			12/16/2024 22:00
 			12/16/2024 23:00
-			12/18/2024 20:
+			12/18/2024 20:00
 
  Author:	David Wilson
  
 
- version:	0.8.070
+ version:	0.8.071
  ignore for now
 */
 
@@ -86,14 +86,21 @@ int envLowOffSet = 0;
 int boilerHighTemp = 975;
 int boilerLowTemp = 400;
 
-int waterHighTemp = 170;
-int waterLowTemp = 150;
+int waterHighTemp = 160;
+int waterLowTemp = 140;
+
+int numTimesToAvgTempReads = 5; // count x times for temp avg
+
 
 int waterTempMaintMode = 130;
+float MAX_WATER_TEMP = 180;
 
 unsigned long waterPreRunTime = 30000; // 30 sec // 120000; // 2 mins  240000; // 4mins
 unsigned long waterPreRunHold = 0;
 
+int currentBoilerTemp = 0;
+int currentWaterTemp = 0;
+int currentEnvTemp = 0;
 
 bool callForHeatSignal = false;
 
@@ -127,9 +134,6 @@ int waterOnDelay = 30000; // seconds
 int waterOffDelay = 30000; // seconds
 long primePumpRunTime = 15000; // seconds (15)
 
-int currentBoilerTemp = 2000; // set hi to start for compare
-int currentWaterTemp = 2000; //""
-int currentEnvTemp = 2000; // ""
 
 unsigned long prevBurnOffTime = 0;
 int testBurnOffTimeInterval = 2000;
@@ -262,12 +266,12 @@ bool isFlameOut();
 void disableEndeavor();
 void heatUpBoiler();
 void coolDownBoiler();
-bool isWaterTempMet(void);
+bool isWaterHighTempMet(void);
 bool soundAlert(int, int);
 bool soundAlert(int);
 bool soundAlert();
 bool throwException(int);
-bool safetyCheck(int);
+void safetyCheck();
 bool testCycle();
 void opCycle(void);
 void heatUpTheHouse();
@@ -291,11 +295,14 @@ void runWaterCycle();
 bool waterOnTimeNotFinished();
 bool waterOffTimeNotFinished();
 void turnOffWater();
-bool isWaterTempLow();
+bool isWaterLowTempMet();
 void turnOnWater();
 int ambientTemp();
 void maintMode();
 bool isMaintWaterTempMet();
+int calcBoilerTemp(); // func to calc avg blrTemp
+int calcWaterTemp();
+
 
 //
 // writing
@@ -540,7 +547,7 @@ void heatTheHouse()
 	turnOffBoiler();
 
 	// let's start
-	while (!isWaterTempMet())
+	while (!isWaterHighTempMet())
 	{
 		runMaintenance();
 		updateDisplay();
@@ -548,12 +555,13 @@ void heatTheHouse()
 		// FIRE
 		// fire the boiler until we reach the highest temp (boilerHighTemp) and water on met
 
-		while ((int)boilerTC.getThermocoupleTemp(false) <= boilerHighTemp && !isWaterTempMet())
+		while ((int)boilerTC.getThermocoupleTemp(false) <= boilerHighTemp)
 		{
 			runMaintenance();
 			updateDisplay();
 
 			if (isEnvTempMet()) break;
+			if (isWaterHighTempMet()) break;
 
 			turnOnBoiler();
 
@@ -564,7 +572,7 @@ void heatTheHouse()
 		// COOL
 		// now let it cool down while still heating the water
 
-		while ((int)boilerTC.getThermocoupleTemp(false) >= boilerLowTemp && !isWaterTempMet())
+		while ((int)boilerTC.getThermocoupleTemp(false) >= boilerLowTemp)
 		{
 			runMaintenance();
 			updateDisplay();
@@ -572,6 +580,7 @@ void heatTheHouse()
 			turnOffBoiler();
 
 			if (isEnvTempMet()) break;
+			if (isWaterHighTempMet()) break;
 		}
 	}
 	turnOffBoiler();
@@ -580,7 +589,7 @@ void heatTheHouse()
 	// Pump water
 	// pump water until low temp
 
-	while (!isWaterTempLow())
+	while (!isWaterLowTempMet())
 	{
 		runMaintenance();
 		updateDisplay();
@@ -646,7 +655,7 @@ void maintMode()
 
 
 
-bool isWaterTempMet() {
+bool isWaterHighTempMet() {
 	runMaintenance();
 	updateDisplay();
 
@@ -654,7 +663,7 @@ bool isWaterTempMet() {
 	return false;
 }
 
-bool isWaterTempLow()
+bool isWaterLowTempMet()
 {
 	runMaintenance();
 	updateDisplay();
@@ -740,7 +749,7 @@ bool isFlameOut()
 	runMaintenance();
 	updateDisplay();
 
-	return digitalRead(flameOut) ? true : false;
+	return digitalRead(flameOut) ? false : true;
 }
 
 
@@ -753,8 +762,8 @@ void disableEndeavor() {
 
 
 		digitalWrite(burnerRelay, OFF);
-		digitalWrite(zoneTwoRelay, OFF);
-		digitalWrite(waterRelay, OFF);
+		digitalWrite(zoneTwoRelay, ON);
+		digitalWrite(waterRelay, ON);
 		blinkInterval = 75;
 		blink();
 	}
@@ -812,8 +821,40 @@ void blink()
 void runMaintenance()
 {
 	ArduinoOTA.handle();
+
+
+
+	safetyCheck();
+	currentBoilerTemp = calcBoilerTemp();
 	blink();
 
+}
+
+int calcBoilerTemp()
+{
+	int retval = 0;;
+	int result;
+
+	for (int boilerCount = 0; boilerCount < numTimesToAvgTempReads; boilerCount++)
+	{
+		retval += (int)boilerTC.getThermocoupleTemp(false);
+	}
+	result = (retval / numTimesToAvgTempReads);
+	return (result > currentBoilerTemp) ? result : currentBoilerTemp;
+}
+
+
+int calcWaterTemp()
+{
+	int retval = 0;;
+	int result;
+
+	for (int waterCount = 0; waterCount < numTimesToAvgTempReads; waterCount++)
+	{
+		retval += (int)waterTC.getThermocoupleTemp(false);
+	}
+	result = (retval / numTimesToAvgTempReads);
+	return (result > currentBoilerTemp) ? result : currentBoilerTemp;
 }
 
 
@@ -881,7 +922,7 @@ bool waterOnTimeNotFinished() {
 	runMaintenance();
 	updateDisplay();
 
-	if (isWaterTempMet()) return false;
+	if (isWaterHighTempMet()) return false;
 	unsigned long currentOnWaterRunTime = millis();
 
 	if (currentOnWaterRunTime - savedWaterRunTime < waterOnRunTime) {
@@ -895,7 +936,7 @@ bool waterOffTimeNotFinished()
 	runMaintenance();
 	updateDisplay();
 
-	if (isWaterTempMet()) return false;
+	if (isWaterHighTempMet()) return false;
 	unsigned long currentWaterOffRunTime = millis();
 
 	if (currentWaterOffRunTime - savedOffWaterRunTime < waterOffRunTime) {
@@ -927,12 +968,6 @@ String getStatusString()
 	return retVal;
 }
 
-void myTests()
-{
-	runMaintenance();
-	/// TODO: This is test new stuff area
-
-}
 bool saveState()
 {
 	runMaintenance();
@@ -1002,10 +1037,10 @@ bool throwException(int)
 	return true;
 }
 
-bool safetyCheck(int)
+void safetyCheck()
 {
-	runMaintenance();
-	return true;
+	if (waterTC.getThermocoupleTemp(false) >= MAX_WATER_TEMP) disableEndeavor();
+
 }
 
 
