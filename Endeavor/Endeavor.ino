@@ -1,4 +1,4 @@
-
+/
 
 /*
  Name:		Endeavor 2425
@@ -11,6 +11,9 @@
 			12/16/2024 22:00
 			12/16/2024 23:00
 			12/18/2024 20:00
+			12/19/2024 00:30
+
+
 
  Author:	David Wilson
  
@@ -617,7 +620,7 @@ void maintMode()
 		// FIRE
 		// fire the boiler until we reach the highest temp (boilerHighTemp) and water on met
 
-		while (calcBoilerTemp()() <= boilerHighTemp && !isMaintWaterTempMet())
+		while (calcBoilerTemp(dowc <= boilerHighTemp && !isMaintWaterTempMet())
 		{
 			runMaintenance();
 			updateDisplay();
