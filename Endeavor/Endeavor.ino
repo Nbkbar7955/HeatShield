@@ -1,4 +1,4 @@
-/
+
 
 /*
  Name:		Endeavor 2425
@@ -78,34 +78,43 @@ uint8_t OFF = 0x1;
 //======================================================================================
 
 
-bool callForHeatActive = false;
+bool callForHeatActive = false; // will be coded aft thermost installed
+bool callForHeatSignal = false; // not sure
 
-int envHighTemp = 69;
-int envHighOffSet = 0;
 
-int envLowTemp = 65;
+int MAX_WATER_TEMP = 180; // MAX Wtr temp. Shutdown if met or exceeded
+
+int envHighTemp = 69; // current Hi for LR temp
+int envHighOffSet = 0; // used to adjust theermocouple readi
+int envLowTemp = 65; // current Lo for LR kick on at this var
 int envLowOffSet = 0;
 
-int boilerHighTemp = 975;
-int boilerLowTemp = 400;
+int boilerHighTemp = 975; // top temp for boiler
+int boilerLowTemp = 350; // bottom temp for boiler
 
-int waterHighTemp = 160;
-int waterLowTemp = 140;
+int waterHighTemp = 145; // hi water stop heating water. start pumping
+int waterLowTemp = 125; // lo temp. stop pumping and heat water
 
-int numTimesToAvgTempReads = 5; // count x times for temp avg
+int numTimesToAvgTempReads = 10; // count x times for temp avg
+
+int waterMaintHighTemp = 115; // 130 water temp for maint mode
+int waterMaintLowTemp = 105; // 120 water temp for maint mode
 
 
-int waterTempMaintMode = 130; // water temp for maint mode
-int MAX_WATER_TEMP = 180;
 
-unsigned long waterPreRunTime = 30000; // 30 sec // 120000; // 2 mins  240000; // 4mins
-unsigned long waterPreRunHold = 0;
+//
 
-int currentBoilerTemp = 0;
-int currentWaterTemp = 0;
-int currentEnvTemp = 0;
 
-bool callForHeatSignal = false;
+unsigned long waterMaintRunTime = 30000; // 30 sec= 30000// 1min=60000 //2min= 120000; // 4min=240,000; // 5min=300000
+unsigned long waterMaintSavedTime = 0;
+
+
+
+int currentBoilerTemp = 0; // global boiler temp updated by runMaintxx
+int currentWaterTemp = 0; // global water temp updated by runMaintxx
+int currentEnvTemp = 0; // global Env temp updated by runMaintxx
+
+
 
 // 30,000 = 30 seconds
 // 60,000 = 1 min
@@ -252,6 +261,7 @@ String displayFourLineThree = "x";
 //======================================================================================
 
 void waterPreRun();
+bool isMaintWaterRunTimeUp();
 auto getStatus(void)->String;
 void primePump();
 bool isFlameOut();
@@ -290,11 +300,12 @@ void turnOffWater();
 bool isWaterLowTempMet();
 void turnOnWater();
 int ambientTemp();
-void maintMode();
-bool isMaintWaterTempMet();
+void maintenanceMode();
+bool isMaintHighWaterTempMet();
 int calcBoilerTemp(); // func to calc avg blrTemp
 int calcWaterTemp();
 int calcEnvTemp();
+
 
 
 //
@@ -373,7 +384,7 @@ void setup()
 		// Port defaults to 3232
 	ArduinoOTA.setPort(3232);
 	ArduinoOTA.setHostname(hostName);
-
+//	ArduinoOTA.setHostname("ENDEAVOR_12");
 
 
 	ArduinoOTA
@@ -519,11 +530,20 @@ void opCycle()
 	runMaintenance();
 	updateDisplay();
 
-	while (!isEnvTempMet()) {
+	if (calcEnvTemp() > envLowTemp + envLowOffSet && calcEnvTemp() < envHighTemp + envHighOffSet) {
 		runMaintenance();
 		updateDisplay();
+		
+		maintenanceMode();
+	}
+	else {
 
-		heatTheHouse();
+		while (!isEnvTempMet()) {
+			runMaintenance();
+			updateDisplay();
+
+			heatTheHouse();
+		}
 	}
 	turnOffWater();
 	turnOffBoiler();
@@ -594,25 +614,36 @@ void heatTheHouse()
 	turnOffWater();
 }
 
+// Temp met for maint mode HIGH
+bool isMaintHighWaterTempMet() {
 
-bool isMaintWaterTempMet() {
-
-	if (calcWaterTemp() >= waterTempMaintMode) return true;
+	if (calcWaterTemp() >= waterMaintHighTemp) return true;
 	return false;
-
 }
 
-void maintMode()
+
+// Temp met for maint mode LOWS
+bool isMaintLowWaterTempMet() {
+
+	if (calcWaterTemp() <= waterMaintLowTemp) return true;
+	return false;
+}
+
+// Keep water/house @waterMaintHighTemp to try avoid call for heat
+void maintenanceMode()      
 {
 	runMaintenance();
 	updateDisplay();
 
-	// Start fcrom the begining
+	// Start from the beginning
 	turnOffWater();
 	turnOffBoiler();
 
+	if (callForHeatActive) return;
+
+	
 	// let's start
-	while (!isMaintWaterTempMet())
+	while (!isMaintHighWaterTempMet())
 	{
 		runMaintenance();
 		updateDisplay();
@@ -620,21 +651,20 @@ void maintMode()
 		// FIRE
 		// fire the boiler until we reach the highest temp (boilerHighTemp) and water on met
 
-		while (calcBoilerTemp(dowc <= boilerHighTemp && !isMaintWaterTempMet())
+		while (calcBoilerTemp() <= boilerHighTemp && !isMaintHighWaterTempMet())    //$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 		{
 			runMaintenance();
 			updateDisplay();
 
 			turnOnBoiler();
-
 		}
 		turnOffBoiler();
 
 
-		// COOL
+		// COOL DOWN
 		// now let it cool down while still heating the water
 
-		while (calcBoilerTemp() >= boilerLowTemp && !isMaintWaterTempMet())
+		while (calcBoilerTemp() >= boilerLowTemp && !isMaintHighWaterTempMet())
 		{
 			runMaintenance();
 			updateDisplay();
@@ -644,6 +674,31 @@ void maintMode()
 	}
 	turnOffBoiler();
 
+	// Pump water
+	// pump water until low temp
+	while (!isMaintLowWaterTempMet())
+	{
+		runMaintenance();
+		updateDisplay();
+		
+		turnOnWater();
+	}
+	turnOffWater();
+	
+	
+}
+
+bool isMaintWaterRunTimeUp() {
+
+	ArduinoOTA.handle();
+
+	unsigned long currentTime = millis();
+
+	if (currentTime - waterMaintSavedTime >= waterMaintRunTime) {
+		waterMaintSavedTime = currentTime;
+		return true;
+	}
+	return false;	
 }
 
 
@@ -763,8 +818,8 @@ void updateDisplay()
 	*/
 
 	displayOneLineOne = "UP: " + String((millis() - startUpTime) / 1000);
-	displayOneLineTwo = "B: " + String((int) boilerTC.getThermocoupleTemp(false)) + " |W: " + String((int) waterTC.getThermocoupleTemp(false));
-	displayOneLineThree = "E: " + String((int)envTC.getThermocoupleTemp(false));
+	displayOneLineTwo = "B: " + String(currentBoilerTemp) + " |W: " + String(currentWaterTemp);
+	displayOneLineThree = "E: " + String(currentEnvTemp) + " xxxx ";
 
 
 	// Display 1
