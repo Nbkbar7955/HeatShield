@@ -13,6 +13,8 @@
 			12/18/2024 20:00
 			12/19/2024 00:30
 			12/20/2024 23:30
+			12/21/2024 13:00
+
 
 
 
@@ -85,9 +87,9 @@ bool callForHeatSignal = false; // not sure
 
 int MAX_WATER_TEMP = 170; // MAX Wtr temp. Shutdown if met or exceeded
 
-int envHighTemp = 69; // 69 current Hi for LR temp
+int envHighTemp = 70; // 69 current Hi for LR temp
 int envHighOffSet = 0; // used to adjust theermocouple readi
-int envLowTemp = 66; // 65 current Lo for LR kick on at this var
+int envLowTemp = 67; // 65 current Lo for LR kick on at this var
 int envLowOffSet = 0;
 
 int boilerHighTemp = 975; // 975 top temp for boiler
