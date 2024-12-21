@@ -83,17 +83,17 @@ bool callForHeatActive = false; // will be coded aft thermost installed
 bool callForHeatSignal = false; // not sure
 
 
-int MAX_WATER_TEMP = 180; // MAX Wtr temp. Shutdown if met or exceeded
+int MAX_WATER_TEMP = 170; // MAX Wtr temp. Shutdown if met or exceeded
 
 int envHighTemp = 69; // 69 current Hi for LR temp
 int envHighOffSet = 0; // used to adjust theermocouple readi
-int envLowTemp = 65; // 65 current Lo for LR kick on at this var
+int envLowTemp = 66; // 65 current Lo for LR kick on at this var
 int envLowOffSet = 0;
 
 int boilerHighTemp = 975; // 975 top temp for boiler
 int boilerLowTemp = 350; // 350 bottom temp for boiler
 
-int waterHighTemp = 145; // 145 hi water stop heating water. start pumping
+int waterHighTemp = 140; // 145 hi water stop heating water. start pumping
 int waterLowTemp = 125; // 125 lo temp. stop pumping and heat water
 
 int numTimesToAvgTempReads = 10; // count x times for temp avg
@@ -531,13 +531,13 @@ void opCycle()
 	runMaintenance();
 	updateDisplay();
 
-	if (calcEnvTemp() > envLowTemp + envLowOffSet && calcEnvTemp() < envHighTemp + envHighOffSet) {
-		runMaintenance();
-		updateDisplay();
-		
-		maintenanceMode();
-	}
-	else {
+	//if (calcEnvTemp() > envLowTemp + envLowOffSet && calcEnvTemp() < envHighTemp + envHighOffSet) {
+	//	runMaintenance();
+	//	updateDisplay();
+	//	
+	//	maintenanceMode();
+	//}
+	//else {
 
 		while (!isEnvTempMet()) {
 			runMaintenance();
@@ -545,7 +545,7 @@ void opCycle()
 
 			heatTheHouse();
 		}
-	}
+	//}
 	turnOffWater();
 	turnOffBoiler();
 }
@@ -636,7 +636,7 @@ void maintenanceMode()
 	runMaintenance();
 	updateDisplay();
 
-	turnOnWater();$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+	turnOnWater();// $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 	
 
 	// Start from the beginning
