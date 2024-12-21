@@ -12,6 +12,7 @@
 			12/16/2024 23:00
 			12/18/2024 20:00
 			12/19/2024 00:30
+			12/20/2024 23:30
 
 
 
@@ -84,21 +85,21 @@ bool callForHeatSignal = false; // not sure
 
 int MAX_WATER_TEMP = 180; // MAX Wtr temp. Shutdown if met or exceeded
 
-int envHighTemp = 69; // current Hi for LR temp
+int envHighTemp = 69; // 69 current Hi for LR temp
 int envHighOffSet = 0; // used to adjust theermocouple readi
-int envLowTemp = 65; // current Lo for LR kick on at this var
+int envLowTemp = 65; // 65 current Lo for LR kick on at this var
 int envLowOffSet = 0;
 
-int boilerHighTemp = 975; // top temp for boiler
-int boilerLowTemp = 350; // bottom temp for boiler
+int boilerHighTemp = 975; // 975 top temp for boiler
+int boilerLowTemp = 350; // 350 bottom temp for boiler
 
-int waterHighTemp = 145; // hi water stop heating water. start pumping
-int waterLowTemp = 125; // lo temp. stop pumping and heat water
+int waterHighTemp = 145; // 145 hi water stop heating water. start pumping
+int waterLowTemp = 125; // 125 lo temp. stop pumping and heat water
 
 int numTimesToAvgTempReads = 10; // count x times for temp avg
 
-int waterMaintHighTemp = 115; // 130 water temp for maint mode
-int waterMaintLowTemp = 105; // 120 water temp for maint mode
+int waterMaintHighTemp = 115; // 115 water temp for maint mode
+int waterMaintLowTemp = 105; // 105 water temp for maint mode
 
 
 
@@ -635,11 +636,14 @@ void maintenanceMode()
 	runMaintenance();
 	updateDisplay();
 
+	turnOnWater();$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+	
+
 	// Start from the beginning
 	turnOffWater();
 	turnOffBoiler();
 
-	if (callForHeatActive) return;
+	//if (callForHeatActive) return;
 
 	
 	// let's start
