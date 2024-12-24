@@ -84,6 +84,7 @@ uint8_t OFF = 0x1;
 
 
 String runMode = "+1";
+int rmodeCount = 0;
 
 bool callForHeatActive = false; // will be coded aft thermost installed
 bool callForHeatSignal = false; // not sure
@@ -92,10 +93,10 @@ bool callForHeatSignal = false; // not sure
 int MAX_WATER_TEMP = 165; // 165 +/- MAX Wtr temp. Shutdown if met or exceeded
 int MIN_WATER_TEMP = 115; // 115 MIN +/- 1 if not met then heat back up
 
-int envHighTemp = 72; // 72 current Hi for LR temp
+int envHighTemp = 70; // 70 current Hi for LR temp
 int envHighOffSet = 0; // 0 used to adjust theermocouple readi
 
-int envLowTemp = 70; // 70  current Lo for LR kick on at this var
+int envLowTemp = 67; // 70  current Lo for LR kick on at this var
 int envLowOffSet = 0; // 0 offset for testing
 
 int boilerHighTemp = 975; // 975 top temp for boiler
@@ -953,7 +954,8 @@ void runMaintenance()
 	currentEnvTemp = (int)envTC.getThermocoupleTemp(false);
 	delay(20);
 
-	safetyCheck();
+
+	//safetyCheck();
 	blink();
 
 }
@@ -974,7 +976,6 @@ void runSingleHeatCycle(int setPoint) {
 	if (setPoint <= 0) setPoint = waterLowTemp;
 	if (currentWaterTemp >= setPoint) return;
 
-
 	// Start from the beginning
 	turnOffWater();
 	turnOffBoiler();
@@ -982,28 +983,27 @@ void runSingleHeatCycle(int setPoint) {
 	// let's start
 	while (currentWaterTemp <= setPoint)
 	{
+
 		runMaintenance();
 		updateDisplay();
 
-		// FIRE
-		// fire the boiler until we reach the (setPoint) Temp passed 
-
+		// heat up
 		while (currentBoilerTemp <= boilerHighTemp)
 		{
+
 			runMaintenance();
 			updateDisplay();
+
 			turnOnBoiler();
 		}
 		turnOffBoiler();
 
-
-		// COOL DOWN
-		// now let it cool down while still heating the water
-
+		// cool down
 		while (currentBoilerTemp >= boilerLowTemp)
 		{
 			runMaintenance();
 			updateDisplay();
+
 			turnOffBoiler();
 		}
 		turnOffBoiler();
@@ -1041,11 +1041,13 @@ int calcEnvTemp()
 void safetyCheck()
 {
 	ArduinoOTA.handle();
+	runMode = 6.3;
 
 	if (currentWaterTemp >= MAX_WATER_TEMP) disableEndeavor();
 	if (calcWaterTemp() >= MAX_WATER_TEMP) disableEndeavor();
-	if (waterTC.getThermocoupleTemp(false) >= (float)MAX_WATER_TEMP) disableEndeavor();
+	if ((int)waterTC.getThermocoupleTemp(false) >= MAX_WATER_TEMP) disableEndeavor();
 
+	runMode = 6.4;
 
 }
 
@@ -1072,14 +1074,11 @@ unsigned long cycleInterval = 1500;
 
 bool testCycle() // BOOKMARK
 {
-	runMaintenance();
-	updateDisplay();
-
-
-
 
 	runMaintenance();
 	updateDisplay();
+
+	runSingleHeatCycle(0);
 
 	return true;
 }
