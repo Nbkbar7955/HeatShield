@@ -84,7 +84,7 @@ uint8_t OFF = 0x1;
 //======================================================================================
 
 
-String runMode = "1";
+String runMode = "0";
 int rmodeCount = 0;
 
 bool callForHeatActive = false; // will be coded aft thermost installed
@@ -94,17 +94,24 @@ bool callForHeatSignal = false; // not sure
 int MAX_WATER_TEMP = 165; // 165 MAX Wtr temp. Shutdown if met or exceeded
 int MIN_WATER_TEMP = 100; // 100 MIN +/- 1 if not met then heat back up
 
-int envHighTemp = 68; // 68 (69) current Hi for LR temp
+int envHighTemp = 68; // 68 current Hi for LR temp
 int envHighOffSet = 0; // 0 used to adjust theermocouple readi
 
-int envLowTemp = 65; // 65 (66)  current Lo for LR kick on at this var
+int envLowTemp = 64; // 64 current Lo for LR kick on at this var
 int envLowOffSet = 0; // 0 offset for testing
 
 int boilerHighTemp = 975; // 975 top temp for boiler
 int boilerLowTemp = 375; // 375 bottom temp for boiler
 
-int waterHighTemp = 130; // 120 hi water stop heating water. start pumping
-int waterLowTemp = 120; // 110 lo temp. stop pumping and heat water
+int waterHighTemp = 130; // 130 hi water stop heating water. start pumping
+int waterLowTemp = 120; // 120 lo temp. stop pumping and heat water
+
+
+
+
+
+
+
 
 int waterMaintHighTemp = 125; // 125 water temp for maint mode
 int waterMaintLowTemp = 115; // 115 water temp for maint mode
@@ -123,6 +130,8 @@ String boilerStatus = "";
 String waterStatus = "";
 String valveStatus = "";
 String callForHeatStatus = "";
+
+bool satisfyCallForHeat = false;
 
 
 
@@ -561,7 +570,7 @@ void heatTheHouse()
 	runMode = "2";
 	updateDisplay();
 
-	while (callForHeatActive)
+	while (!satisfyCallForHeat)
 	{
 		runMaintenance();
 		runMode = "2.1";
@@ -570,20 +579,21 @@ void heatTheHouse()
 		while (currentWaterTemp < waterHighTemp)
 		{
 			runMaintenance();
-			runMode = "3";
+			runMode = "2.2";
 			updateDisplay();
 
 			boilerCycle();
 		}
+
 		while (currentWaterTemp > waterLowTemp)
 		{
 			runMaintenance();
-			runMode = "4";
+			runMode = "2.3";
 			updateDisplay();
 
 			runWaterCycle();
 		}
-		callForHeatActive = isCallForHeat();
+		if (isNeedForHeatSatisfied()) satisfyCallForHeat = true;
 	}
 }
 
@@ -592,13 +602,17 @@ void boilerCycle()
 	runMaintenance();
 	updateDisplay();
 
-	while (callForHeatActive)
+	while (!satisfyCallForHeat)
 	{
+		runMaintenance();
+		runMode = "3.1";
+		updateDisplay();
+
 		// HEAT boiler
 		while (currentBoilerTemp < boilerHighTemp)
 		{
 			runMaintenance();
-			runMode = "3.1";
+			runMode = "3.2";
 			updateDisplay();
 
 			if (currentWaterTemp > waterHighTemp) break;
@@ -610,15 +624,13 @@ void boilerCycle()
 		while (currentBoilerTemp > boilerLowTemp)
 		{
 			runMaintenance();
-			runMode = "3.2";
+			runMode = "3.3";
 			updateDisplay();
 
 			if (currentWaterTemp > waterHighTemp) break;
 			turnOffBoiler();
 		}
 		turnOffBoiler();
-
-		callForHeatActive = isCallForHeat();
 	}
 }
 
@@ -627,17 +639,22 @@ void runWaterCycle()
 	runMaintenance();
 	updateDisplay();
 
-	while ((currentWaterTemp > waterLowTemp) && callForHeatActive)
+	while (!satisfyCallForHeat)
 	{
 		runMaintenance();
 		runMode = "4.1";
 		updateDisplay();
 
-		turnOnWater();
+		while (currentWaterTemp > waterLowTemp)
+		{
+			runMaintenance();
+			runMode = "4.2";
+			updateDisplay();
 
-		callForHeatActive = isCallForHeat();
+			turnOnWater();
+		}
+		turnOffWater();
 	}
-	turnOffWater();
 }
 
 	
@@ -653,6 +670,7 @@ bool isCallForHeat()
 	if (callForHeatActive)
 	{
 		callForHeatStatus = "H+ ";
+		satisfyCallForHeat = false;
 	}
 	else
 	{
@@ -660,6 +678,16 @@ bool isCallForHeat()
 	}
 	
 	return callForHeatActive;
+}
+
+bool isEnvTempMet() {
+
+	runMaintenance();
+	updateDisplay();
+
+	if ((currentEnvTemp > envLowTemp) && (currentEnvTemp < envHighTemp)) return true;
+	return false;
+
 }
 
 bool isNeedForHeat()
@@ -683,14 +711,7 @@ bool isNeedForHeatSatisfied()
 
 }
 
-bool isEnvTempMet() {
 
-	runMaintenance();
-	updateDisplay();
-
-	if (currentEnvTemp > (envHighTemp - 1) && currentEnvTemp > (envLowTemp + 1)) return true;
-	return false;
-}
 
 // Temp met for maint mode HIGH
 bool isMaintHighWaterTempMet() {
@@ -799,12 +820,12 @@ void thirtySecondWaterPush()
 	for (int ndx = 0; ndx < numTimes; ndx++)
 	{
 		runMaintenance();
-		runMode = "5.1";
+		runMode = "8.1";
 		updateDisplay();
 
 		turnOnWater();
 		delay(delayTime);
-		runMode = "5.2";
+		runMode = "8.2";
 		updateDisplay();
 	}
 	turnOffWater();
@@ -815,7 +836,7 @@ void thirtySecondWaterPush()
 void fiveMinWaterPush()
 {
 	runMaintenance();
-	runMode = "4";
+	runMode = "7";
 	updateDisplay();
 	return;
 
