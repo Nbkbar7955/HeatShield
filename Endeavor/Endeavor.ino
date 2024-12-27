@@ -601,6 +601,7 @@ void heatTheHouse()
 void boilerCycle()
 {
 	runMaintenance();
+	runMode = "3";
 	updateDisplay();
 
 	while (callForHeatActive)
@@ -638,6 +639,7 @@ void boilerCycle()
 void runWaterCycle()
 {
 	runMaintenance();
+	runMode = "4";
 	updateDisplay();
 
 	while (callForHeatActive)
