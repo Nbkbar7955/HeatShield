@@ -98,7 +98,7 @@ int MIN_WATER_TEMP = 100; // 100 MIN +/- 1 if not met then heat back up
 int envHighTemp = 68; // 68 current Hi for LR temp
 int envHighOffSet = 0; // 0 used to adjust theermocouple readi
 
-int envLowTemp = 67; // 67 current Lo for LR kick on at this var
+int envLowTemp = 65; // 64 current Lo for LR kick on at this var
 int envLowOffSet = 0; // 0 offset for testing
 
 int boilerHighTemp = 975; // 975 top temp for boiler
