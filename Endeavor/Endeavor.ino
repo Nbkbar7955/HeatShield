@@ -94,17 +94,17 @@ bool callForHeatSignal = false; // not sure
 int MAX_WATER_TEMP = 165; // 165 MAX Wtr temp. Shutdown if met or exceeded
 int MIN_WATER_TEMP = 100; // 100 MIN +/- 1 if not met then heat back up
 
-int envHighTemp = 68; // 68 current Hi for LR temp
+int envHighTemp = 69; // 69 current Hi for LR temp
 int envHighOffSet = 0; // 0 used to adjust theermocouple readi
 
-int envLowTemp = 65; // 64 current Lo for LR kick on at this var
+int envLowTemp = 67; // 67 current Lo for LR kick on at this var
 int envLowOffSet = 0; // 0 offset for testing
 
 int boilerHighTemp = 975; // 975 top temp for boiler
-int boilerLowTemp = 375; // 375 bottom temp for boiler
+int boilerLowTemp = 400; // 400 bottom temp for boiler
 
-int waterHighTemp = 130; // 130 hi water stop heating water. start pumping
-int waterLowTemp = 120; // 120 lo temp. stop pumping and heat water
+int waterHighTemp = 135; // 130 hi water stop heating water. start pumping
+int waterLowTemp = 125; // 120 lo temp. stop pumping and heat water
 
 
 
