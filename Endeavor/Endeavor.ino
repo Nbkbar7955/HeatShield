@@ -17,6 +17,7 @@
 			12/21/2024 13:30
 			12/22/2024 14:00
 			12/23/2024 12:30
+			12/27/2024 06:00
 
 
 
@@ -94,10 +95,10 @@ bool callForHeatSignal = false; // not sure
 int MAX_WATER_TEMP = 165; // 165 MAX Wtr temp. Shutdown if met or exceeded
 int MIN_WATER_TEMP = 100; // 100 MIN +/- 1 if not met then heat back up
 
-int envHighTemp = 68; // 68 current Hi for LR temp
+int envHighTemp = 69; // 68 current Hi for LR temp
 int envHighOffSet = 0; // 0 used to adjust theermocouple readi
 
-int envLowTemp = 65; // 64 current Lo for LR kick on at this var
+int envLowTemp = 65; // 65 current Lo for LR kick on at this var
 int envLowOffSet = 0; // 0 offset for testing
 
 int boilerHighTemp = 975; // 975 top temp for boiler
@@ -335,7 +336,7 @@ void boilerCycle();
 String spin();
 void turnOnValve();
 void turnOffValve();
-bool isNeedForHeatSatisfied();
+bool isCallForHeatSatisfied();
 bool isNeedForHeat();
 
 
@@ -593,7 +594,7 @@ void heatTheHouse()
 
 			runWaterCycle();
 		}
-		if (isNeedForHeatSatisfied()) satisfyCallForHeat = true;
+		if (isCallForHeatSatisfied()) satisfyCallForHeat = true;
 	}
 }
 
@@ -602,7 +603,7 @@ void boilerCycle()
 	runMaintenance();
 	updateDisplay();
 
-	while (!satisfyCallForHeat)
+	while (callForHeatActive)
 	{
 		runMaintenance();
 		runMode = "3.1";
@@ -639,7 +640,7 @@ void runWaterCycle()
 	runMaintenance();
 	updateDisplay();
 
-	while (!satisfyCallForHeat)
+	while (callForHeatActive)
 	{
 		runMaintenance();
 		runMode = "4.1";
@@ -670,7 +671,6 @@ bool isCallForHeat()
 	if (callForHeatActive)
 	{
 		callForHeatStatus = "H+ ";
-		satisfyCallForHeat = false;
 	}
 	else
 	{
@@ -685,7 +685,7 @@ bool isEnvTempMet() {
 	runMaintenance();
 	updateDisplay();
 
-	if ((currentEnvTemp > envLowTemp) && (currentEnvTemp < envHighTemp)) return true;
+	if (currentEnvTemp > envLowTemp) return true;
 	return false;
 
 }
@@ -701,12 +701,12 @@ bool isNeedForHeat()
 
 }
 
-bool isNeedForHeatSatisfied()
+bool isCallForHeatSatisfied()
 {
 	runMaintenance();
 	updateDisplay();
 
-	if (currentEnvTemp > envHighTemp) return true;
+	if (currentEnvTemp > envHighTemp + 1) return true;
 	return false;
 
 }
@@ -1024,7 +1024,7 @@ void updateDisplay()
 	*/
 
 	////displayOneLineOne = "M: " + String(runMode) + "|" + String((millis() - startUpTime) / 1000);
-	displayOneLineOne = spin() + " : " + String(runMode);// +"|" + String((millis() - startUpTime) / 1000);
+	displayOneLineOne = spin() + " : " + String(runMode);    // +"|" + String((millis() - startUpTime) / 1000);
 	displayOneLineTwo = "B " + String(currentBoilerTemp) + ":W " + String(currentWaterTemp) + ":E " + String(currentEnvTemp);
 	//displayOneLineThree = getStatus();  //"E:" + String(currentEnvTemp) + "|0123456789";
 
