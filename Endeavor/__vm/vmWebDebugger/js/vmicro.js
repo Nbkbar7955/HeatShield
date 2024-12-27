@@ -646,7 +646,7 @@ function onMessage(evt) {
                                     if ($("#" + pinRowId).length == 0) {
                                         var pinRow = document.createElement("div");
                                         pinRow.id = pinRowId;
-                                        pinRow.className = "row digiPins";
+										pinRow.className = "row digiPins";
                                         document.getElementById("digitalPins").appendChild(pinRow);
                                         $('#digitalPinsCard').show();
                                     }
@@ -662,11 +662,13 @@ function onMessage(evt) {
                                     if (bytes[b][tb] == "1") {
                                         $("#digitalPins_" + pinNum).html(pinNum + ": ON  ");
                                         $("#digitalPins_" + pinNum).removeClass("bg-light");
-                                        $("#digitalPins_" + pinNum).addClass("bg-success");                                        
+										$("#digitalPins_" + pinNum).addClass("bg-success");
+										$("#digitalPins_" + pinNum).click(function () { sendDigitalPinState(ports.length - 1, pinNum, 0); });
                                     } else {
                                         $("#digitalPins_" + pinNum).html(pinNum + ": OFF");
                                         $("#digitalPins_" + pinNum).removeClass("bg-success");
-                                        $("#digitalPins_" + pinNum).addClass("bg-light");
+										$("#digitalPins_" + pinNum).addClass("bg-light");
+										$("#digitalPins_" + pinNum).click(function () { sendDigitalPinState(ports.length - 1, pinNum, 1); });
                                     }
                                     hasDigiData = true;
                                 }
@@ -1046,6 +1048,11 @@ function sendDebugDataValue(el, portId) {
 
 function sendMessage(portId, message) {
     ports[portId].WEBSOCKET.send(message);
+}
+
+// pinNum 0-maxDigiPin, newState either 0 or 1
+function sendDigitalPinState(portId, pinNum, newState) {
+	ports[portId].WEBSOCKET.send("d" + pinNum.toString() + ":" + newState.toString());
 }
 
 function writeToScreen(message, color) {
