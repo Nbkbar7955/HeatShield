@@ -18,6 +18,7 @@
 			12/22/2024 14:00
 			12/23/2024 12:30
 			01/05/2025 18:25
+			01/05/2025 18:36
 
 
 
@@ -91,8 +92,8 @@ int rmodeCount = 0;
 bool callForHeatActive = false; // will be coded aft thermost installed
 
 
-int MAX_WATER_TEMP = 165; // 165 MAX Wtr temp. Shutdown if met or exceeded
-int MIN_WATER_TEMP = 100; // 100 MIN +/- 1 if not met then heat back up
+int MAX_WATER_TEMP = 175; // 165 MAX Wtr temp. Shutdown if met or exceeded
+int MIN_WATER_TEMP = 125; // 100 MIN +/- 1 if not met then heat back up
 
 int envHighTemp = 69; // 69 current Hi for LR temp
 int envHighOffSet = 0; // 0 used to adjust theermocouple readi
@@ -103,8 +104,8 @@ int envLowOffSet = 0; // 0 offset for testing
 int boilerHighTemp = 975; // 975 top temp for boiler
 int boilerLowTemp = 400; // 400 bottom temp for boiler
 
-int waterHighTemp = 135; // 130 hi water stop heating water. start pumping
-int waterLowTemp = 125; // 120 lo temp. stop pumping and heat water
+int waterHighTemp = 155; // 130 hi water stop heating water. start pumping
+int waterLowTemp = 140; // 120 lo temp. stop pumping and heat water
 
 
 
