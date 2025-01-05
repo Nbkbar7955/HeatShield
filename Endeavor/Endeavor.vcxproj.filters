@@ -122,9 +122,6 @@
     <ClInclude Include="resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="__vm\.Endeavor.vsarduino.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\AppData\Local\Arduino15\packages\esp32\hardware\esp32\2.0.11\cores\esp32\Arduino.h">
       <Filter>src\_micro-api-readonly\core</Filter>
     </ClInclude>
@@ -406,6 +403,9 @@
     </ClInclude>
     <ClInclude Include="..\..\..\..\Documents\Arduino\libraries\Adafruit_BusIO\Adafruit_SPIDevice.h">
       <Filter>src\_micro-api-readonly\libraries\Adafruit_BusIO</Filter>
+    </ClInclude>
+    <ClInclude Include="__vm\.Endeavor.vsarduino.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
