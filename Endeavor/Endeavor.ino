@@ -17,12 +17,12 @@
 			12/21/2024 13:30
 			12/22/2024 14:00
 			12/23/2024 12:30
-			12/27/2024 06:45
+			01/05/2025 17:30
 
 
 
  Author:	David Wilson
- 
+
 
  version:	0.8.071
  ignore for now
@@ -89,7 +89,6 @@ String runMode = "0";
 int rmodeCount = 0;
 
 bool callForHeatActive = false; // will be coded aft thermost installed
-bool callForHeatSignal = false; // not sure
 
 
 int MAX_WATER_TEMP = 165; // 165 MAX Wtr temp. Shutdown if met or exceeded
@@ -102,10 +101,10 @@ int envLowTemp = 67; // 67 current Lo for LR kick on at this var
 int envLowOffSet = 0; // 0 offset for testing
 
 int boilerHighTemp = 975; // 975 top temp for boiler
-int boilerLowTemp = 400; // 375 bottom temp for boiler
+int boilerLowTemp = 400; // 400 bottom temp for boiler
 
-int waterHighTemp = 130; // 130 hi water stop heating water. start pumping
-int waterLowTemp = 120; // 120 lo temp. stop pumping and heat water
+int waterHighTemp = 135; // 130 hi water stop heating water. start pumping
+int waterLowTemp = 125; // 120 lo temp. stop pumping and heat water
 
 
 
@@ -336,7 +335,7 @@ void boilerCycle();
 String spin();
 void turnOnValve();
 void turnOffValve();
-bool isCallForHeatSatisfied();
+bool isNeedForHeatSatisfied();
 bool isNeedForHeat();
 
 
@@ -356,9 +355,9 @@ Preferences preferences;
 void setup()
 {
 
-	  //======================================================================================
-	  // time  Var Inits
-	  //======================================================================================	
+	//======================================================================================
+	// time  Var Inits
+	//======================================================================================	
 
 	startUpTime = millis(); // blink()
 
@@ -378,7 +377,7 @@ void setup()
 	//======================================================================================
 	// Thermocouple Init
 	//======================================================================================
-	 
+
 	waterTC.begin(0x065);   // 65 blue water  
 	boilerTC.begin(0x60); // 60// yellow boiler
 	envTC.begin(0x064); // 64 bare Env
@@ -461,51 +460,51 @@ void setup()
 
 
 
-		// ************************************
-		//pinMode(yellowRelay, OUTPUT); // o PIN 27
-		//digitalWrite(yellowRelay, LOW);
-		// ************************************
+					// ************************************
+					//pinMode(yellowRelay, OUTPUT); // o PIN 27
+					//digitalWrite(yellowRelay, LOW);
+					// ************************************
 
 
 
-		pinMode(standbyRelay, OUTPUT);
-		digitalWrite(standbyRelay, OFF);
+					pinMode(standbyRelay, OUTPUT);
+					digitalWrite(standbyRelay, OFF);
 
-		pinMode(zoneTwoRelay, OUTPUT); // o PIN 18
-		digitalWrite(zoneTwoRelay, OFF);
+					pinMode(zoneTwoRelay, OUTPUT); // o PIN 18
+					digitalWrite(zoneTwoRelay, OFF);
 
-		pinMode(PB1, INPUT); // i PIN 34
-		pinMode(PB1, INPUT_PULLDOWN);
-		digitalWrite(PB1, OFF);
+					pinMode(PB1, INPUT); // i PIN 34
+					pinMode(PB1, INPUT_PULLDOWN);
+					digitalWrite(PB1, OFF);
 
-		pinMode(PB2, INPUT); // i PIN 35
-		pinMode(PB2, INPUT_PULLDOWN);
-		digitalWrite(PB2, OFF);
+					pinMode(PB2, INPUT); // i PIN 35
+					pinMode(PB2, INPUT_PULLDOWN);
+					digitalWrite(PB2, OFF);
 
-		pinMode(PB3, INPUT); // i PIN 36
-		pinMode(PB3, INPUT_PULLDOWN);
-		digitalWrite(PB3, OFF);
+					pinMode(PB3, INPUT); // i PIN 36
+					pinMode(PB3, INPUT_PULLDOWN);
+					digitalWrite(PB3, OFF);
 
-		pinMode(PB4, INPUT); // i PIN 39
-		pinMode(PB4, INPUT_PULLDOWN);
-		digitalWrite(PB4, OFF);
+					pinMode(PB4, INPUT); // i PIN 39
+					pinMode(PB4, INPUT_PULLDOWN);
+					digitalWrite(PB4, OFF);
 
-		pinMode(processorLED, OUTPUT);
-		digitalWrite(processorLED, OFF);
+					pinMode(processorLED, OUTPUT);
+					digitalWrite(processorLED, OFF);
 
-		pinMode(callForHeat, INPUT); // i PIN 4
-		pinMode(callForHeat, INPUT_PULLDOWN);
-		digitalWrite(callForHeat, OFF);
+					pinMode(callForHeat, INPUT); // i PIN 4
+					pinMode(callForHeat, INPUT_PULLDOWN);
+					digitalWrite(callForHeat, OFF);
 
-		pinMode(speaker, OUTPUT); // o PIN 25
-		digitalWrite(speaker, OFF);
+					pinMode(speaker, OUTPUT); // o PIN 25
+					digitalWrite(speaker, OFF);
 
 
-		pinMode(waterRelay, OUTPUT); // o PIN 26
-		digitalWrite(waterRelay, OFF);
+					pinMode(waterRelay, OUTPUT); // o PIN 26
+					digitalWrite(waterRelay, OFF);
 
-		pinMode(burnerRelay, OUTPUT); // o PIN 27
-		digitalWrite(burnerRelay, OFF);
+					pinMode(burnerRelay, OUTPUT); // o PIN 27
+					digitalWrite(burnerRelay, OFF);
 }
 
 //======================================================================================
@@ -539,7 +538,7 @@ bool TestMode = false;
 
 void loop()
 {
-	
+
 	turnOnValve();
 
 	runMaintenance();
@@ -571,7 +570,7 @@ void heatTheHouse()
 	runMode = "2";
 	updateDisplay();
 
-	while (!satisfyCallForHeat)
+	while (callForHeatActive)
 	{
 		runMaintenance();
 		runMode = "2.1";
@@ -594,14 +593,13 @@ void heatTheHouse()
 
 			runWaterCycle();
 		}
-		if (isCallForHeatSatisfied()) satisfyCallForHeat = true;
+		if (isNeedForHeatSatisfied()) satisfyCallForHeat = true;
 	}
 }
 
 void boilerCycle()
 {
 	runMaintenance();
-	runMode = "3";
 	updateDisplay();
 
 	while (callForHeatActive)
@@ -639,7 +637,6 @@ void boilerCycle()
 void runWaterCycle()
 {
 	runMaintenance();
-	runMode = "4";
 	updateDisplay();
 
 	while (callForHeatActive)
@@ -660,25 +657,28 @@ void runWaterCycle()
 	}
 }
 
-	
-	
+
+
 
 bool isCallForHeat()
 {
-	runMaintenance();
+	ArduinoOTA.handle();
 	updateDisplay();
 
-	callForHeatActive = !isEnvTempMet(); // || digitalRead(callForHeat);
+	callForHeatActive = digitalRead(callForHeat);
+	//callForHeatActive = !isEnvTempMet(); // || digitalRead(callForHeat);
 
 	if (callForHeatActive)
 	{
 		callForHeatStatus = "H+ ";
+		satisfyCallForHeat = false;
 	}
 	else
 	{
 		callForHeatStatus = "H- ";
+		satisfyCallForHeat = true;
 	}
-	
+
 	return callForHeatActive;
 }
 
@@ -687,7 +687,7 @@ bool isEnvTempMet() {
 	runMaintenance();
 	updateDisplay();
 
-	if (currentEnvTemp > envLowTemp) return true;
+	if ((currentEnvTemp > envLowTemp) && (currentEnvTemp < envHighTemp)) return true;
 	return false;
 
 }
@@ -703,12 +703,12 @@ bool isNeedForHeat()
 
 }
 
-bool isCallForHeatSatisfied()
+bool isNeedForHeatSatisfied()
 {
 	runMaintenance();
 	updateDisplay();
 
-	if (currentEnvTemp > envHighTemp + 1) return true;
+	if (currentEnvTemp > envHighTemp) return true;
 	return false;
 
 }
@@ -737,7 +737,7 @@ bool isMaintLowWaterTempMet() {
 }
 
 // Keep water/house @waterMaintHighTemp to try avoid call for heat
-void maintenanceMode()      
+void maintenanceMode()
 {
 	runMaintenance();
 	updateDisplay();
@@ -748,7 +748,7 @@ void maintenanceMode()
 
 	//if (callForHeatActive) return;
 
-	
+
 	// let's start
 	while (!isMaintHighWaterTempMet())
 	{
@@ -758,7 +758,7 @@ void maintenanceMode()
 		// FIRE
 		// fire the boiler until we reach the highest temp (boilerHighTemp) and water on met
 
-		while (currentBoilerTemp < boilerHighTemp && !isMaintHighWaterTempMet())    
+		while (currentBoilerTemp < boilerHighTemp && !isMaintHighWaterTempMet())
 		{
 			runMaintenance();
 			updateDisplay();
@@ -787,12 +787,12 @@ void maintenanceMode()
 	{
 		runMaintenance();
 		updateDisplay();
-		
+
 		turnOnWater();
 	}
 	turnOffWater();
-	
-	
+
+
 }
 
 void pushHeat()
@@ -855,7 +855,7 @@ bool isMaintWaterRunTimeUp() {
 		waterMaintSavedTime = currentTime;
 		return true;
 	}
-	return false;	
+	return false;
 }
 
 
@@ -1026,14 +1026,14 @@ void updateDisplay()
 	*/
 
 	////displayOneLineOne = "M: " + String(runMode) + "|" + String((millis() - startUpTime) / 1000);
-	displayOneLineOne = spin() + " : " + String(runMode);    // +"|" + String((millis() - startUpTime) / 1000);
+	displayOneLineOne = spin() + " : " + String(runMode);// +"|" + String((millis() - startUpTime) / 1000);
 	displayOneLineTwo = "B " + String(currentBoilerTemp) + ":W " + String(currentWaterTemp) + ":E " + String(currentEnvTemp);
 	//displayOneLineThree = getStatus();  //"E:" + String(currentEnvTemp) + "|0123456789";
 
 
 	//displayOneLineOne = "line one";
 	//displayOneLineTwo = "line two";
-	displayOneLineThree = " -> " + callForHeatStatus;
+	displayOneLineThree = callForHeatStatus + " :";
 
 
 	// Display 1
@@ -1073,6 +1073,7 @@ void runMaintenance()
 {
 	ArduinoOTA.handle();
 
+	callForHeatActive = isCallForHeat();
 	currentBoilerTemp = (int)boilerTC.getThermocoupleTemp(false);
 	currentWaterTemp = (int)waterTC.getThermocoupleTemp(false);
 	currentEnvTemp = (int)envTC.getThermocoupleTemp(false);
@@ -1165,7 +1166,7 @@ int calcEnvTemp()
 void safetyCheck()
 {
 	ArduinoOTA.handle();
-	
+
 
 	if (currentWaterTemp >= MAX_WATER_TEMP) disableEndeavor();
 	if (calcWaterTemp() >= MAX_WATER_TEMP) disableEndeavor();
