@@ -23,6 +23,7 @@
 			01/14/2025 19:00
 			01/14/2025 19:30
 			01/14/2025 21:23
+			01/14/2025 22:22
 
 
  Author:	David Wilson
@@ -98,11 +99,11 @@ bool callForHeatActive = false; // will be coded aft thermost installed
 int MAX_WATER_TEMP = 195; // 195 MAX Wtr temp. Shutdown if met or exceeded
 int MIN_WATER_TEMP = 130; // 130 MIN +/- 1 if not met then heat back up
 
-int envHighTemp = 71; // 70 current Hi for LR temp
+int envHighTemp = 70; // 70 current Hi for LR temp
 int envHighOffSet = 0; // 0 used to adjust theermocouple readi
 
 
-int envLowTemp = 67; // 66 current Lo for LR kick on at this var
+int envLowTemp = 65; // 65 current Lo for LR kick on at this var
 int envLowOffSet = 0; // 0 offset for testing
 
 
