@@ -20,6 +20,7 @@
 			01/05/2025 18:25
 			01/05/2025 18:36
 			01/08/2025 19:30
+			01/14/2025 19:00
 
 
 
@@ -104,13 +105,11 @@ int envLowTemp = 66; // 66 current Lo for LR kick on at this var
 int envLowOffSet = 0; // 0 offset for testing
 
 
-int boilerHighTemp = 975; // 975 top temp for boiler
+int boilerHighTemp = 850; // 850 top temp for boiler
 int boilerLowTemp = 400; // 400 bottom temp for boiler
 
 int waterHighTemp = 155; // 155 hi water stop heating water. start pumping
-int waterLowTemp = 120; // 120 lo temp. stop pumping and heat water
-
-
+int waterLowTemp = 130; // 130 lo temp. stop pumping and heat water
 
 
 int waterMaintHighTemp = 125; // 125 water temp for maint mode
@@ -279,7 +278,7 @@ String displayFourLineThree = "x";
 //======================================================================================
 //======================================================================================
 
-void waterPreRun();
+
 bool isMaintWaterRunTimeUp();
 auto getStatus(void)->String;
 void primePump();
@@ -539,7 +538,7 @@ bool TestMode = false;
 void loop()
 {
 
-	turnOnValve();
+	//turnOnValve();
 
 	runMaintenance();
 	updateDisplay();
@@ -581,6 +580,7 @@ void heatTheHouse()
 			runMode = "2.2";
 			updateDisplay();
 
+			if (!callForHeatActive) break;
 			boilerCycle();
 		}
 
@@ -590,6 +590,7 @@ void heatTheHouse()
 			runMode = "2.3";
 			updateDisplay();
 
+			if (!callForHeatActive) break;
 			runWaterCycle();
 		}
 	}
@@ -614,6 +615,7 @@ void boilerCycle()
 			runMode = "5.2";
 			updateDisplay();
 
+			if (!callForHeatActive) break;
 			if (currentWaterTemp >= waterHighTemp) break;
 			turnOnBoiler();
 		}
@@ -626,6 +628,7 @@ void boilerCycle()
 			runMode = "5.3";
 			updateDisplay();
 
+			if (!callForHeatActive) break;
 			if (currentWaterTemp >= waterHighTemp) break;
 			turnOffBoiler();
 		}
@@ -651,6 +654,7 @@ void runWaterCycle()
 			runMode = "7.2";
 			updateDisplay();
 
+			if (!callForHeatActive) break;
 			turnOnWater();
 		}
 		turnOffWater();
@@ -854,6 +858,8 @@ void turnOnBoiler()
 	runMaintenance();
 	updateDisplay();
 
+	if (!callForHeatActive) return;
+
 	digitalWrite(burnerRelay, ON);
 	boilerStatus = "B+ ";
 
@@ -948,10 +954,10 @@ void disableEndeavor() {  // NOLINT(clang-diagnostic-missing-noreturn)
 
 
 		digitalWrite(burnerRelay, OFF);
-		digitalWrite(zoneTwoRelay, ON);
+		//digitalWrite(zoneTwoRelay, ON);
 		digitalWrite(waterRelay, ON);
 
-		blinkInterval = 75;
+		blinkInterval = 100;
 		blink();
 	}
 }
@@ -1003,7 +1009,7 @@ void updateDisplay()
 
 	//displayOneLineOne = "line one";
 	//displayOneLineTwo = "line two";
-	displayOneLineThree = callForHeatStatus + " :";
+	displayOneLineThree = callForHeatStatus;
 
 
 	// Display 1
@@ -1090,6 +1096,7 @@ void runSingleHeatCycle(int setPoint) {
 			runMaintenance();
 			updateDisplay();
 
+			if (!callForHeatActive) break;
 			turnOnBoiler();
 		}
 		turnOffBoiler();
@@ -1142,7 +1149,6 @@ void safetyCheck()
 	if (currentWaterTemp >= MAX_WATER_TEMP) disableEndeavor();
 	if (calcWaterTemp() >= MAX_WATER_TEMP) disableEndeavor();
 	if ((int)waterTC.getThermocoupleTemp(false) >= MAX_WATER_TEMP) disableEndeavor();
-
 
 }
 
