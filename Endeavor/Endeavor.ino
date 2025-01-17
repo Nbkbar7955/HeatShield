@@ -24,6 +24,8 @@
 			01/14/2025 19:30
 			01/14/2025 21:23
 			01/14/2025 22:22
+			01/17/2025 16:05
+
 
 
  Author:	David Wilson
@@ -103,19 +105,19 @@ int envHighTemp = 70; // 70 current Hi for LR temp
 int envHighOffSet = 0; // 0 used to adjust theermocouple readi
 
 
-int envLowTemp = 65; // 65 current Lo for LR kick on at this var
+int envLowTemp = 66; // 65 current Lo for LR kick on at this var
 int envLowOffSet = 0; // 0 offset for testing
 
 
-int boilerHighTemp = 850; // 850 top temp for boiler
-int boilerLowTemp = 400; // 400 bottom temp for boiler
+int boilerHighTemp = 895; // 895 top temp for boiler
+int boilerLowTemp = 350; // 350 bottom temp for boiler
 
 int waterHighTemp = 155; // 155 hi water stop heating water. start pumping
 int waterLowTemp = 130; // 130 lo temp. stop pumping and heat water
 
 
-int waterMaintHighTemp = 125; // 125 water temp for maint mode
-int waterMaintLowTemp = 115; // 115 water temp for maint mode
+// int waterMaintHighTemp = 125; // 125 water temp for maint mode
+// int waterMaintLowTemp = 115; // 115 water temp for maint mode
 
 
 
@@ -133,6 +135,8 @@ String boilerStatus = "";
 String waterStatus = "";
 String valveStatus = "";
 String callForHeatStatus = "";
+String flameOutStatus = "";
+
 
 bool satisfyCallForHeat = false;
 
@@ -155,7 +159,7 @@ unsigned long savedWaterRunTime = 0;
 unsigned long waterOffRunTime = 180000; // 180000 water off
 unsigned long savedOffWaterRunTime = 0;
 
-unsigned long blinkInterval = 175;// 127 blink
+unsigned long blinkInterval = 200;// 200 blink
 unsigned long savedBlinkTime = 0; //blink begining
 
 unsigned long burnTime = 0; // calculate how long we've burned
@@ -543,6 +547,7 @@ void loop()
 	//turnOnValve();
 
 	runMaintenance();
+	runMode = "0.0";
 	updateDisplay();
 
 	if (TestMode) testCycle();
@@ -554,7 +559,7 @@ void loop()
 void opCycle()
 {
 	runMaintenance();
-	runMode = "1";
+	runMode = "1.0";
 	updateDisplay();
 
 
@@ -567,7 +572,7 @@ void opCycle()
 void heatTheHouse()
 {
 	runMaintenance();
-	runMode = "2";
+	runMode = "2.0";
 	updateDisplay();
 
 	while (callForHeatActive)
@@ -601,6 +606,7 @@ void heatTheHouse()
 void boilerCycle()
 {
 	runMaintenance();
+	runMode = "5.0";
 	updateDisplay();
 
 
@@ -611,27 +617,27 @@ void boilerCycle()
 		updateDisplay();
 
 		// HEAT boiler
-		while (currentBoilerTemp <= boilerHighTemp) // heating up
+		while (currentBoilerTemp < boilerHighTemp) // heating up
 		{
 			runMaintenance();
 			runMode = "5.2";
 			updateDisplay();
 
 			if (!callForHeatActive) break;
-			if (currentWaterTemp >= waterHighTemp) break;
+			if (currentWaterTemp > waterHighTemp) break;
 			turnOnBoiler();
 		}
 		turnOffBoiler();
 
 		// COOL boiler
-		while (currentBoilerTemp >= boilerLowTemp) // cooling down
+		while (currentBoilerTemp > boilerLowTemp) // cooling down
 		{
 			runMaintenance();
 			runMode = "5.3";
 			updateDisplay();
 
 			if (!callForHeatActive) break;
-			if (currentWaterTemp >= waterHighTemp) break;
+			if (currentWaterTemp > waterHighTemp) break;
 			turnOffBoiler();
 		}
 		turnOffBoiler();
@@ -641,7 +647,7 @@ void boilerCycle()
 void runWaterCycle()
 {
 	runMaintenance();
-	runMode = "7";
+	runMode = "7.0";
 	updateDisplay();
 		
 	while (callForHeatActive)
@@ -669,6 +675,7 @@ void runWaterCycle()
 bool isCallForHeat()
 {
 	ArduinoOTA.handle();
+	runMode = "9.0";
 	updateDisplay();
 
 	//callForHeatActive = digitalRead(callForHeat);
@@ -686,11 +693,10 @@ bool isCallForHeat()
 		callForHeatStatus = "H- ";
 	}
 
-
 	return callForHeatActive;
 }
 
-
+/*
 // Temp met for maint mode HIGH
 bool isMaintHighWaterTempMet() {
 
@@ -700,8 +706,8 @@ bool isMaintHighWaterTempMet() {
 	if (currentWaterTemp > waterMaintHighTemp) return true;
 	return false;
 }
-
-
+*/
+/*
 // Temp met for maint mode LOWS
 bool isMaintLowWaterTempMet() {
 
@@ -711,6 +717,8 @@ bool isMaintLowWaterTempMet() {
 	if (currentWaterTemp < waterMaintLowTemp) return true;
 	return false;
 }
+*/
+/*
 
 // Keep water/house @waterMaintHighTemp to try avoid call for heat
 void maintenanceMode()
@@ -769,7 +777,7 @@ void maintenanceMode()
 	turnOffWater();
 
 
-}
+} */
 
 void pushHeat()
 {
@@ -834,8 +842,8 @@ bool isMaintWaterRunTimeUp() {
 	return false;
 }
 
-
-bool isWaterHighTempMet() {
+/*
+bool isWaterHighfTempMet() {
 	runMaintenance();
 	updateDisplay();
 
@@ -851,7 +859,7 @@ bool isWaterLowTempMet()
 	if (currentWaterTemp < waterLowTemp) return true;
 	return false;
 }
-
+*/
 
 
 
@@ -941,7 +949,15 @@ bool isFlameOut()
 	runMaintenance();
 	updateDisplay();
 
-	return digitalRead(flameOut) ? false : true;
+	if (digitalRead(flameOut)) {
+		flameOutStatus = "F+ ";
+		return false;
+	}
+	else {
+		flameOutStatus = "F- ";
+		return true;
+	}
+	
 }
 
 void disableEndeavor() {  // NOLINT(clang-diagnostic-missing-noreturn)
@@ -956,10 +972,10 @@ void disableEndeavor() {  // NOLINT(clang-diagnostic-missing-noreturn)
 
 
 		digitalWrite(burnerRelay, OFF);
-		//digitalWrite(zoneTwoRelay, ON);
+		digitalWrite(zoneTwoRelay, ON);
 		digitalWrite(waterRelay, ON);
 
-		blinkInterval = 100;
+		blinkInterval = 75;
 		blink();
 	}
 }
