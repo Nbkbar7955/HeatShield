@@ -1049,7 +1049,7 @@ void updateDisplay()
 
 	displayOneLineOne = spin() + " XX:XX:XX "+ String(runMode);// +"|" + String((millis() - startUpTime) / 1000);
 	displayOneLineTwo = "B " + String(currentBoilerTemp) + ":W " + String(currentWaterTemp) + ":E " + String(currentEnvTemp);
-	displayOneLineThree = callForHeatStatus + boilerStatus + waterStatus + valveStatus;
+	displayOneLineThree = callForHeatStatus; // +boilerStatus + waterStatus + valveStatus;
 
 
 	// Display 1
@@ -1154,7 +1154,7 @@ void runSingleHeatCycle(int setPoint) {
 int calcBoilerTemp()
 {
 	ArduinoOTA.handle();
-	(int)boilerTC.getThermocoupleTemp(false);
+	return (int)boilerTC.getThermocoupleTemp(false);
 }
 
 int calcWaterTemp()
