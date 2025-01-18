@@ -607,23 +607,21 @@ void heatTheHouse()
 		runMode = "2.1";
 		updateDisplay();
 
-		while (currentWaterTemp < waterHighTemp)
+		while (currentWaterTemp <= waterHighTemp)
 		{
 			runMaintenance();
 			runMode = "2.2";
 			updateDisplay();
 
-			if (!callForHeatActive) break;
 			boilerCycle();
 		}
 
-		while (currentWaterTemp > waterLowTemp)
+		while (currentWaterTemp >= waterLowTemp)
 		{
 			runMaintenance();
 			runMode = "2.3";
 			updateDisplay();
 
-			if (!callForHeatActive) break;
 			runWaterCycle();
 		}
 	}
