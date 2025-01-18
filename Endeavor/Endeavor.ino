@@ -137,8 +137,8 @@ int currentEnvTemp = 0; // global Env temp updated by runMaintxx
 int currentEnvLastTemp = 0;
 int currentEnvNewTemp = 0;
 
-int numTimesToLoop = 10;
-int timeToWait = 30;
+int numTimesToLoop = 5;
+int timeToWait = 10;
 
 int highValBoiler = 0;
 int lowValBoiler = 0;
@@ -157,11 +157,11 @@ int lowValEnv = 0;
 unsigned long waterMaintRunTime = 120000; // 30 sec= 30000// 1min=60000 //*2min= 120000; // 4min=240,000; // 5min=300000
 unsigned long waterMaintSavedTime = 0;
 
-String boilerStatus = "";
-String waterStatus = "";
-String valveStatus = "";
-String callForHeatStatus = "";
-String flameOutStatus = "";
+String boilerStatus = "B- ";
+String waterStatus = "W- ";
+String valveStatus = "V- ";
+String callForHeatStatus = "H- ";
+String flameOutStatus = "F- ";
 
 
 bool satisfyCallForHeat = false;
@@ -185,7 +185,7 @@ unsigned long savedWaterRunTime = 0;
 unsigned long waterOffRunTime = 180000; // 180000 water off
 unsigned long savedOffWaterRunTime = 0;
 
-unsigned long blinkInterval = 200;// 200 blink
+unsigned long blinkInterval = 125;// 200 blink
 unsigned long savedBlinkTime = 0; //blink begining
 
 unsigned long burnTime = 0; // calculate how long we've burned
@@ -647,7 +647,6 @@ void boilerCycle()
 		{
 			runMaintenance();
 			runMode = "5.2";
-			boilerStatus = "B↑ ";
 			updateDisplay();
 
 			if (!callForHeatActive) break;
@@ -661,7 +660,6 @@ void boilerCycle()
 		{
 			runMaintenance();
 			runMode = "5.3";
-			boilerStatus = "B↓ ";
 			updateDisplay();
 
 			if (!callForHeatActive) break;
@@ -690,7 +688,6 @@ void runWaterCycle()
 
 			runMaintenance();
 			runMode = "7.2";
-			waterStatus = "W+ ";
 			updateDisplay();
 
 			if (!callForHeatActive) break;
@@ -699,7 +696,6 @@ void runWaterCycle()
 		}
 		runMaintenance();
 		runMode = "7.3";
-		waterStatus = "W- ";
 		updateDisplay();
 
 		turnOffWater();
@@ -919,6 +915,7 @@ void turnOnBoiler()
 void turnOffBoiler()
 {
 	runMaintenance();
+	boilerStatus = "B- ";
 	updateDisplay();
 
 	digitalWrite(burnerRelay, OFF);
@@ -931,7 +928,7 @@ void turnOffBoiler()
 void turnOnValve()
 {
 	runMaintenance();
-	waterStatus = "V+ ";
+	valveStatus = "V+ ";
 	updateDisplay();
 
 	digitalWrite(zoneTwoRelay, ON);
@@ -941,7 +938,7 @@ void turnOnValve()
 void turnOffValve()
 {
 	runMaintenance();
-	waterStatus = "V- ";
+	valveStatus = "V- ";
 	updateDisplay();
 
 	digitalWrite(zoneTwoRelay, OFF);
