@@ -726,89 +726,6 @@ bool isCallForHeat()
 	return callForHeatActive;
 }
 
-/*
-// Temp met for maint mode HIGH
-bool isMaintHighWaterTempMet() {
-
-	runMaintenance();
-	updateDisplay();
-
-	if (currentWaterTemp > waterMaintHighTemp) return true;
-	return false;
-}
-*/
-/*
-// Temp met for maint mode LOWS
-bool isMaintLowWaterTempMet() {
-
-	runMaintenance();
-	updateDisplay();
-
-	if (currentWaterTemp < waterMaintLowTemp) return true;
-	return false;
-}
-*/
-/*
-
-// Keep water/house @waterMaintHighTemp to try avoid call for heat
-void maintenanceMode()
-{
-	runMaintenance();
-	updateDisplay();
-
-	// Start from the beginning
-	turnOffWater();
-	turnOffBoiler();
-
-	//if (callForHeatActive) return;
-
-
-	// let's start
-	while (!isMaintHighWaterTempMet())
-	{
-		runMaintenance();
-		updateDisplay();
-
-		// FIRE
-		// fire the boiler until we reach the highest temp (boilerHighTemp) and water on met
-
-		while (currentBoilerTemp < boilerHighTemp && !isMaintHighWaterTempMet())
-		{
-			runMaintenance();
-			updateDisplay();
-
-			turnOnBoiler();
-		}
-		turnOffBoiler();
-
-
-		// COOL DOWN
-		// now let it cool down while still heating the water
-
-		while (currentBoilerTemp > boilerLowTemp)
-		{
-			runMaintenance();
-			updateDisplay();
-			if (isMaintHighWaterTempMet()) break;
-
-			turnOffBoiler();
-		}
-	}
-	turnOffBoiler();
-
-	// Pump water
-	while (!isMaintLowWaterTempMet())
-	{
-		runMaintenance();
-		updateDisplay();
-
-		turnOnWater();
-	}
-	turnOffWater();
-
-
-} */
-
 void pushHeat()
 {
 
@@ -1467,3 +1384,86 @@ bool throwException(int)
 
 */
 
+
+/*
+// Temp met for maint mode HIGH
+bool isMaintHighWaterTempMet() {
+
+	runMaintenance();
+	updateDisplay();
+
+	if (currentWaterTemp > waterMaintHighTemp) return true;
+	return false;
+}
+*/
+/*
+// Temp met for maint mode LOWS
+bool isMaintLowWaterTempMet() {
+
+	runMaintenance();
+	updateDisplay();
+
+	if (currentWaterTemp < waterMaintLowTemp) return true;
+	return false;
+}
+*/
+/*
+
+// Keep water/house @waterMaintHighTemp to try avoid call for heat
+void maintenanceMode()
+{
+	runMaintenance();
+	updateDisplay();
+
+	// Start from the beginning
+	turnOffWater();
+	turnOffBoiler();
+
+	//if (callForHeatActive) return;
+
+
+	// let's start
+	while (!isMaintHighWaterTempMet())
+	{
+		runMaintenance();
+		updateDisplay();
+
+		// FIRE
+		// fire the boiler until we reach the highest temp (boilerHighTemp) and water on met
+
+		while (currentBoilerTemp < boilerHighTemp && !isMaintHighWaterTempMet())
+		{
+			runMaintenance();
+			updateDisplay();
+
+			turnOnBoiler();
+		}
+		turnOffBoiler();
+
+
+		// COOL DOWN
+		// now let it cool down while still heating the water
+
+		while (currentBoilerTemp > boilerLowTemp)
+		{
+			runMaintenance();
+			updateDisplay();
+			if (isMaintHighWaterTempMet()) break;
+
+			turnOffBoiler();
+		}
+	}
+	turnOffBoiler();
+
+	// Pump water
+	while (!isMaintLowWaterTempMet())
+	{
+		runMaintenance();
+		updateDisplay();
+
+		turnOnWater();
+	}
+	turnOffWater();
+
+
+} */
