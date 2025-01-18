@@ -109,7 +109,7 @@ int envHighTemp = 70; // 70 current Hi for LR temp
 int envHighOffSet = 0; // 0 used to adjust theermocouple readi
 
 
-int envLowTemp = 66; // 65 current Lo for LR kick on at this var
+int envLowTemp = 66; // 66 current Lo for LR kick on at this var
 int envLowOffSet = 0; // 0 offset for testing
 
 
@@ -138,7 +138,7 @@ int currentEnvLastTemp = 0;
 int currentEnvNewTemp = 0;
 
 int numTimesToLoop = 5;
-int timeToWait = 10;
+int timeToWait = 5;
 
 int highValBoiler = 0;
 int lowValBoiler = 0;
@@ -1154,32 +1154,14 @@ void runSingleHeatCycle(int setPoint) {
 int calcBoilerTemp()
 {
 	ArduinoOTA.handle();
-	int holdTemp = 0;
-
-	for (int readTimes = 0; readTimes < numTimesToLoop; readTimes++)
-	{
-		ArduinoOTA.handle();
-
-		holdTemp = (int)boilerTC.getThermocoupleTemp(false);
-		if (holdTemp > highValBoiler)
-		{
-			highValBoiler = holdTemp;
-			if (highValBoiler > lowValBoiler) lowValBoiler = highValBoiler;
-			else
-			{
-				highValBoiler = lowValBoiler;
-			}
-		}
-		ArduinoOTA.handle();
-		delay(timeToWait);
-		ArduinoOTA.handle();
-	}
-	return highValBoiler;
+	(int)boilerTC.getThermocoupleTemp(false);
 }
 
 int calcWaterTemp()
 {
 	ArduinoOTA.handle();
+	updateDisplay();
+	
 	int holdTemp = 0;
 
 	for (int readTimes = 0; readTimes < numTimesToLoop; readTimes++)
@@ -1202,6 +1184,8 @@ int calcWaterTemp()
 int calcEnvTemp()
 {
 	ArduinoOTA.handle();
+	updateDisplay();
+	
 	int holdTemp = 0;
 
 	for (int readTimes = 0; readTimes < numTimesToLoop; readTimes++)
