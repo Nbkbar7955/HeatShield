@@ -648,9 +648,6 @@ void boilerCycle()
 			runMaintenance();
 			runMode = "5.2";
 			updateDisplay();
-
-			if (!callForHeatActive) break;
-			if (currentWaterTemp > waterHighTemp) break;
 			turnOnBoiler();
 		}
 		turnOffBoiler();
@@ -661,9 +658,6 @@ void boilerCycle()
 			runMaintenance();
 			runMode = "5.3";
 			updateDisplay();
-
-			if (!callForHeatActive) break;
-			if (currentWaterTemp > waterHighTemp) break;
 			turnOffBoiler();
 		}
 		turnOffBoiler();
