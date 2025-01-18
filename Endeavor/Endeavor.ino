@@ -1047,20 +1047,8 @@ void updateDisplay()
 {
 	ArduinoOTA.handle();
 
-	/*
-	if (displayOneLineOne == "x") { displayOneLineOne = "UP: " + String(((millis() - startUpTime) / 1000)); }
-	if (displayOneLineTwo == "x") { displayOneLineTwo = "B: " + String(boilerTC.getThermocoupleTemp(false)) + " |W: " + String(waterTC.getThermocoupleTemp(false)); }
-	if (displayOneLineThree == "x") { displayOneLineThree = "E: " + String(envTC.getThermocoupleTemp(false)); }
-	*/
-
-	////displayOneLineOne = "M: " + String(runMode) + "|" + String((millis() - startUpTime) / 1000);
 	displayOneLineOne = spin() + " XX:XX:XX "+ String(runMode);// +"|" + String((millis() - startUpTime) / 1000);
 	displayOneLineTwo = "B " + String(currentBoilerTemp) + ":W " + String(currentWaterTemp) + ":E " + String(currentEnvTemp);
-	//displayOneLineThree = getStatus();  //"E:" + String(currentEnvTemp) + "|0123456789";
-
-
-	//displayOneLineOne = "line one";
-	//displayOneLineTwo = "line two";
 	displayOneLineThree = callForHeatStatus + boilerStatus + waterStatus + valveStatus;
 
 
@@ -1101,16 +1089,9 @@ void runMaintenance()
 	ArduinoOTA.handle();
 
 	callForHeatActive = isCallForHeat();
-
-	currentBoilerNewTemp = calcBoilerTemp();
-	if (currentBoilerNewTemp > currentBoilerTemp) currentBoilerTemp = currentBoilerNewTemp;
-
-	currentWaterNewTemp = calcWaterTemp();
-	if (currentWaterTemp < currentWaterNewTemp) currentWaterTemp = currentWaterNewTemp;
-
-	currentEnvNewTemp = calcEnvTemp();
-	if (currentEnvTemp < currentEnvNewTemp) currentEnvTemp = currentEnvNewTemp;
-	
+	currentBoilerTemp = calcBoilerTemp();
+	currentWaterTemp = calcWaterTemp();
+	currentEnvTemp = calcEnvTemp();
 
 	safetyCheck();
 	blink();
