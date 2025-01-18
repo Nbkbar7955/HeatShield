@@ -649,6 +649,8 @@ void boilerCycle()
 			turnOnBoiler();
 		}
 		turnOffBoiler();
+		pushHeat();
+		
 
 		// COOL boiler
 		while (currentBoilerTemp > boilerLowTemp) // cooling down
@@ -726,25 +728,27 @@ bool isCallForHeat()
 	return callForHeatActive;
 }
 
-void pushHeat()
+void pushHeat()  // BLOCKING
 {
 
 	runMaintenance();
-	runMode = "6";
+	runMode = "6.0";
 	updateDisplay();
 
 	if (currentWaterTemp > waterLowTemp)
 	{
-		//runMode = "6.1";
+		runMaintenance();
+		runMode = "6.1";
 		updateDisplay();
+
 		thirtySecondWaterPush();
 	}
 }
 
-void thirtySecondWaterPush()
+void thirtySecondWaterPush()  // BLOCKING
 {
 	runMaintenance();
-	//runMode = "5";
+	runMode = "8.0";
 	updateDisplay();
 
 	int numTimes = 120;
