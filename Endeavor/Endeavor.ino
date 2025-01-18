@@ -709,7 +709,7 @@ void runWaterCycle()
 bool isCallForHeat()
 {
 	ArduinoOTA.handle();
-	runMode = "9.0";
+	//runMode = "9.0";
 	updateDisplay();
 
 	//callForHeatActive = digitalRead(callForHeat);
@@ -1049,7 +1049,7 @@ void updateDisplay()
 
 	displayOneLineOne = spin() + " XX:XX:XX "+ String(runMode);// +"|" + String((millis() - startUpTime) / 1000);
 	displayOneLineTwo = "B " + String(currentBoilerTemp) + ":W " + String(currentWaterTemp) + ":E " + String(currentEnvTemp);
-	displayOneLineThree = callForHeatStatus; // +boilerStatus + waterStatus + valveStatus;
+	displayOneLineThree = callForHeatStatus + boilerStatus + waterStatus + valveStatus;
 
 
 	// Display 1
@@ -1161,48 +1161,53 @@ int calcWaterTemp()
 {
 	ArduinoOTA.handle();
 	updateDisplay();
+	return (int)waterTC.getThermocoupleTemp(false);
 	
-	int holdTemp = 0;
+	//int holdTemp = 0;
 
-	for (int readTimes = 0; readTimes < numTimesToLoop; readTimes++)
-	{
-		ArduinoOTA.handle();
-		holdTemp = (int)waterTC.getThermocoupleTemp(false);
-		if (holdTemp > highValWater)
-		{
-			highValWater = holdTemp;
-			if (highValWater > lowValWater) lowValWater = highValWater;
-			else highValWater = lowValWater;
-		}
-		ArduinoOTA.handle();
-		delay(timeToWait);
-		ArduinoOTA.handle();
-	}
-	return highValWater;
+	//for (int readTimes = 0; readTimes < numTimesToLoop; readTimes++)
+	//{
+	//	ArduinoOTA.handle();
+	//	holdTemp = (int)waterTC.getThermocoupleTemp(false);
+	//	if (holdTemp > highValWater)
+	//	{
+	//		highValWater = holdTemp;
+	//		if (highValWater > lowValWater) lowValWater = highValWater;
+	//		else highValWater = lowValWater;
+	//	}
+	//	ArduinoOTA.handle();
+	//	delay(timeToWait);
+	//	ArduinoOTA.handle();
+	//}
+	//return highValWater;
 }
 
 int calcEnvTemp()
 {
 	ArduinoOTA.handle();
 	updateDisplay();
+	return (int)envTC.getThermocoupleTemp(false);
 	
-	int holdTemp = 0;
+	//int holdTemp = 0;
 
-	for (int readTimes = 0; readTimes < numTimesToLoop; readTimes++)
-	{
-		ArduinoOTA.handle();
-		holdTemp = (int)envTC.getThermocoupleTemp(false);
-		if (holdTemp > highValEnv)
-		{
-			highValEnv = holdTemp;
-			if (highValEnv > lowValEnv) lowValEnv = highValEnv;
-			else highValWater = lowValEnv;
-		}
-		ArduinoOTA.handle();
-		delay(timeToWait);
-		ArduinoOTA.handle();
-	}
-	return highValEnv;
+	//for (int readTimes = 0; readTimes < numTimesToLoop; readTimes++)
+	//{
+	//	ArduinoOTA.handle();
+	//	updateDisplay();
+	//	return (int)envTC.getThermocoupleTemp(false);
+	//	
+	//	holdTemp = (int)envTC.getThermocoupleTemp(false);
+	//	if (holdTemp > highValEnv)
+	//	{
+	//		highValEnv = holdTemp;
+	//		if (highValEnv > lowValEnv) lowValEnv = highValEnv;
+	//		else highValWater = lowValEnv;
+	//	}
+	//	ArduinoOTA.handle();
+	//	delay(timeToWait);
+	//	ArduinoOTA.handle();
+	//}
+	//return highValEnv;
 }
 
 void safetyCheck()
