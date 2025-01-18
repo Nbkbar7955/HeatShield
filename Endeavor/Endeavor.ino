@@ -706,9 +706,13 @@ bool isCallForHeat()
 
 	//callForHeatActive = digitalRead(callForHeat);
 
+	if (callForHeatActive) {
 
-	if (currentEnvTemp <= envLowTemp) callForHeatActive = true;
-	else callForHeatActive = false;
+		if (currentEnvTemp >= envHighTemp) callForHeatActive = false;
+	}
+	else {
+		if (currentEnvTemp <= envLowTemp) callForHeatActive = true;
+	}
 
 	if (callForHeatActive)
 	{
