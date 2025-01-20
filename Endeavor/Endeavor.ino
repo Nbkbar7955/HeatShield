@@ -32,6 +32,7 @@
 			01/19/2025 21:53 - push fm IRONMAN
 			01/19/2025 22:40 - broke
 			01/19/2025 23:59 - try fix
+			01/20/2025 00:06 - push
 
 
 
@@ -204,6 +205,20 @@ unsigned long burnTime = 0; // calculate how long we've burned
 long startUpTime = 0; // 0 for blink()
 
 
+//======================================================================================
+//======================================================================================
+// WiFi bef setup
+//======================================================================================
+//======================================================================================
+const char* networkName = "Wilson.Net-2.4G";
+const char* networkNamePassPhrase = "wilsonwebsite.com";
+
+char serverAddress[] = "192.168.0.67"; // server address
+uint16_t port = 44364;
+
+WiFiClient wifi;
+HttpClient client = HttpClient(wifi, serverAddress, port);
+int status = WL_IDLE_STATUS;
 
 //======================================================================================
 //======================================================================================
@@ -369,6 +384,7 @@ void mySystemRun();
 
 
 
+
 //
 // writing
 //
@@ -420,15 +436,7 @@ void setup()
 
 		
 
-	const char* networkName = "Wilson.Net-2.4G";
-	const char* networkNamePassPhrase = "wilsonwebsite.com";
 
-	char serverAddress[] = "192.168.0.67"; // server address
-	uint16_t port = 44364;
-
-	WiFiClient wifi;
-	HttpClient client = HttpClient(wifi, serverAddress, port);
-	int status = WL_IDLE_STATUS;
 
 	WiFi.mode(WIFI_STA);
 	WiFi.begin(networkName, networkNamePassPhrase);
@@ -470,7 +478,7 @@ void setup()
 			})
 				.onProgress([](unsigned int progress, unsigned int total)
 					{
-						Serial.printf("Progress: %u%%\r", progress / (total / 100));
+						Serial.printf("Progress: %u%%\r", (progress / (total / 100)));
 					})
 				.onError([](ota_error_t error)
 					{
