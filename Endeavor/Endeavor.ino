@@ -30,6 +30,8 @@
 			01/17/2025 22:21
 			01/19/2025 19:48
 			01/19/2025 21:53 - push fm IRONMAN
+			01/19/2025 22:40 - broke
+			01/19/2025 23:59 - try fix
 
 
 
@@ -157,7 +159,7 @@ int lowValWater = 0;
 int highValEnv = 0;
 int lowValEnv = 0;
 
-int spinner = 0;
+int spinner = 0; // for spin
 
 
 
@@ -195,7 +197,7 @@ unsigned long savedWaterRunTime = 0;
 unsigned long waterOffRunTime = 180000; // 180000 water off
 unsigned long savedOffWaterRunTime = 0;
 
-unsigned long blinkInterval = 125;// 200 blink
+unsigned long blinkInterval = 250;// 250 blink
 unsigned long savedBlinkTime = 0; //blink begining
 
 unsigned long burnTime = 0; // calculate how long we've burned
@@ -362,7 +364,7 @@ void boilerCycle();
 String spin();
 void turnOnValve();
 void turnOffValve();
-void systemRun();
+void mySystemRun();
 
 
 
@@ -587,7 +589,7 @@ bool TestMode = false;
 void loop()
 {
 
-	turnOnValve();
+	//turnOnValve();
 
 	runMaintenance();
 	runMode = "0.0";
@@ -595,35 +597,27 @@ void loop()
 
 	if (TestMode) testCycle();
 
-	opCycle();
+	mySystemRun();
 }
 
-void opCycle()
+
+void mySystemRun()
 {
 	runMaintenance();
-	runMode = "1.0";
+	runMode = "1.0  ";
 	updateDisplay();
 
-	systemRun();
-}
-
-void systemRun()
-{
-	runMaintenance();
-	runMode = "1.1";
-	updateDisplay();
-
-	while (currentWaterTemp <= waterHighTemp)
+	while (currentWaterTemp < waterHighTemp) // heating up water
 	{
 		runMaintenance();
-		runMode = "1.2";
+		runMode = "1.1.0";
 		updateDisplay();
 
 		// HEAT boiler
-		while (currentBoilerTemp < boilerHighTemp) // heating up
+		while (currentBoilerTemp < boilerHighTemp) // heating up boiler
 		{
 			runMaintenance();
-			runMode = "1.3";
+			runMode = "1.2.1";
 			updateDisplay();
 
 			turnOnBoiler();
@@ -631,14 +625,15 @@ void systemRun()
 		turnOffBoiler();
 
 		// COOL boiler
-		while (currentBoilerTemp > boilerLowTemp) // cooling down
+		while (currentBoilerTemp >= boilerLowTemp) // cooling down
 		{
 			runMaintenance();
-			runMode = "1.4";
+			runMode = "1.2.2";
 			updateDisplay();
 
 			turnOffBoiler();
 		}
+		turnOffBoiler();
 	}
 	turnOffBoiler();
 }
@@ -652,22 +647,17 @@ bool isCallForHeat()
 	//callForHeatActive = digitalRead(callForHeat);
 
 	if (callForHeatActive) {
-
-		if (currentEnvTemp >= envHighTemp) callForHeatActive = false;
+		if (currentEnvTemp < envHighTemp) callForHeatActive = true;
+		else callForHeatActive = false;
 	}
 	else
 	{
 		if (currentEnvTemp <= envLowTemp) callForHeatActive = true;
+		else callForHeatActive = false;
 	}
 
-	if (callForHeatActive)
-	{
-		callForHeatStatus = "H+ ";
-	}
-	else
-	{
-		callForHeatStatus = "H- ";
-	}
+	if (callForHeatActive) callForHeatStatus = "H+ ";
+	else callForHeatStatus = "H- ";
 
 	return callForHeatActive;
 }
@@ -683,7 +673,7 @@ void turnOnBoiler()
 	safetyCheck();
 
 	//isFlameOut();
-	updateBurnTime();
+	//updateBurnTime();
 }
 
 void turnOffBoiler()
@@ -696,7 +686,7 @@ void turnOffBoiler()
 
 
 	//isFlameOut();
-	updateBurnTime();
+	//updateBurnTime();
 
 }
 
@@ -755,18 +745,18 @@ bool isFlameOut()
 void runMaintenance()
 {
 	ArduinoOTA.handle();
+	blink();
 
 	currentBoilerTemp = calcBoilerTemp();
 	currentWaterTemp = calcWaterTemp();
 	currentEnvTemp = calcEnvTemp();
-
 	callForHeatActive = isCallForHeat();
 
 	if (callForHeatActive) turnOnWater();
 	else turnOffWater();
 
 	safetyCheck();
-	blink();
+
 }
 
 void updateDisplay()
@@ -899,8 +889,7 @@ void safetyCheck()
 	ArduinoOTA.handle();
 
 	if (calcWaterTemp() >= MAX_WATER_TEMP) disableEndeavor();
-	if (currentWaterTemp >= MAX_WATER_TEMP) disableEndeavor();
-	if ((int)waterTC.getThermocoupleTemp(false) >= MAX_WATER_TEMP) disableEndeavor();
+
 }
 
 void disableEndeavor() {  // NOLINT(clang-diagnostic-missing-noreturn)
@@ -918,15 +907,14 @@ void disableEndeavor() {  // NOLINT(clang-diagnostic-missing-noreturn)
 		digitalWrite(zoneTwoRelay, ON);
 		digitalWrite(waterRelay, ON);
 
-		blinkInterval = 75;
+		blinkInterval = 100;
 		blink();
 	}
 }
 
 void updateBurnTime()
 {
-	runMaintenance();
-	burnTime += millis();
+
 }
 
 
@@ -978,6 +966,14 @@ bool testCycle() // BOOKMARK
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+void opCycle()
+{
+	runMaintenance();
+	runMode = "1.0";
+	updateDisplay();
+
+	mySystemRun();
+}
 
 void heatTheHouse()
 {
