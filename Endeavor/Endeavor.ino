@@ -202,21 +202,6 @@ unsigned long burnTime = 0; // calculate how long we've burned
 long startUpTime = 0; // 0 for blink()
 
 
-//======================================================================================
-//======================================================================================
-// WiFi Definitions
-//======================================================================================
-//======================================================================================
-
-const char* networkName = "Wilson.Net-2.4G";
-const char* networkNamePassPhrase = "wilsonwebsite.com";
-
-char serverAddress[] = "192.168.0.67"; // server address
-uint16_t port = 44364;
-
-WiFiClient wifi;
-HttpClient client = HttpClient(wifi, serverAddress, port);
-int status = WL_IDLE_STATUS;
 
 //======================================================================================
 //======================================================================================
@@ -430,7 +415,18 @@ void setup()
 
 	//======================================================================================
 	// WiFi
-	//======================================================================================
+
+		
+
+	const char* networkName = "Wilson.Net-2.4G";
+	const char* networkNamePassPhrase = "wilsonwebsite.com";
+
+	char serverAddress[] = "192.168.0.67"; // server address
+	uint16_t port = 44364;
+
+	WiFiClient wifi;
+	HttpClient client = HttpClient(wifi, serverAddress, port);
+	int status = WL_IDLE_STATUS;
 
 	WiFi.mode(WIFI_STA);
 	WiFi.begin(networkName, networkNamePassPhrase);
