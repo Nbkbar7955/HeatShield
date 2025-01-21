@@ -34,6 +34,7 @@
 			01/19/2025 23:59 - try fix
 			01/20/2025 00:06 - push
 			01/21/2025 13:52 - still rebooting n locking
+			01/21/2025 15:30
 
 
 
@@ -108,8 +109,7 @@ uint8_t OFF = 0x1;
 //======================================================================================
 
 
-String runMode = "0";
-int rmodeCount = 0;
+
 
 bool callForHeatActive = false; // will be coded aft thermost installed
 
@@ -599,7 +599,6 @@ void loop()
 	//turnOnValve();
 
 	runMaintenance();
-	runMode = "0.0";
 	updateDisplay();
 
 	if (TestMode) testCycle();
@@ -611,20 +610,19 @@ void loop()
 void mySystemRun()
 {
 	runMaintenance();
-	runMode = "1.0  ";
 	updateDisplay();
 
-	while (currentWaterTemp < waterHighTemp) // heating up water
+	while (currentWaterTemp <= waterHighTemp) // heating up water
 	{
 		runMaintenance();
-		runMode = "1.1.0";
 		updateDisplay();
 
 		// HEAT boiler
 		while (currentBoilerTemp < boilerHighTemp) // heating up boiler
 		{
 			runMaintenance();
-			runMode = "1.2.1";
+
+			boilerStatus = "B>";
 			updateDisplay();
 
 			turnOnBoiler();
@@ -635,7 +633,8 @@ void mySystemRun()
 		while (currentBoilerTemp >= boilerLowTemp) // cooling down
 		{
 			runMaintenance();
-			runMode = "1.2.2";
+
+			boilerStatus = "B<";
 			updateDisplay();
 
 			turnOffBoiler();
@@ -643,65 +642,30 @@ void mySystemRun()
 		turnOffBoiler();
 	}
 	turnOffBoiler();
+	boilerStatus = "B-";
 }
 
 bool isCallForHeat()
 {
 	ArduinoOTA.handle();
-	runMode = "9.0";
-	updateDisplay();
 
 	//callForHeatActive = digitalRead(callForHeat);
 
-	//
-	if (callForHeatActive) {
-		if (currentEnvTemp < envHighTemp)
-		{
-			runMode = "9.1";
-			callForHeatActive = true;
-		}
-		else
-		{
-			runMode = "9.2";
-			callForHeatActive = false;
-		}
-	}
-	else
-	{
-		if (currentEnvTemp <= envLowTemp)
-		{
-			runMode = "9.3";
-			callForHeatActive = true;
-		}
-		else
-		{
-			runMode = "9.4";
-			callForHeatActive = false;
-		}
-	}
-
-	if (callForHeatActive)
-	{
-		runMode = "9.5";
-		callForHeatStatus = "H+ ";
-	}	
-	else
-	{
-		runMode = "9.6";
-		callForHeatStatus = "H- ";
-	}
+	if (callForHeatActive) if (currentEnvTemp < envHighTemp) callForHeatActive = true;
+		else callForHeatActive = false;
+	else if (currentEnvTemp <= envLowTemp) callForHeatActive = true;
+		else callForHeatActive = false;
+	if (callForHeatActive) callForHeatStatus = "H+ ";
+	else callForHeatStatus = "H- ";
 
 	return callForHeatActive;
+	
 }
 
 void turnOnBoiler()
 {
-	runMaintenance();
-	updateDisplay();
-
 	digitalWrite(burnerRelay, ON);
-	boilerStatus = "B+ ";
-
+	//boilerStatus = "B+ ";
 	safetyCheck();
 
 	//isFlameOut();
@@ -710,12 +674,9 @@ void turnOnBoiler()
 
 void turnOffBoiler()
 {
-	runMaintenance();
-	boilerStatus = "B- ";
-	updateDisplay();
 
 	digitalWrite(burnerRelay, OFF);
-
+	//boilerStatus = "B- ";
 
 	//isFlameOut();
 	//updateBurnTime();
@@ -724,83 +685,55 @@ void turnOffBoiler()
 
 void turnOnValve()
 {
-	runMaintenance();
-	valveStatus = "V+ ";
-	updateDisplay();
-
 	digitalWrite(zoneTwoRelay, ON);
+	valveStatus = "V+ ";
 }
 
 void turnOffValve()
 {
-	runMaintenance();
-	valveStatus = "V- ";
-	updateDisplay();
-
 	digitalWrite(zoneTwoRelay, OFF);
+	valveStatus = "V- ";
 }
 
 void turnOnWater()
-{
-	runMaintenance();
-	waterStatus = "W+ ";
-	updateDisplay();
-
+{ 
 	digitalWrite(waterRelay, ON);
+	waterStatus = "W+ ";
 }
 
 void turnOffWater() {
 
-	runMaintenance();
-	waterStatus = "W- ";
-	updateDisplay();
-
 	digitalWrite(waterRelay, OFF);
+	waterStatus = "W- ";
 }
 
-bool isFlameOut()
-{
-	runMaintenance();
-	updateDisplay();
-
-	if (digitalRead(flameOut)) {
-		flameOutStatus = "F+ ";
-		return false;
-	}
-	else {
-		flameOutStatus = "F- ";
-		return true;
-	}
-	
-}
 
 void runMaintenance()
 {
 	ArduinoOTA.handle();
-	runMode = "8.5";
 	blink();
 
 	currentBoilerTemp = calcBoilerTemp();
 	currentWaterTemp = calcWaterTemp();
 	currentEnvTemp = calcEnvTemp();
+
 	callForHeatActive = isCallForHeat();
 
 	if (callForHeatActive) turnOnWater();
 	else turnOffWater();
 
 	safetyCheck();
+	delay(10);
 
 }
 
 void updateDisplay()
 {
 	ArduinoOTA.handle();
-	runMode = "8.0";
 
-	displayOneLineOne = spin() + timeString + String(runMode);// +"|" + String((millis() - startUpTime) / 1000);
-	displayOneLineTwo = "B " + String(currentBoilerTemp) + ":W " + String(currentWaterTemp) + ":E " + String(currentEnvTemp);
-	displayOneLineThree = callForHeatStatus + boilerStatus + waterStatus + valveStatus;
-
+	displayOneLineOne = spin() + "| " + timeString + " |"; // +String((millis() - startUpTime) / 1000);
+	displayOneLineTwo = "B: " + String(currentBoilerTemp) + " |W: " + String(currentWaterTemp) + " |E: " + String(currentEnvTemp);
+	displayOneLineThree = callForHeatStatus + boilerStatus + waterStatus + valveStatus + flameOutStatus;
 
 	// Display 1
 
@@ -864,12 +797,16 @@ String spin() {
 int calcBoilerTemp()
 {
 	ArduinoOTA.handle();
+
+	delay(20);
 	return (int)boilerTC.getThermocoupleTemp(false);
 }
 
 int calcWaterTemp()
 {
 	ArduinoOTA.handle();
+
+	delay(20);
 	return (int)waterTC.getThermocoupleTemp(false);
 	
 	//int holdTemp = 0;
@@ -894,6 +831,8 @@ int calcWaterTemp()
 int calcEnvTemp()
 {
 	ArduinoOTA.handle();
+
+	delay(20);
 	return (int)envTC.getThermocoupleTemp(false);
 	
 	//int holdTemp = 0;
@@ -922,7 +861,7 @@ void safetyCheck()
 {
 	ArduinoOTA.handle();
 
-	if (calcWaterTemp() >= MAX_WATER_TEMP) disableEndeavor();
+	if (currentWaterTemp >= MAX_WATER_TEMP) disableEndeavor();
 
 }
 
@@ -948,6 +887,22 @@ void disableEndeavor() {  // NOLINT(clang-diagnostic-missing-noreturn)
 	}
 }
 
+
+bool isFlameOut()
+{
+	runMaintenance();
+	updateDisplay();
+
+	if (digitalRead(flameOut)) {
+		flameOutStatus = "F+ ";
+		return false;
+	}
+	else {
+		flameOutStatus = "F- ";
+		return true;
+	}
+
+}
 void updateBurnTime()
 {
 
@@ -1002,189 +957,17 @@ bool testCycle() // BOOKMARK
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+
+/*
 void opCycle()
 {
 	runMaintenance();
-	runMode = "1.0";
 	updateDisplay();
 
 	mySystemRun();
 }
 
-void heatTheHouse()
-{
-	runMaintenance();
-	runMode = "2.0";
-	updateDisplay();
 
-	if (callForHeatActive)
-	{
-		runMaintenance();
-		runMode = "2.1";
-		updateDisplay();
-
-		turnOnWater();
-	}
-	else {
-		turnOffWater();
-	}
-}
-
-void pushHeat()  // BLOCKING
-{
-
-	runMaintenance();
-	runMode = "6.0";
-	updateDisplay();
-
-	if (currentWaterTemp > waterLowTemp)
-	{
-		runMaintenance();
-		runMode = "6.1";
-		updateDisplay();
-
-		thirtySecondWaterPush();
-	}
-}
-
-void boilerCycle()
-{
-	runMaintenance();
-	runMode = "5.0";
-	updateDisplay();
-
-
-	while (callForHeatActive)
-	{
-		runMaintenance();
-		runMode = "5.1";
-		updateDisplay();
-
-		// HEAT boiler
-		while (currentBoilerTemp < boilerHighTemp) // heating up
-		{
-			runMaintenance();
-			runMode = "5.2";
-			updateDisplay();
-			turnOnBoiler();
-		}
-		turnOffBoiler();
-		pushHeat();
-
-
-		// COOL boiler
-		while (currentBoilerTemp > boilerLowTemp) // cooling down
-		{
-			runMaintenance();
-			runMode = "5.3";
-			updateDisplay();
-			turnOffBoiler();
-		}
-		turnOffBoiler();
-	}
-	turnOffBoiler();
-}
-
-void runWaterCycle()
-{
-	runMaintenance();
-	runMode = "7.0";
-	updateDisplay();
-
-	while (callForHeatActive)
-	{
-		runMaintenance();
-		runMode = "7.1";
-		updateDisplay();
-
-		while (currentWaterTemp > waterLowTemp) // pushing water
-		{
-
-			runMaintenance();
-			runMode = "7.2";
-			updateDisplay();
-
-			if (!callForHeatActive) break;
-
-			turnOnWater();
-		}
-		runMaintenance();
-		runMode = "7.3";
-		updateDisplay();
-
-		turnOffWater();
-	}
-	turnOffWater();
-}
-
-void thirtySecondWaterPush()  // BLOCKING
-{
-	runMaintenance();
-	runMode = "8.0";
-	updateDisplay();
-
-	int numTimes = 120;
-	int delayTime = 250;
-
-	for (int ndx = 0; ndx < numTimes; ndx++)
-	{
-		runMaintenance();
-		runMode = "8.1";
-		updateDisplay();
-
-		turnOnWater();
-		delay(delayTime);
-		runMode = "8.2";
-		updateDisplay();
-	}
-	turnOffWater();
-}
-
-//
-// BLOCKING maint and update runs all else 5 min block
-// get some heat out
-
-void fiveMinWaterPush()
-{
-	runMaintenance();
-	runMode = "7";
-	updateDisplay();
-	return;
-
-	// 5 mins = 125ms * 2400 times
-}
-
-bool isMaintWaterRunTimeUp() {
-
-	ArduinoOTA.handle();
-
-	unsigned long currentTime = millis();
-
-	if (currentTime - waterMaintSavedTime > waterMaintRunTime) {
-		waterMaintSavedTime = currentTime;
-		return true;
-	}
-	return false;
-}
-
-/*
-bool isWaterHighfTempMet() {
-	runMaintenance();
-	updateDisplay();
-
-	if (currentWaterTemp > waterHighTemp) return true;
-	return false;
-}
-
-bool isWaterLowTempMet()
-{
-	runMaintenance();
-	updateDisplay();
-
-	if (currentWaterTemp < waterLowTemp) return true;
-	return false;
-}
-*/
 
 
 String getStatus()
@@ -1371,6 +1154,8 @@ bool throwException(int)
 }
 
 
+*/
+
 
 /*
 
@@ -1531,3 +1316,183 @@ void maintenanceMode()
 
 
 } */
+
+
+/*
+void heatTheHouse()
+{
+	runMaintenance();
+	runMode = "2.0";
+	updateDisplay();
+
+	if (callForHeatActive)
+	{
+		runMaintenance();
+		runMode = "2.1";
+		updateDisplay();
+
+		turnOnWater();
+	}
+	else {
+		turnOffWater();
+	}
+}
+
+
+void pushHeat()  // BLOCKING
+{
+
+	runMaintenance();
+	runMode = "6.0";
+	updateDisplay();
+
+	if (currentWaterTemp > waterLowTemp)
+	{
+		runMaintenance();
+		runMode = "6.1";
+		updateDisplay();
+
+		thirtySecondWaterPush();
+	}
+}
+*/
+
+/*
+void boilerCycle()
+{
+	runMaintenance();
+	runMode = "5.0";
+	updateDisplay();
+
+
+	while (callForHeatActive)
+	{
+		runMaintenance();
+		runMode = "5.1";
+		updateDisplay();
+
+		// HEAT boiler
+		while (currentBoilerTemp < boilerHighTemp) // heating up
+		{
+			runMaintenance();
+			runMode = "5.2";
+			updateDisplay();
+			turnOnBoiler();
+		}
+		turnOffBoiler();
+		pushHeat();
+
+
+		// COOL boiler
+		while (currentBoilerTemp > boilerLowTemp) // cooling down
+		{
+			runMaintenance();
+			runMode = "5.3";
+			updateDisplay();
+			turnOffBoiler();
+		}
+		turnOffBoiler();
+	}
+	turnOffBoiler();
+}
+
+void runWaterCycle()
+{
+	runMaintenance();
+	runMode = "7.0";
+	updateDisplay();
+
+	while (callForHeatActive)
+	{
+		runMaintenance();
+		runMode = "7.1";
+		updateDisplay();
+
+		while (currentWaterTemp > waterLowTemp) // pushing water
+		{
+
+			runMaintenance();
+			runMode = "7.2";
+			updateDisplay();
+
+			if (!callForHeatActive) break;
+
+			turnOnWater();
+		}
+		runMaintenance();
+		runMode = "7.3";
+		updateDisplay();
+
+		turnOffWater();
+	}
+	turnOffWater();
+}
+
+void thirtySecondWaterPush()  // BLOCKING
+{
+	runMaintenance();
+	runMode = "8.0";
+	updateDisplay();
+
+	int numTimes = 120;
+	int delayTime = 250;
+
+	for (int ndx = 0; ndx < numTimes; ndx++)
+	{
+		runMaintenance();
+		runMode = "8.1";
+		updateDisplay();
+
+		turnOnWater();
+		delay(delayTime);
+		runMode = "8.2";
+		updateDisplay();
+	}
+	turnOffWater();
+}
+
+//
+// BLOCKING maint and update runs all else 5 min block
+// get some heat out
+
+void fiveMinWaterPush()
+{
+	runMaintenance();
+	runMode = "7";
+	updateDisplay();
+	return;
+
+	// 5 mins = 125ms * 2400 times
+}
+
+bool isMaintWaterRunTimeUp() {
+
+	ArduinoOTA.handle();
+
+	unsigned long currentTime = millis();
+
+	if (currentTime - waterMaintSavedTime > waterMaintRunTime) {
+		waterMaintSavedTime = currentTime;
+		return true;
+	}
+	return false;
+}
+
+/*
+bool isWaterHighfTempMet() {
+	runMaintenance();
+	updateDisplay();
+
+	if (currentWaterTemp > waterHighTemp) return true;
+	return false;
+}
+
+bool isWaterLowTempMet()
+{
+	runMaintenance();
+	updateDisplay();
+
+	if (currentWaterTemp < waterLowTemp) return true;
+	return false;
+}
+*/
