@@ -114,18 +114,18 @@ uint8_t OFF = 0x1;
 bool callForHeatActive = false; // will be coded aft thermost installed
 
 
-int MAX_WATER_TEMP = 195; // 195 MAX Wtr temp. Shutdown if met or exceeded
-int MIN_WATER_TEMP = 130; // 130 MIN +/- 1 if not met then heat back up
+int MAX_WATER_TEMP = 175; // 175 MAX Wtr temp. Shutdown if met or exceeded
+int MIN_WATER_TEMP = 100; // 100 MIN +/- 1 if not met then heat back up
 
-int envHighTemp = 70; // 70 current Hi for LR temp
+int envHighTemp = 72; // 72 current Hi for LR temp
 int envHighOffSet = 0; // 0 used to adjust theermocouple readi
 
 
-int envLowTemp = 66; // 66 current Lo for LR kick on at this var
+int envLowTemp = 67; // 67 current Lo for LR kick on at this var
 int envLowOffSet = 0; // 0 offset for testing
 
 
-int boilerHighTemp = 899; // 899 top temp for boiler
+int boilerHighTemp = 850; // 850 top temp for boiler
 int boilerLowTemp = 350; // 350 bottom temp for boiler
 
 int waterHighTemp = 155; // 155 hi water stop heating water. start pumping
@@ -177,7 +177,7 @@ String boilerStatus = "B- ";
 String waterStatus = "W- ";
 String valveStatus = "V- ";
 String callForHeatStatus = "H- ";
-String flameOutStatus = "F- ";
+String flameStatus = "F- ";
 
 
 bool satisfyCallForHeat = false;
@@ -622,7 +622,7 @@ void mySystemRun()
 		{
 			runMaintenance();
 
-			boilerStatus = "B>";
+			boilerStatus = "B> ";
 			updateDisplay();
 
 			turnOnBoiler();
@@ -634,7 +634,7 @@ void mySystemRun()
 		{
 			runMaintenance();
 
-			boilerStatus = "B<";
+			boilerStatus = "B< ";
 			updateDisplay();
 
 			turnOffBoiler();
@@ -642,7 +642,7 @@ void mySystemRun()
 		turnOffBoiler();
 	}
 	turnOffBoiler();
-	boilerStatus = "B-";
+	boilerStatus = "B- ";
 }
 
 bool isCallForHeat()
@@ -659,7 +659,6 @@ bool isCallForHeat()
 	else callForHeatStatus = "H- ";
 
 	return callForHeatActive;
-	
 }
 
 void turnOnBoiler()
@@ -668,7 +667,7 @@ void turnOnBoiler()
 	//boilerStatus = "B+ ";
 	safetyCheck();
 
-	//isFlameOut();
+	isFlameOut();
 	//updateBurnTime();
 }
 
@@ -678,7 +677,7 @@ void turnOffBoiler()
 	digitalWrite(burnerRelay, OFF);
 	//boilerStatus = "B- ";
 
-	//isFlameOut();
+	isFlameOut();
 	//updateBurnTime();
 
 }
@@ -731,9 +730,9 @@ void updateDisplay()
 {
 	ArduinoOTA.handle();
 
-	displayOneLineOne = spin() + "| " + timeString + " |"; // +String((millis() - startUpTime) / 1000);
-	displayOneLineTwo = "B: " + String(currentBoilerTemp) + " |W: " + String(currentWaterTemp) + " |E: " + String(currentEnvTemp);
-	displayOneLineThree = callForHeatStatus + boilerStatus + waterStatus + valveStatus + flameOutStatus;
+	displayOneLineOne = spin() + " " + timeString + " "; // +String((millis() - startUpTime) / 1000);
+	displayOneLineTwo = "B:" + String(currentBoilerTemp) + " W:" + String(currentWaterTemp) + " E:" + String(currentEnvTemp);
+	displayOneLineThree = callForHeatStatus + boilerStatus + waterStatus + valveStatus + flameStatus;
 
 	// Display 1
 
@@ -798,7 +797,6 @@ int calcBoilerTemp()
 {
 	ArduinoOTA.handle();
 
-	delay(20);
 	return (int)boilerTC.getThermocoupleTemp(false);
 }
 
@@ -894,11 +892,11 @@ bool isFlameOut()
 	updateDisplay();
 
 	if (digitalRead(flameOut)) {
-		flameOutStatus = "F+ ";
+		flameStatus = "F+ ";
 		return false;
 	}
 	else {
-		flameOutStatus = "F- ";
+		flameStatus = "F- ";
 		return true;
 	}
 
