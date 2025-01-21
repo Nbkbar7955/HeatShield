@@ -33,6 +33,7 @@
 			01/19/2025 22:40 - broke
 			01/19/2025 23:59 - try fix
 			01/20/2025 00:06 - push
+			01/21/2025 13:52 - still rebooting n locking
 
 
 
@@ -170,6 +171,8 @@ int spinner = 0; // for spin
 unsigned long waterMaintRunTime = 120000; // 30 sec= 30000// 1min=60000 //*2min= 120000; // 4min=240,000; // 5min=300000
 unsigned long waterMaintSavedTime = 0;
 
+
+String timeString = " XX:XX:XX ";
 String boilerStatus = "B- ";
 String waterStatus = "W- ";
 String valveStatus = "V- ";
@@ -268,7 +271,7 @@ MCP9600 envTC;  //64 green
 MCP9600 waterTC; //65 blue
 MCP9600 boilerTC; //60 yellow
 
-MCP9600 yellowTC; //65 yellow
+//MCP9600 yellowTC; //65 yellow
 
 
 /// TODO: consider other thermocouple amps
@@ -400,6 +403,8 @@ Preferences preferences;
 
 void setup()
 {
+
+
 	//======================================================================================
 	// time  Var Inits
 	//======================================================================================	
@@ -426,17 +431,63 @@ void setup()
 	boilerTC.begin(0x60); // 60// yellow boiler
 	envTC.begin(0x064); // 64 bare Env
 
-	yellowTC.begin(0x65); //65 yellow wire pin 16
+	//yellowTC.begin(0x65); //65 yellow wire pin 16
 
+
+	// ************************************
+	//pinMode(yellowRelay, OUTPUT); // o PIN 27
+	//digitalWrite(yellowRelay, LOW);
+	// ************************************
+
+	pinMode(standbyRelay, OUTPUT);
+	digitalWrite(standbyRelay, OFF);
+
+	pinMode(zoneTwoRelay, OUTPUT); // o PIN 18
+	digitalWrite(zoneTwoRelay, OFF);
+
+	pinMode(PB1, INPUT); // i PIN 34
+	pinMode(PB1, INPUT_PULLDOWN);
+	digitalWrite(PB1, OFF);
+
+	pinMode(PB2, INPUT); // i PIN 35
+	pinMode(PB2, INPUT_PULLDOWN);
+	digitalWrite(PB2, OFF);
+
+	pinMode(PB3, INPUT); // i PIN 36
+	pinMode(PB3, INPUT_PULLDOWN);
+	digitalWrite(PB3, OFF);
+
+	pinMode(PB4, INPUT); // i PIN 39
+	pinMode(PB4, INPUT_PULLDOWN);
+	digitalWrite(PB4, OFF);
+
+	pinMode(processorLED, OUTPUT);
+	digitalWrite(processorLED, OFF);
+
+	pinMode(callForHeat, INPUT); // i PIN 4
+	pinMode(callForHeat, INPUT_PULLDOWN);
+	digitalWrite(callForHeat, OFF);
+
+	pinMode(speaker, OUTPUT); // o PIN 25
+	digitalWrite(speaker, OFF);
+
+	pinMode(waterRelay, OUTPUT); // o PIN 26
+	digitalWrite(waterRelay, OFF);
+
+	pinMode(burnerRelay, OUTPUT); // o PIN 27
+	digitalWrite(burnerRelay, OFF);
+
+
+	//======================================================================================
+	//======================================================================================
+	//	OTA Definition / Setup
+	//======================================================================================
+	//======================================================================================
 	Serial.begin(115200);
 	Serial.println("Booting");
 
 	//======================================================================================
 	// WiFi
-
-		
-
-
 
 	WiFi.mode(WIFI_STA);
 	WiFi.begin(networkName, networkNamePassPhrase);
@@ -448,13 +499,6 @@ void setup()
 		ESP.restart();
 	}
 
-
-
-	//======================================================================================
-	//======================================================================================
-	//	OTA Definition / Setup
-	//======================================================================================
-	//======================================================================================
 
 	// Port defaults to 3232
 	ArduinoOTA.setPort(3232);
@@ -499,51 +543,6 @@ void setup()
 	Serial.println(WiFi.macAddress());
 
 
-	// ************************************
-	//pinMode(yellowRelay, OUTPUT); // o PIN 27
-	//digitalWrite(yellowRelay, LOW);
-	// ************************************
-
-
-
-	pinMode(standbyRelay, OUTPUT);
-	digitalWrite(standbyRelay, OFF);
-
-	pinMode(zoneTwoRelay, OUTPUT); // o PIN 18
-	digitalWrite(zoneTwoRelay, OFF);
-
-	pinMode(PB1, INPUT); // i PIN 34
-	pinMode(PB1, INPUT_PULLDOWN);
-	digitalWrite(PB1, OFF);
-
-	pinMode(PB2, INPUT); // i PIN 35
-	pinMode(PB2, INPUT_PULLDOWN);
-	digitalWrite(PB2, OFF);
-
-	pinMode(PB3, INPUT); // i PIN 36
-	pinMode(PB3, INPUT_PULLDOWN);
-	digitalWrite(PB3, OFF);
-
-	pinMode(PB4, INPUT); // i PIN 39
-	pinMode(PB4, INPUT_PULLDOWN);
-	digitalWrite(PB4, OFF);
-
-	pinMode(processorLED, OUTPUT);
-	digitalWrite(processorLED, OFF);
-
-	pinMode(callForHeat, INPUT); // i PIN 4
-	pinMode(callForHeat, INPUT_PULLDOWN);
-	digitalWrite(callForHeat, OFF);
-
-	pinMode(speaker, OUTPUT); // o PIN 25
-	digitalWrite(speaker, OFF);
-
-
-	pinMode(waterRelay, OUTPUT); // o PIN 26
-	digitalWrite(waterRelay, OFF);
-
-	pinMode(burnerRelay, OUTPUT); // o PIN 27
-	digitalWrite(burnerRelay, OFF);
 }
 
 //======================================================================================
@@ -654,18 +653,43 @@ bool isCallForHeat()
 
 	//callForHeatActive = digitalRead(callForHeat);
 
+	//
 	if (callForHeatActive) {
-		if (currentEnvTemp < envHighTemp) callForHeatActive = true;
-		else callForHeatActive = false;
+		if (currentEnvTemp < envHighTemp)
+		{
+			runMode = "9.1";
+			callForHeatActive = true;
+		}
+		else
+		{
+			runMode = "9.2";
+			callForHeatActive = false;
+		}
 	}
 	else
 	{
-		if (currentEnvTemp <= envLowTemp) callForHeatActive = true;
-		else callForHeatActive = false;
+		if (currentEnvTemp <= envLowTemp)
+		{
+			runMode = "9.3";
+			callForHeatActive = true;
+		}
+		else
+		{
+			runMode = "9.4";
+			callForHeatActive = false;
+		}
 	}
 
-	if (callForHeatActive) callForHeatStatus = "H+ ";
-	else callForHeatStatus = "H- ";
+	if (callForHeatActive)
+	{
+		runMode = "9.5";
+		callForHeatStatus = "H+ ";
+	}	
+	else
+	{
+		runMode = "9.6";
+		callForHeatStatus = "H- ";
+	}
 
 	return callForHeatActive;
 }
@@ -753,6 +777,7 @@ bool isFlameOut()
 void runMaintenance()
 {
 	ArduinoOTA.handle();
+	runMode = "8.5";
 	blink();
 
 	currentBoilerTemp = calcBoilerTemp();
@@ -770,8 +795,9 @@ void runMaintenance()
 void updateDisplay()
 {
 	ArduinoOTA.handle();
+	runMode = "8.0";
 
-	displayOneLineOne = spin() + " XX:XX:XX "+ String(runMode);// +"|" + String((millis() - startUpTime) / 1000);
+	displayOneLineOne = spin() + timeString + String(runMode);// +"|" + String((millis() - startUpTime) / 1000);
 	displayOneLineTwo = "B " + String(currentBoilerTemp) + ":W " + String(currentWaterTemp) + ":E " + String(currentEnvTemp);
 	displayOneLineThree = callForHeatStatus + boilerStatus + waterStatus + valveStatus;
 
@@ -908,6 +934,8 @@ void disableEndeavor() {  // NOLINT(clang-diagnostic-missing-noreturn)
 	while (true)
 	{
 		runMaintenance();
+
+		timeString = " !!.!!.!! ";
 		updateDisplay();
 
 
