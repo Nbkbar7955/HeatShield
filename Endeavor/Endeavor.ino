@@ -35,6 +35,7 @@
 			01/20/2025 00:06 - push
 			01/21/2025 13:52 - still rebooting n locking
 			01/21/2025 15:30
+			01/22/2025 00:20 - chg vars
 
 
 
@@ -117,7 +118,7 @@ bool callForHeatActive = false; // will be coded aft thermost installed
 int MAX_WATER_TEMP = 175; // 175 MAX Wtr temp. Shutdown if met or exceeded
 int MIN_WATER_TEMP = 100; // 100 MIN +/- 1 if not met then heat back up
 
-int envHighTemp = 72; // 72 current Hi for LR temp
+int envHighTemp = 70; // 70 current Hi for LR temp
 int envHighOffSet = 0; // 0 used to adjust theermocouple readi
 
 
@@ -125,11 +126,11 @@ int envLowTemp = 67; // 67 current Lo for LR kick on at this var
 int envLowOffSet = 0; // 0 offset for testing
 
 
-int boilerHighTemp = 850; // 850 top temp for boiler
+int boilerHighTemp = 899; // 899 top temp for boiler
 int boilerLowTemp = 350; // 350 bottom temp for boiler
 
 int waterHighTemp = 155; // 155 hi water stop heating water. start pumping
-int waterLowTemp = 135; // 135 lo temp. stop pumping and heat water
+int waterLowTemp = 140; // 140 lo temp. stop pumping and heat water
 
 
 // int waterMaintHighTemp = 125; // 125 water temp for maint mode
@@ -621,6 +622,7 @@ void mySystemRun()
 		while (currentBoilerTemp < boilerHighTemp) // heating up boiler
 		{
 			runMaintenance();
+			if (currentWaterTemp <= waterHighTemp) break;
 
 			boilerStatus = "B> ";
 			updateDisplay();
@@ -633,6 +635,7 @@ void mySystemRun()
 		while (currentBoilerTemp >= boilerLowTemp) // cooling down
 		{
 			runMaintenance();
+			if (currentWaterTemp <= waterHighTemp) break;
 
 			boilerStatus = "B< ";
 			updateDisplay();
