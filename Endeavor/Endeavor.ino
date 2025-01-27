@@ -37,6 +37,7 @@
 			01/21/2025 15:30
 			01/22/2025 00:20 - chg vars
 			01/22/2025 00:48 - remove breaks
+			01/27/2025 02:30 - CHG PARMS
 
 
 
@@ -123,7 +124,7 @@ int envHighTemp = 69; // 69 current Hi for LR temp
 int envHighOffSet = 0; // 0 used to adjust theermocouple readi
 
 
-int envLowTemp = 67; // 67 current Lo for LR kick on at this var
+int envLowTemp = 66; // 67 current Lo for LR kick on at this var
 int envLowOffSet = 0; // 0 offset for testing
 
 
