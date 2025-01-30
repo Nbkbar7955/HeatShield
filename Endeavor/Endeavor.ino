@@ -922,9 +922,21 @@ void waterRun()
 
 		turnOnWater();
 	}
-	turnOffWater();
 
+
+	while (callForHeatActive && (currentWaterTemp <= waterLowTemp))
+	{
+
+		runMaintenance();
+		updateDisplay();
+
+		turnOffWater();
+	}
+
+	turnOffWater();
 }
+
+
 
 
 
