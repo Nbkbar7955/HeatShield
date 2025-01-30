@@ -38,6 +38,7 @@
 			01/22/2025 00:20 - chg vars
 			01/22/2025 00:48 - remove breaks
 			01/27/2025 02:30 - CHG PARMS
+			01/30/2025 02:04 - chg parms
 
 
 
@@ -128,12 +129,13 @@ int envLowTemp = 66; // 67 current Lo for LR kick on at this var
 int envLowOffSet = 0; // 0 offset for testing
 
 
-int boilerHighTemp = 899; // 899 top temp for boiler
-int boilerLowTemp = 350; // 350 bottom temp for boiler
+int boilerHighTemp = 950; // 950 top temp for boiler
+int boilerLowTemp = 400; // 400 bottom temp for boiler
 
 int waterHighTemp = 140; // 140 hi water stop heating water. start pumping
-int waterLowTemp = 120; // 120 lo temp. stop pumping and heat water
+int waterLowTemp = 130; // 130 lo temp. stop pumping and heat water
 
+int callForHeatWaterTmp = 120; // 120 water pause
 
 // int waterMaintHighTemp = 125; // 125 water temp for maint mode
 // int waterMaintLowTemp = 115; // 115 water temp for maint mode
@@ -386,6 +388,7 @@ String spin();
 void turnOnValve();
 void turnOffValve();
 void mySystemRun();
+void waterRun();
 
 
 
@@ -721,7 +724,8 @@ void runMaintenance()
 
 	callForHeatActive = isCallForHeat();
 
-	if (callForHeatActive) turnOnWater();
+
+	if (callForHeatActive) waterRun();
 	else turnOffWater();
 
 	safetyCheck();
@@ -908,6 +912,20 @@ void updateBurnTime()
 {
 
 }
+
+void waterRun()
+{
+	while (callForHeatActive && (currentWaterTemp >= callForHeatWaterTmp))
+	{
+		runMaintenance();
+		updateDisplay();
+
+		turnOnWater();
+	}
+	turnOffWater();
+
+}
+
 
 
 
