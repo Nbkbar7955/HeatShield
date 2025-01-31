@@ -39,7 +39,7 @@
 			01/22/2025 00:48 - remove breaks
 			01/27/2025 02:30 - CHG PARMS
 			01/30/2025 02:04 - chg parms
-
+			01/31/2025 17:02 - chg
 
 
  Author:	David Wilson
@@ -121,11 +121,11 @@ bool callForHeatActive = false; // will be coded aft thermost installed
 int MAX_WATER_TEMP = 175; // 175 MAX Wtr temp. Shutdown if met or exceeded
 int MIN_WATER_TEMP = 100; // 100 MIN +/- 1 if not met then heat back up
 
-int envHighTemp = 69; // 69 current Hi for LR temp
+int envHighTemp = 70; // 70 current Hi for LR temp
 int envHighOffSet = 0; // 0 used to adjust theermocouple readi
 
 
-int envLowTemp = 66; // 67 current Lo for LR kick on at this var
+int envLowTemp = 67; // 67 current Lo for LR kick on at this var
 int envLowOffSet = 0; // 0 offset for testing
 
 
@@ -725,7 +725,7 @@ void runMaintenance()
 	callForHeatActive = isCallForHeat();
 
 
-	if (callForHeatActive) waterRun();
+	if (callForHeatActive) turnOnWater();
 	else turnOffWater();
 
 	safetyCheck();
