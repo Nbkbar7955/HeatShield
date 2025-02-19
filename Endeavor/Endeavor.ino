@@ -3,7 +3,10 @@
 /*
  Name:		Endeavor 2425
  Created:	08/27/2022 3:36:02 PM
- Updates:	11/29/2024 00:30:00
+ Author:	David Wilson
+ version:	0.0.0
+
+ Changes:	11/29/2024 00:30:00
 			11/28/2024 15:00.00
 			12/06/2024 02:28.00
 			12/11/2024
@@ -34,19 +37,26 @@
 			01/19/2025 23:59 - try fix
 			01/20/2025 00:06 - push
 			01/21/2025 13:52 - still rebooting n locking
-			01/21/2025 15:30
+			01/21/2025 15:30 - fix was hitting I2C buss to hard and TC(s) too fast/often
 			01/22/2025 00:20 - chg vars
 			01/22/2025 00:48 - remove breaks
 			01/27/2025 02:30 - CHG PARMS
 			01/30/2025 02:04 - chg parms
 			01/31/2025 17:02 - chg
+			02/19/2025 15:48 - chgs
+							 - add delay to calc BoilreTemp()
+							 - add *TempOffSet
+							 - cleanup unused vars
+							 - cleanup function prototypes
+							 - commit
+			
 
 
- Author:	David Wilson
 
 
- version:	0.8.071
- ignore for now
+
+
+
 */
 
 
@@ -56,11 +66,9 @@
 //======================================================================================
 //======================================================================================
 
-// ReSharper disable All
 const char* hostName = "ENDEAVOR_12";
 uint8_t ON = 0x0;
 uint8_t OFF = 0x1;
-
 
 //======================================================================================
 //======================================================================================
@@ -69,29 +77,15 @@ uint8_t OFF = 0x1;
 //======================================================================================
 
 
-
-
 #include <Adafruit_SSD1306.h>
 #include <ArduinoHttpClient.h>
 #include <ArduinoOTA.h>
 #include <ESPmDNS.h>
-#include <Preferences.h>
 #include <SparkFun_MCP9600.h>
 #include <SPI.h>
 #include <WiFi.h>
 #include "../../../../AppData/Local/arduino15/packages/esp32/hardware/esp32/3.0.7/libraries/Update/src/Update.h"
 
-
-///
-/// TODO: Exception Handling
-/// TODO: Safety Checking
-/// TODO: Flow Sensor install and code
-/// TODO: How to test pump running
-/// TODO: Install and code CDS cell for flameOut check
-/// TODO: refine testCycle test pin
-/// TODO: rewire and code test relay to eShutdown
-/// TODO: OLED address changes
-/// 
 
 
 
@@ -117,65 +111,43 @@ uint8_t OFF = 0x1;
 
 bool callForHeatActive = false; // will be coded aft thermost installed
 
-
 int MAX_WATER_TEMP = 175; // 175 MAX Wtr temp. Shutdown if met or exceeded
 int MIN_WATER_TEMP = 100; // 100 MIN +/- 1 if not met then heat back up
 
 int envHighTemp = 70; // 70 current Hi for LR temp
 int envHighOffSet = 0; // 0 used to adjust theermocouple readi
 
-
 int envLowTemp = 67; // 67 current Lo for LR kick on at this var
 int envLowOffSet = 0; // 0 offset for testing
 
-
 int boilerHighTemp = 950; // 950 top temp for boiler
+int boilerHighTempOffSet = 0;
+
 int boilerLowTemp = 400; // 400 bottom temp for boiler
+int boilerLowTempOffSet = 0;
 
 int waterHighTemp = 140; // 140 hi water stop heating water. start pumping
+int waterHighTempOffSet = 0;
+
 int waterLowTemp = 130; // 130 lo temp. stop pumping and heat water
+int waterLowTempOffSet = 0;
 
 int callForHeatWaterTmp = 120; // 120 water pause
-
-// int waterMaintHighTemp = 125; // 125 water temp for maint mode
-// int waterMaintLowTemp = 115; // 115 water temp for maint mode
-
-
+int callForHeatWaterTmpOffSet = 0;
 
 int currentBoilerTemp = 0; // global boiler temp updated by runMaintxx
-int currentBoilerLastTemp = 0;
-int currentBoilerNewTemp = 0;
+int currentBoilerTempOffSet = 0;
 
 int currentWaterTemp = 0; // global water temp updated by runMaintxx
-int currentWaterLastTemp = 0;
-int currentWaterNewTemp = 0;
+int currentWaterTempOffSet = 0;
 
 int currentEnvTemp = 0; // global Env temp updated by runMaintxx
-int currentEnvLastTemp = 0;
-int currentEnvNewTemp = 0;
-
-int numTimesToLoop = 5;
-int timeToWait = 5;
-
-int highValBoiler = 0;
-int lowValBoiler = 0;
-
-int highValWater = 0;
-int lowValWater = 0;
-
-int highValEnv = 0;
-int lowValEnv = 0;
+int currentEnvTempOffSet = 0;
 
 int spinner = 0; // for spin
 
 
-
 ///////////////////////////////////////////////////////////////////////////
-
-
-unsigned long waterMaintRunTime = 120000; // 30 sec= 30000// 1min=60000 //*2min= 120000; // 4min=240,000; // 5min=300000
-unsigned long waterMaintSavedTime = 0;
-
 
 String timeString = " XX:XX:XX ";
 String boilerStatus = "B- ";
@@ -183,14 +155,6 @@ String waterStatus = "W- ";
 String valveStatus = "V- ";
 String callForHeatStatus = "H- ";
 String flameStatus = "F- ";
-
-
-bool satisfyCallForHeat = false;
-
-
-
-
-
 
 // 30,000 = 30 seconds
 // 60,000 = 1 min
@@ -200,11 +164,6 @@ bool satisfyCallForHeat = false;
 // 300,000 = 5 mins
 // 600,000 = 10 mins
 
-unsigned long waterOnRunTime = 120000; // 120000 water on
-unsigned long savedWaterRunTime = 0;
-
-unsigned long waterOffRunTime = 180000; // 180000 water off
-unsigned long savedOffWaterRunTime = 0;
 
 unsigned long blinkInterval = 250;// 250 blink
 unsigned long savedBlinkTime = 0; //blink begining
@@ -235,29 +194,22 @@ int status = WL_IDLE_STATUS;
 //======================================================================================
 //
 
+// misc
 const int processorLED = 2; //o 2 LED on MicroProcessor
-const int callForHeat = 4; //i 4 CALLFORHEAT
+const int callForHeatPin = 4; //i 4 CALLFORHEAT
 const int flameOut = 5; //5 flame out
-
 // SPI
 const int misoSpi = 12;// 12 MISO
 const int mosiSpi = 13;// 13 MOSI
 const int clkSpi = 14;// 14 CLK
 const int ssSpi = 15;// 15 SS
-
-
+// Relays
 const int waterRelay = 17; //o 17 WATERPUMP RELAY
 const int zoneTwoRelay = 18; //o 18 2nd floor
 const int standbyRelay = 19; //o 19
 const int burnerRelay = 16; //o 16 BURNER RELAY
 const int yellowRelay = 34; //o 34 testing BURNER RELAY
-
-/// <summary>
-/// TODO:Test and code speaker
-/// TODO: test and code pushbuttons
-/// TODO: code mode/options with PB 
-/// </summary>
-
+// others
 const int speaker = 32; //o 32 SOUNDALARM
 const int PB1 = 34; //i 34 PB1
 const int PB2 = 35; //i 35 PB2
@@ -279,8 +231,6 @@ MCP9600 boilerTC; //60 yellow
 //MCP9600 yellowTC; //65 yellow
 
 
-/// TODO: consider other thermocouple amps
-
 //
 //======================================================================================
 //======================================================================================
@@ -289,8 +239,6 @@ MCP9600 boilerTC; //60 yellow
 //======================================================================================
 //
 
-///  TODO: Setup 2nd I2C
-///  
 Adafruit_SSD1306 displayOne(-1);
 //Adafruit_SSD1306 displayTwo(-1);
 //Adafruit_SSD1306 displayThree(-1);
@@ -332,73 +280,37 @@ String displayFourLineThree = "x";
 //======================================================================================
 
 
-bool isMaintWaterRunTimeUp();
-auto getStatus(void)->String;
-void primePump();
-bool isFlameOut();
 void disableEndeavor();
-void heatUpBoiler();
-void coolDownBoiler();
-bool isWaterHighTempMet(void);
-void pushHeat();
-bool soundAlert(int, int);
-bool soundAlert(int);
-bool soundAlert();
-bool throwException(int);
 void safetyCheck();
-bool testCycle();
-void opCycle(void);
-void heatUpTheHouse();
-int boilerTemp(void);
 void updateBurnTime(void);
 void updateDisplay();
-bool saveState();
-bool restoreState();
-bool saveConfig();
-bool restoreConfig();
-bool commCycle();
-bool threadCycle();
 void turnOnBoiler(void);
 void turnOffBoiler(void);
-void myTests();
 void blink();
 void runMaintenance();
-bool isEnvTempMet();
-void heatTheHouse();
-void runWaterCycle();
-bool waterOnTimeNotFinished();
-bool waterOffTimeNotFinished();
 void turnOffWater();
-bool isWaterLowTempMet();
 void turnOnWater();
-int ambientTemp();
-void maintenanceMode();
-bool isMaintHighWaterTempMet();
-int calcBoilerTemp(); // func to calc avg blrTemp
-int calcWaterTemp();
-int calcEnvTemp();
-void ensureMinWtrTemp();
-bool isWaterTempLow();
-void runSingleHeatCycle(int);
-void fiveMinWaterPush();
-void thirtySecondWaterPush();
-bool isCallForHeat();
-void boilerCycle();
-String spin();
 void turnOnValve();
 void turnOffValve();
 void mySystemRun();
 void waterRun();
 
+int calcBoilerTemp(); // func to calc avg blrTemp
+int calcWaterTemp();
+int calcEnvTemp();
 
+bool testCycle();
+bool isCallForHeat();
+bool isFlameOut();
+
+String spin();
 
 
 
 //
-// writing
-//
-
-Preferences preferences;
+// writing prefs
+// need #include <Preferences.h>
+//Preferences preferences;
 
 //======================================================================================
 //======================================================================================
@@ -437,8 +349,6 @@ void setup()
 	boilerTC.begin(0x60); // 60// yellow boiler
 	envTC.begin(0x064); // 64 bare Env
 
-	//yellowTC.begin(0x65); //65 yellow wire pin 16
-
 
 	// ************************************
 	//pinMode(yellowRelay, OUTPUT); // o PIN 27
@@ -470,9 +380,9 @@ void setup()
 	pinMode(processorLED, OUTPUT);
 	digitalWrite(processorLED, OFF);
 
-	pinMode(callForHeat, INPUT); // i PIN 4
-	pinMode(callForHeat, INPUT_PULLDOWN);
-	digitalWrite(callForHeat, OFF);
+	pinMode(callForHeatPin, INPUT); // i PIN 4
+	pinMode(callForHeatPin, INPUT_PULLDOWN);
+	digitalWrite(callForHeatPin, OFF);
 
 	pinMode(speaker, OUTPUT); // o PIN 25
 	digitalWrite(speaker, OFF);
@@ -602,7 +512,7 @@ bool TestMode = false;
 void loop()
 {
 
-	//turnOnValve();
+	turnOnValve();
 
 	runMaintenance();
 	updateDisplay();
@@ -655,7 +565,7 @@ bool isCallForHeat()
 {
 	ArduinoOTA.handle();
 
-	//callForHeatActive = digitalRead(callForHeat);
+	//callForHeatActive = digitalRead(callForHeatPin);
 
 	if (callForHeatActive) if (currentEnvTemp < envHighTemp) callForHeatActive = true;
 		else callForHeatActive = false;
@@ -804,6 +714,7 @@ int calcBoilerTemp()
 {
 	ArduinoOTA.handle();
 
+	delay(20);
 	return (int)boilerTC.getThermocoupleTemp(false);
 }
 
@@ -813,24 +724,7 @@ int calcWaterTemp()
 
 	delay(20);
 	return (int)waterTC.getThermocoupleTemp(false);
-	
-	//int holdTemp = 0;
 
-	//for (int readTimes = 0; readTimes < numTimesToLoop; readTimes++)
-	//{
-	//	ArduinoOTA.handle();
-	//	holdTemp = (int)waterTC.getThermocoupleTemp(false);
-	//	if (holdTemp > highValWater)
-	//	{
-	//		highValWater = holdTemp;
-	//		if (highValWater > lowValWater) lowValWater = highValWater;
-	//		else highValWater = lowValWater;
-	//	}
-	//	ArduinoOTA.handle();
-	//	delay(timeToWait);
-	//	ArduinoOTA.handle();
-	//}
-	//return highValWater;
 }
 
 int calcEnvTemp()
@@ -839,27 +733,6 @@ int calcEnvTemp()
 
 	delay(20);
 	return (int)envTC.getThermocoupleTemp(false);
-	
-	//int holdTemp = 0;
-
-	//for (int readTimes = 0; readTimes < numTimesToLoop; readTimes++)
-	//{
-	//	ArduinoOTA.handle();
-	//	updateDisplay();
-	//	return (int)envTC.getThermocoupleTemp(false);
-	//	
-	//	holdTemp = (int)envTC.getThermocoupleTemp(false);
-	//	if (holdTemp > highValEnv)
-	//	{
-	//		highValEnv = holdTemp;
-	//		if (highValEnv > lowValEnv) lowValEnv = highValEnv;
-	//		else highValWater = lowValEnv;
-	//	}
-	//	ArduinoOTA.handle();
-	//	delay(timeToWait);
-	//	ArduinoOTA.handle();
-	//}
-	//return highValEnv;
 }
 
 void safetyCheck()
