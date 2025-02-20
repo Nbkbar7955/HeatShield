@@ -50,6 +50,7 @@
 							 - cleanup function prototypes
 							 - commit
 			02/19/2025 18:27 - compile error. fix was clean solution
+			02/19/2025 21:59 - chgs to monitor water tmp  and lower temps reqs while no call for heat
 
 			
 
@@ -111,16 +112,17 @@ uint8_t OFF = 0x1;
 
 
 
-bool callForHeatActive = false; // will be coded aft thermost installed
+bool callForHeat = false; // will be coded aft thermost installed
 
 int MAX_WATER_TEMP = 175; // 175 MAX Wtr temp. Shutdown if met or exceeded
 int MIN_WATER_TEMP = 100; // 100 MIN +/- 1 if not met then heat back up
 
 int envHighTemp = 70; // 70 current Hi for LR temp
-int envHighOffSet = 0; // 0 used to adjust theermocouple readi
+int envHighTempOffSet = 0; // 0 used to adjust theermocouple readi
 
-int envLowTemp = 67; // 67 current Lo for LR kick on at this var
-int envLowOffSet = 0; // 0 offset for testing
+int envLowTemp = 66; // 67 current Lo for LR kick on at this var
+int envLowTempOffSet = 0; // 0 offset
+
 
 int boilerHighTemp = 950; // 950 top temp for boiler
 int boilerHighTempOffSet = 0;
@@ -130,12 +132,14 @@ int boilerLowTempOffSet = 0;
 
 int waterHighTemp = 140; // 140 hi water stop heating water. start pumping
 int waterHighTempOffSet = 0;
+int waterHighTempMaintenance = -20; // -20 lower temp to burn less
 
 int waterLowTemp = 130; // 130 lo temp. stop pumping and heat water
 int waterLowTempOffSet = 0;
+int waterLowTempMaintenance = -20; // -20 lower temp to burn less
 
-int callForHeatWaterTmp = 120; // 120 water pause
-int callForHeatWaterTmpOffSet = 0;
+int callForHeatWaterTemp = 120; // 120 water pause
+int callForHeatWaterTempOffSet = 0;
 
 int currentBoilerTemp = 0; // global boiler temp updated by runMaintxx
 int currentBoilerTempOffSet = 0;
@@ -151,7 +155,7 @@ int spinner = 0; // for spin
 
 ///////////////////////////////////////////////////////////////////////////
 
-String timeString = " XX:XX:XX ";
+String timeString = " XX:XX:XX "; // XX:XX:XX
 String boilerStatus = "B- ";
 String waterStatus = "W- ";
 String valveStatus = "V- ";
@@ -530,13 +534,13 @@ void mySystemRun()
 	runMaintenance();
 	updateDisplay();
 
-	while (currentWaterTemp <= waterHighTemp) // heating up water
+	while (currentWaterTemp < waterHighTemp + waterHighTempOffSet) // heating up water
 	{
 		runMaintenance();
 		updateDisplay();
 
 		// HEAT boiler
-		while (currentBoilerTemp < boilerHighTemp) // heating up boiler
+		while (currentBoilerTemp < boilerHighTemp + boilerHighTempOffSet) // heating up boiler
 		{
 			runMaintenance();
 
@@ -544,11 +548,12 @@ void mySystemRun()
 			updateDisplay();
 
 			turnOnBoiler();
+
 		}
 		turnOffBoiler();
 
 		// COOL boiler
-		while (currentBoilerTemp >= boilerLowTemp) // cooling down
+		while (currentBoilerTemp >= boilerLowTemp + boilerLowTempOffSet) // cooling down
 		{
 			runMaintenance();
 
@@ -557,26 +562,32 @@ void mySystemRun()
 
 			turnOffBoiler();
 		}
-		turnOffBoiler();
+
 	}
+
 	turnOffBoiler();
 	boilerStatus = "B- ";
+	updateDisplay();
 }
+
+
 
 bool isCallForHeat()
 {
 	ArduinoOTA.handle();
 
-	//callForHeatActive = digitalRead(callForHeatPin);
+	//callForHeat = digitalRead(callForHeatPin);
 
-	if (callForHeatActive) if (currentEnvTemp < envHighTemp) callForHeatActive = true;
-		else callForHeatActive = false;
-	else if (currentEnvTemp <= envLowTemp) callForHeatActive = true;
-		else callForHeatActive = false;
-	if (callForHeatActive) callForHeatStatus = "H+ ";
+	if (callForHeat) if (currentEnvTemp < envHighTemp + envHighTempOffSet) callForHeat = true;
+		else callForHeat = false;
+
+	else if (currentEnvTemp <= envLowTemp + envLowTempOffSet) callForHeat = true;
+		else callForHeat = false;
+
+	if (callForHeat) callForHeatStatus = "H+ ";
 	else callForHeatStatus = "H- ";
 
-	return callForHeatActive;
+	return callForHeat;
 }
 
 void turnOnBoiler()
@@ -634,11 +645,21 @@ void runMaintenance()
 	currentWaterTemp = calcWaterTemp();
 	currentEnvTemp = calcEnvTemp();
 
-	callForHeatActive = isCallForHeat();
+	callForHeat = isCallForHeat();
 
 
-	if (callForHeatActive) turnOnWater();
-	else turnOffWater();
+	if (callForHeat)
+	{
+		waterHighTempOffSet = 0;
+		waterLowTempOffSet = 0;
+		turnOnWater();
+	}
+	else
+	{
+		waterHighTempOffSet = waterHighTempMaintenance;
+		waterLowTempOffSet = waterLowTempMaintenance;
+		turnOffWater();
+	}
 
 	safetyCheck();
 	delay(10);
@@ -717,7 +738,7 @@ int calcBoilerTemp()
 	ArduinoOTA.handle();
 
 	delay(20);
-	return (int)boilerTC.getThermocoupleTemp(false);
+	return (int) boilerTC.getThermocoupleTemp(false);
 }
 
 int calcWaterTemp()
@@ -725,7 +746,7 @@ int calcWaterTemp()
 	ArduinoOTA.handle();
 
 	delay(20);
-	return (int)waterTC.getThermocoupleTemp(false);
+	return (int) waterTC.getThermocoupleTemp(false);
 
 }
 
@@ -734,7 +755,7 @@ int calcEnvTemp()
 	ArduinoOTA.handle();
 
 	delay(20);
-	return (int)envTC.getThermocoupleTemp(false);
+	return (int) envTC.getThermocoupleTemp(false);
 }
 
 void safetyCheck()
@@ -790,7 +811,7 @@ void updateBurnTime()
 
 void waterRun()
 {
-	while (callForHeatActive && (currentWaterTemp >= callForHeatWaterTmp))
+	while (callForHeat && (currentWaterTemp >= callForHeatWaterTemp))
 	{
 		runMaintenance();
 		updateDisplay();
@@ -799,7 +820,7 @@ void waterRun()
 	}
 
 
-	while (callForHeatActive && (currentWaterTemp <= waterLowTemp))
+	while (callForHeat && (currentWaterTemp <= waterLowTemp))
 	{
 
 		runMaintenance();
@@ -925,7 +946,7 @@ void runSingleHeatCycle(int setPoint) {
 			runMaintenance();
 			updateDisplay();
 
-			if (!callForHeatActive) break;
+			if (!callForHeat) break;
 			turnOnBoiler();
 		}
 		turnOffBoiler();
@@ -1174,7 +1195,7 @@ void maintenanceMode()
 	turnOffWater();
 	turnOffBoiler();
 
-	//if (callForHeatActive) return;
+	//if (callForHeat) return;
 
 
 	// let's start
@@ -1231,7 +1252,7 @@ void heatTheHouse()
 	runMode = "2.0";
 	updateDisplay();
 
-	if (callForHeatActive)
+	if (callForHeat)
 	{
 		runMaintenance();
 		runMode = "2.1";
@@ -1271,7 +1292,7 @@ void boilerCycle()
 	updateDisplay();
 
 
-	while (callForHeatActive)
+	while (callForHeat)
 	{
 		runMaintenance();
 		runMode = "5.1";
@@ -1308,7 +1329,7 @@ void runWaterCycle()
 	runMode = "7.0";
 	updateDisplay();
 
-	while (callForHeatActive)
+	while (callForHeat)
 	{
 		runMaintenance();
 		runMode = "7.1";
@@ -1321,7 +1342,7 @@ void runWaterCycle()
 			runMode = "7.2";
 			updateDisplay();
 
-			if (!callForHeatActive) break;
+			if (!callForHeat) break;
 
 			turnOnWater();
 		}
