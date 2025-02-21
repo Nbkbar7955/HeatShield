@@ -51,6 +51,7 @@
 							 - commit
 			02/19/2025 18:27 - compile error. fix was clean solution
 			02/19/2025 21:59 - chgs to monitor water tmp  and lower temps reqs while no call for heat
+			02/21/2025 17:40 - chg env
 
 			
 
@@ -117,14 +118,14 @@ bool callForHeat = false; // will be coded aft thermost installed
 int MAX_WATER_TEMP = 175; // 175 MAX Wtr temp. Shutdown if met or exceeded
 int MIN_WATER_TEMP = 100; // 100 MIN +/- 1 if not met then heat back up
 
-int envHighTemp = 70; // 70 current Hi for LR temp
+int envHighTemp = 69; // 69 current Hi for LR temp
 int envHighTempOffSet = 0; // 0 used to adjust theermocouple readi
 
 int envLowTemp = 66; // 67 current Lo for LR kick on at this var
 int envLowTempOffSet = 0; // 0 offset
 
 
-int boilerHighTemp = 950; // 950 top temp for boiler
+int boilerHighTemp = 975; // 975 top temp for boiler
 int boilerHighTempOffSet = 0;
 
 int boilerLowTemp = 400; // 400 bottom temp for boiler
