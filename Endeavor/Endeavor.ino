@@ -133,14 +133,11 @@ int boilerLowTempOffSet = 0;
 
 int waterHighTemp = 140; // 140 hi water stop heating water. start pumping
 int waterHighTempOffSet = 0;
-int waterHighTempMaintenance = -20; // -20 lower temp to burn less
+int waterHighTempMaintenance = 0; // -20 lower temp to burn less
 
 int waterLowTemp = 130; // 130 lo temp. stop pumping and heat water
 int waterLowTempOffSet = 0;
-int waterLowTempMaintenance = -20; // -20 lower temp to burn less
-
-int callForHeatWaterTemp = 120; // 120 water pause
-int callForHeatWaterTempOffSet = 0;
+int waterLowTempMaintenance = 0; // -20 lower temp to burn less
 
 int currentBoilerTemp = 0; // global boiler temp updated by runMaintxx
 int currentBoilerTempOffSet = 0;
@@ -299,7 +296,8 @@ void turnOffWater();
 void turnOnWater();
 void turnOnValve();
 void turnOffValve();
-void mySystemRun();
+void boilerRun(int);
+void boilerRun();
 void waterRun();
 
 int calcBoilerTemp(); // func to calc avg blrTemp
@@ -526,16 +524,22 @@ void loop()
 
 	if (TestMode) testCycle();
 
-	mySystemRun();
+	if (callForHeat) waterRun();
+	else boilerRun();
 }
 
 
-void mySystemRun()
+void boilerRun()
+{
+	boilerRun(waterHighTemp + waterHighTempOffSet);
+}
+
+void boilerRun(int waterTempToHeatTo)
 {
 	runMaintenance();
 	updateDisplay();
 
-	while (currentWaterTemp < waterHighTemp + waterHighTempOffSet) // heating up water
+	while (currentWaterTemp < waterTempToHeatTo) // heating up water
 	{
 		runMaintenance();
 		updateDisplay();
@@ -563,7 +567,6 @@ void mySystemRun()
 
 			turnOffBoiler();
 		}
-
 	}
 
 	turnOffBoiler();
@@ -580,10 +583,10 @@ bool isCallForHeat()
 	//callForHeat = digitalRead(callForHeatPin);
 
 	if (callForHeat) if (currentEnvTemp < envHighTemp + envHighTempOffSet) callForHeat = true;
-		else callForHeat = false;
+					 else callForHeat = false;
 
 	else if (currentEnvTemp <= envLowTemp + envLowTempOffSet) callForHeat = true;
-		else callForHeat = false;
+		 else callForHeat = false;
 
 	if (callForHeat) callForHeatStatus = "H+ ";
 	else callForHeatStatus = "H- ";
@@ -594,11 +597,10 @@ bool isCallForHeat()
 void turnOnBoiler()
 {
 	digitalWrite(burnerRelay, ON);
-	//boilerStatus = "B+ ";
-	safetyCheck();
 
+	safetyCheck();
 	isFlameOut();
-	//updateBurnTime();
+	updateBurnTime();
 }
 
 void turnOffBoiler()
@@ -608,7 +610,7 @@ void turnOffBoiler()
 	//boilerStatus = "B- ";
 
 	isFlameOut();
-	//updateBurnTime();
+	updateBurnTime();
 
 }
 
@@ -637,6 +639,7 @@ void turnOffWater() {
 }
 
 
+
 void runMaintenance()
 {
 	ArduinoOTA.handle();
@@ -645,22 +648,7 @@ void runMaintenance()
 	currentBoilerTemp = calcBoilerTemp();
 	currentWaterTemp = calcWaterTemp();
 	currentEnvTemp = calcEnvTemp();
-
 	callForHeat = isCallForHeat();
-
-
-	if (callForHeat)
-	{
-		waterHighTempOffSet = 0;
-		waterLowTempOffSet = 0;
-		turnOnWater();
-	}
-	else
-	{
-		waterHighTempOffSet = waterHighTempMaintenance;
-		waterLowTempOffSet = waterLowTempMaintenance;
-		turnOffWater();
-	}
 
 	safetyCheck();
 	delay(10);
@@ -792,6 +780,8 @@ void disableEndeavor() {  // NOLINT(clang-diagnostic-missing-noreturn)
 
 bool isFlameOut()
 {
+	return false;
+
 	runMaintenance();
 	updateDisplay();
 
@@ -810,7 +800,27 @@ void updateBurnTime()
 
 }
 
+
 void waterRun()
+{
+	runMaintenance();
+	updateDisplay();
+
+	if (callForHeat)
+	{
+		turnOffWater();
+		boilerRun(waterLowTemp + waterLowTempOffSet);
+		turnOnWater();
+	}
+	else
+	{
+		turnOffWater();
+	}
+}
+
+
+/*
+void waterRunA()
 {
 	while (callForHeat && (currentWaterTemp >= callForHeatWaterTemp))
 	{
@@ -832,6 +842,7 @@ void waterRun()
 
 	turnOffWater();
 }
+*/
 
 
 
@@ -892,7 +903,7 @@ void opCycle()
 	runMaintenance();
 	updateDisplay();
 
-	mySystemRun();
+	boilerRun();
 }
 
 
