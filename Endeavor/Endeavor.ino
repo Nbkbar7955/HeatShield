@@ -52,6 +52,7 @@
 			02/19/2025 18:27 - compile error. fix was clean solution
 			02/19/2025 21:59 - chgs to monitor water tmp  and lower temps reqs while no call for heat
 			02/21/2025 17:40 - chg env
+			02/24/2025 18:23 - add water Run
 
 			
 
@@ -782,19 +783,8 @@ bool isFlameOut()
 {
 	return false;
 
-	runMaintenance();
-	updateDisplay();
-
-	if (digitalRead(flameOut)) {
-		flameStatus = "F+ ";
-		return false;
-	}
-	else {
-		flameStatus = "F- ";
-		return true;
-	}
-
 }
+
 void updateBurnTime()
 {
 
