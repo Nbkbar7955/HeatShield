@@ -54,6 +54,7 @@
 			02/21/2025 17:40 - chg env
 			02/24/2025 18:23 - add water Run
 			02/24/2025 18:41 - rmove comments ** IRONMAN
+			02/24/2025 21:53 - chg loop to turn off water ** IRONMAN
 
 			
 
@@ -175,7 +176,7 @@ unsigned long blinkInterval = 250;// 250 blink
 unsigned long savedBlinkTime = 0; //blink begining
 
 unsigned long burnTime = 0; // calculate how long we've burned
-long startUpTime = 0; // 0 for blink()
+unsigned long startUpTime = 0; // 0 for blink()
 
 
 //======================================================================================
@@ -526,8 +527,15 @@ void loop()
 
 	if (TestMode) testCycle();
 
-	if (callForHeat) waterRun();
-	else boilerRun();
+	if (callForHeat)
+	{
+		waterRun();
+
+	} else {
+
+		turnOffWater();
+		boilerRun();
+	}
 }
 
 
