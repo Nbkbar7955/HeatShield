@@ -55,6 +55,7 @@
 			02/24/2025 18:23 - add water Run
 			02/24/2025 18:41 - rmove comments ** IRONMAN
 			02/24/2025 21:53 - chg loop to turn off water ** IRONMAN
+			03/01/2025 15:35 - up env tmp for a sec ** IRONMAN
 
 			
 
@@ -121,10 +122,10 @@ bool callForHeat = false; // will be coded aft thermost installed
 int MAX_WATER_TEMP = 175; // 175 MAX Wtr temp. Shutdown if met or exceeded
 int MIN_WATER_TEMP = 100; // 100 MIN +/- 1 if not met then heat back up
 
-int envHighTemp = 69; // 69 current Hi for LR temp
+int envHighTemp = 72; // 72 current Hi for LR temp
 int envHighTempOffSet = 0; // 0 used to adjust theermocouple readi
 
-int envLowTemp = 66; // 67 current Lo for LR kick on at this var
+int envLowTemp = 67; // 67 current Lo for LR kick on at this var
 int envLowTempOffSet = 0; // 0 offset
 
 
