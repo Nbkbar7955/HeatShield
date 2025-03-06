@@ -136,7 +136,7 @@ int boilerHighTempOffSet = 0;
 int boilerLowTemp = 400; // 400 bottom temp for boiler
 int boilerLowTempOffSet = 0;
 
-int waterHighTemp = 135; // 135 hi water stop heating water. start pumping
+int waterHighTemp = 140; // 140 hi water stop heating water. start pumping
 int waterHighTempOffSet = 0;
 int waterHighTempMaintenance = 0; // -20 lower temp to burn less
 
@@ -809,8 +809,7 @@ void waterRun()
 
 	if (callForHeat)
 	{
-		//turnOffWater();
-		//boilerRun(waterLowTemp + waterLowTempOffSet);
+		boilerRun();
 		turnOnWater();
 	}
 	else
