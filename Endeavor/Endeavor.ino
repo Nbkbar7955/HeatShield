@@ -56,6 +56,7 @@
 			02/24/2025 18:41 - rmove comments ** IRONMAN
 			02/24/2025 21:53 - chg loop to turn off water ** IRONMAN
 			03/01/2025 15:35 - up env tmp for a sec ** IRONMAN
+			03/06/2025 04:30 - chg var an look at wqater on/off bug  ** IRONMAN
 
 			
 
@@ -135,7 +136,7 @@ int boilerHighTempOffSet = 0;
 int boilerLowTemp = 400; // 400 bottom temp for boiler
 int boilerLowTempOffSet = 0;
 
-int waterHighTemp = 140; // 140 hi water stop heating water. start pumping
+int waterHighTemp = 135; // 135 hi water stop heating water. start pumping
 int waterHighTempOffSet = 0;
 int waterHighTempMaintenance = 0; // -20 lower temp to burn less
 
@@ -808,8 +809,8 @@ void waterRun()
 
 	if (callForHeat)
 	{
-		turnOffWater();
-		boilerRun(waterLowTemp + waterLowTempOffSet);
+		//turnOffWater();
+		//boilerRun(waterLowTemp + waterLowTempOffSet);
 		turnOnWater();
 	}
 	else
