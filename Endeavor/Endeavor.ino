@@ -58,6 +58,7 @@
 			03/01/2025 15:35 - up env tmp for a sec ** IRONMAN
 			03/06/2025 04:30 - chg var an look at wqater on/off bug  ** IRONMAN
 			03/08/2025 15:00 - chg vars ** LP
+			03/10/2025 18::54 - fix water issues
 			
 
 
@@ -529,15 +530,17 @@ void loop()
 
 	if (TestMode) testCycle();
 
-	if (callForHeat)
-	{
-		waterRun();
+	//if (callForHeat)
+	//{
+	//	waterRun();
 
-	} else {
+	//} else {
 
-		turnOffWater();
-		boilerRun();
-	}
+	//	turnOffWater();
+	//	boilerRun();
+	//}
+
+	boilerRun();
 }
 
 
@@ -664,6 +667,8 @@ void runMaintenance()
 
 	safetyCheck();
 	delay(10);
+	if (callForHeat) turnOnWater();
+	else turnOffWater();
 
 }
 
@@ -809,7 +814,7 @@ void waterRun()
 
 	if (callForHeat)
 	{
-		boilerRun();
+		
 		turnOnWater();
 	}
 	else
