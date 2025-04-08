@@ -58,6 +58,7 @@
 			03/01/2025 15:35 - up env tmp for a sec ** IRONMAN
 			03/06/2025 04:30 - chg var an look at wqater on/off bug  ** IRONMAN
 			03/08/2025 15:00 - chg vars ** LP
+			04/08/2025 04:11 - too cold
 			
 
 
@@ -123,14 +124,14 @@ bool callForHeat = false; // will be coded aft thermost installed
 int MAX_WATER_TEMP = 175; // 175 MAX Wtr temp. Shutdown if met or exceeded
 int MIN_WATER_TEMP = 100; // 100 MIN +/- 1 if not met then heat back up
 
-int envHighTemp = 69; // 69 current Hi for LR temp
+int envHighTemp = 72; // 72 current Hi for LR temp
 int envHighTempOffSet = 0; // 0 used to adjust theermocouple readi
 
-int envLowTemp = 66; // 66 current Lo for LR kick on at this var
+int envLowTemp = 68; // 68 current Lo for LR kick on at this var
 int envLowTempOffSet = 0; // 0 offset
 
 
-int boilerHighTemp = 975; // 975 top temp for boiler
+int boilerHighTemp = 980; // 980 top temp for boiler
 int boilerHighTempOffSet = 0;
 
 int boilerLowTemp = 400; // 400 bottom temp for boiler
