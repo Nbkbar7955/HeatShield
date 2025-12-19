@@ -59,6 +59,9 @@
 			03/06/2025 04:30 - chg var an look at wqater on/off bug  ** IRONMAN
 			03/08/2025 15:00 - chg vars ** LP
 			04/08/2025 04:11 - too cold
+			12/14/2025 20:16 - Setting up WASP
+			12/19/2025 01:40 - ReWrite call for heat and turnoff upstairs
+
 			
 
 
@@ -76,6 +79,15 @@
 //======================================================================================
 //======================================================================================
 
+#include <gfxfont.h>
+#include <Adafruit_SPITFT_Macros.h>
+#include <Adafruit_SPITFT.h>
+#include <Adafruit_GrayOLED.h>
+#include <Adafruit_GFX.h>
+#include <splash.h>
+#include <Adafruit_SSD1306_EMULATOR.h>
+#include <HttpClient.h>
+#include <b64.h>
 const char* hostName = "ENDEAVOR_12";
 uint8_t ON = 0x0;
 uint8_t OFF = 0x1;
@@ -87,6 +99,7 @@ uint8_t OFF = 0x1;
 //======================================================================================
 
 
+
 #include <Adafruit_SSD1306.h>
 #include <ArduinoHttpClient.h>
 #include <ArduinoOTA.h>
@@ -94,7 +107,7 @@ uint8_t OFF = 0x1;
 #include <SparkFun_MCP9600.h>
 #include <SPI.h>
 #include <WiFi.h>
-#include "../../../../AppData/Local/arduino15/packages/esp32/hardware/esp32/3.0.7/libraries/Update/src/Update.h"
+// #include "../../../../AppData/Local/arduino15/packages/esp32/hardware/esp32/3.0.7/libraries/Update/src/Update.h"
 
 
 
@@ -523,7 +536,7 @@ bool TestMode = false;
 void loop()
 {
 
-	turnOnValve();
+	turnOffValve();
 
 	runMaintenance();
 	updateDisplay();
@@ -597,11 +610,9 @@ bool isCallForHeat()
 
 	//callForHeat = digitalRead(callForHeatPin);
 
-	if (callForHeat) if (currentEnvTemp < envHighTemp + envHighTempOffSet) callForHeat = true;
-					 else callForHeat = false;
 
-	else if (currentEnvTemp <= envLowTemp + envLowTempOffSet) callForHeat = true;
-		 else callForHeat = false;
+	if (currentEnvTemp <= envLowTemp + envLowTempOffSet) callForHeat = true;
+	if (currentEnvTemp >= envHighTemp + envHighTempOffSet) callForHeat = false;
 
 	if (callForHeat) callForHeatStatus = "H+ ";
 	else callForHeatStatus = "H- ";

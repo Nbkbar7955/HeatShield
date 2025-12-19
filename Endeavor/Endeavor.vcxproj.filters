@@ -37,12 +37,6 @@
     <Filter Include="src\_micro-api-readonly\libraries\Adafruit_SSD1306">
       <UniqueIdentifier>{0fd40c72-d4f7-4c9f-9f41-d0ea51cb3af4}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\_micro-api-readonly\libraries\ArduinoHttpClient">
-      <UniqueIdentifier>{1dc76666-d79c-445d-9c69-3e95e86c94b2}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\_micro-api-readonly\libraries\ArduinoOTA">
-      <UniqueIdentifier>{9ad45cea-dca5-425a-8fc4-3e8e645ac01b}</UniqueIdentifier>
-    </Filter>
     <Filter Include="src\_micro-api-readonly\libraries\ESPmDNS">
       <UniqueIdentifier>{c37649c0-e48e-44c6-bb92-2163f96cdc9c}</UniqueIdentifier>
     </Filter>
@@ -61,9 +55,6 @@
     <Filter Include="src\_micro-api-readonly\libraries\Network">
       <UniqueIdentifier>{ea007859-78b6-4a00-b622-03aa78b0f2d5}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\_micro-api-readonly\libraries\Adafruit_GFX_Library">
-      <UniqueIdentifier>{0970e0e0-b8ce-4818-83ea-a648ecafa6ab}</UniqueIdentifier>
-    </Filter>
     <Filter Include="src\_micro-api-readonly\libraries\Adafruit_BusIO">
       <UniqueIdentifier>{6423edea-5394-4ae9-8521-633a45cab9a2}</UniqueIdentifier>
     </Filter>
@@ -73,6 +64,24 @@
     <Filter Include="src\_micro-api-readonly\libraries\Update">
       <UniqueIdentifier>{60382a4d-3d36-4f25-945c-0b2bd39e0230}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\_micro-api-readonly\libraries\HttpClient">
+      <UniqueIdentifier>{2832df35-e389-4195-9dec-bbd846e5e0c3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\_micro-api-readonly\libraries\ArduinoOTA">
+      <UniqueIdentifier>{e0f924d9-fee6-47c3-8ff4-742fe971ced2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\_micro-api-readonly\libraries\Adafruit_SSD1306_Wemos_Mini_OLED">
+      <UniqueIdentifier>{82b7b0f1-e758-4ef5-8daa-023e9fdb3511}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\_micro-api-readonly\libraries\Adafruit_SSD1306_EMULATOR">
+      <UniqueIdentifier>{acbab52a-3c49-49ec-a5b4-0a8bc0942f34}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\_micro-api-readonly\libraries\Adafruit_GFX_Library">
+      <UniqueIdentifier>{a1cde447-b08f-4d9d-bd36-8ec918e99b41}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\_micro-api-readonly\libraries\ArduinoHttpClient">
+      <UniqueIdentifier>{3a632df9-6c8d-43b7-962e-09c5727da557}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="src\arduino folders read me.txt">
@@ -80,12 +89,6 @@
     </None>
     <None Include="..\..\..\..\Documents\Arduino\libraries\Adafruit_SSD1306\library.properties">
       <Filter>src\_micro-api-readonly\libraries\Adafruit_SSD1306</Filter>
-    </None>
-    <None Include="..\..\..\..\Documents\Arduino\libraries\ArduinoHttpClient\library.properties">
-      <Filter>src\_micro-api-readonly\libraries\ArduinoHttpClient</Filter>
-    </None>
-    <None Include="..\..\..\..\AppData\Local\Arduino15\packages\esp32\hardware\esp32\3.0.7\libraries\ArduinoOTA\library.properties">
-      <Filter>src\_micro-api-readonly\libraries\ArduinoOTA</Filter>
     </None>
     <None Include="..\..\..\..\AppData\Local\Arduino15\packages\esp32\hardware\esp32\3.0.7\libraries\ESPmDNS\library.properties">
       <Filter>src\_micro-api-readonly\libraries\ESPmDNS</Filter>
@@ -105,9 +108,6 @@
     <None Include="..\..\..\..\AppData\Local\Arduino15\packages\esp32\hardware\esp32\3.0.7\libraries\Network\library.properties">
       <Filter>src\_micro-api-readonly\libraries\Network</Filter>
     </None>
-    <None Include="..\..\..\..\Documents\Arduino\libraries\Adafruit_GFX_Library\library.properties">
-      <Filter>src\_micro-api-readonly\libraries\Adafruit_GFX_Library</Filter>
-    </None>
     <None Include="..\..\..\..\Documents\Arduino\libraries\Adafruit_BusIO\library.properties">
       <Filter>src\_micro-api-readonly\libraries\Adafruit_BusIO</Filter>
     </None>
@@ -116,6 +116,24 @@
     </None>
     <None Include="..\..\..\..\AppData\Local\Arduino15\packages\esp32\hardware\esp32\3.0.7\libraries\Update\library.properties">
       <Filter>src\_micro-api-readonly\libraries\Update</Filter>
+    </None>
+    <None Include="..\..\..\..\Documents\Arduino\libraries\HttpClient\library.properties">
+      <Filter>src\_micro-api-readonly\libraries\HttpClient</Filter>
+    </None>
+    <None Include="..\..\..\..\Documents\Arduino\libraries\ArduinoOTA\library.properties">
+      <Filter>src\_micro-api-readonly\libraries\ArduinoOTA</Filter>
+    </None>
+    <None Include="..\..\..\..\Documents\Arduino\libraries\Adafruit_SSD1306_Wemos_Mini_OLED\library.properties">
+      <Filter>src\_micro-api-readonly\libraries\Adafruit_SSD1306_Wemos_Mini_OLED</Filter>
+    </None>
+    <None Include="..\..\..\..\Documents\Arduino\libraries\Adafruit_SSD1306_EMULATOR\library.properties">
+      <Filter>src\_micro-api-readonly\libraries\Adafruit_SSD1306_EMULATOR</Filter>
+    </None>
+    <None Include="..\..\..\..\Documents\Arduino\libraries\Adafruit_GFX_Library\library.properties">
+      <Filter>src\_micro-api-readonly\libraries\Adafruit_GFX_Library</Filter>
+    </None>
+    <None Include="..\..\..\..\Documents\Arduino\libraries\ArduinoHttpClient\library.properties">
+      <Filter>src\_micro-api-readonly\libraries\ArduinoHttpClient</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
@@ -317,30 +335,6 @@
     <ClInclude Include="..\..\..\..\Documents\Arduino\libraries\Adafruit_SSD1306\splash.h">
       <Filter>src\_micro-api-readonly\libraries\Adafruit_SSD1306</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\Documents\Arduino\libraries\ArduinoHttpClient\src\ArduinoHttpClient.h">
-      <Filter>src\_micro-api-readonly\libraries\ArduinoHttpClient</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\Documents\Arduino\libraries\ArduinoHttpClient\src\b64.h">
-      <Filter>src\_micro-api-readonly\libraries\ArduinoHttpClient</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\Documents\Arduino\libraries\ArduinoHttpClient\src\HttpClient.h">
-      <Filter>src\_micro-api-readonly\libraries\ArduinoHttpClient</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\Documents\Arduino\libraries\ArduinoHttpClient\src\URLEncoder.h">
-      <Filter>src\_micro-api-readonly\libraries\ArduinoHttpClient</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\Documents\Arduino\libraries\ArduinoHttpClient\src\URLParser.h">
-      <Filter>src\_micro-api-readonly\libraries\ArduinoHttpClient</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\Documents\Arduino\libraries\ArduinoHttpClient\src\WebSocketClient.h">
-      <Filter>src\_micro-api-readonly\libraries\ArduinoHttpClient</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\Documents\Arduino\libraries\ArduinoHttpClient\src\utility\URLParser\http_parser.h">
-      <Filter>src\_micro-api-readonly\libraries\ArduinoHttpClient</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\AppData\Local\Arduino15\packages\esp32\hardware\esp32\3.0.7\libraries\ArduinoOTA\src\ArduinoOTA.h">
-      <Filter>src\_micro-api-readonly\libraries\ArduinoOTA</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\AppData\Local\Arduino15\packages\esp32\hardware\esp32\3.0.7\libraries\ESPmDNS\src\ESPmDNS.h">
       <Filter>src\_micro-api-readonly\libraries\ESPmDNS</Filter>
     </ClInclude>
@@ -404,21 +398,6 @@
     <ClInclude Include="..\..\..\..\AppData\Local\Arduino15\packages\esp32\hardware\esp32\3.0.7\libraries\Network\src\NetworkUdp.h">
       <Filter>src\_micro-api-readonly\libraries\Network</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\Documents\Arduino\libraries\Adafruit_GFX_Library\Adafruit_GFX.h">
-      <Filter>src\_micro-api-readonly\libraries\Adafruit_GFX_Library</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\Documents\Arduino\libraries\Adafruit_GFX_Library\Adafruit_GrayOLED.h">
-      <Filter>src\_micro-api-readonly\libraries\Adafruit_GFX_Library</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\Documents\Arduino\libraries\Adafruit_GFX_Library\Adafruit_SPITFT.h">
-      <Filter>src\_micro-api-readonly\libraries\Adafruit_GFX_Library</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\Documents\Arduino\libraries\Adafruit_GFX_Library\Adafruit_SPITFT_Macros.h">
-      <Filter>src\_micro-api-readonly\libraries\Adafruit_GFX_Library</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\Documents\Arduino\libraries\Adafruit_GFX_Library\gfxfont.h">
-      <Filter>src\_micro-api-readonly\libraries\Adafruit_GFX_Library</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\Documents\Arduino\libraries\Adafruit_BusIO\Adafruit_BusIO_Register.h">
       <Filter>src\_micro-api-readonly\libraries\Adafruit_BusIO</Filter>
     </ClInclude>
@@ -443,6 +422,102 @@
     <ClInclude Include="__vm\.Endeavor.vsarduino.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\..\Documents\Arduino\libraries\HttpClient\b64.h">
+      <Filter>src\_micro-api-readonly\libraries\HttpClient</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Documents\Arduino\libraries\HttpClient\HttpClient.h">
+      <Filter>src\_micro-api-readonly\libraries\HttpClient</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Documents\Arduino\libraries\ArduinoOTA\src\ArduinoOTA.h">
+      <Filter>src\_micro-api-readonly\libraries\ArduinoOTA</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Documents\Arduino\libraries\ArduinoOTA\src\InternalStorage.h">
+      <Filter>src\_micro-api-readonly\libraries\ArduinoOTA</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Documents\Arduino\libraries\ArduinoOTA\src\InternalStorageAVR.h">
+      <Filter>src\_micro-api-readonly\libraries\ArduinoOTA</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Documents\Arduino\libraries\ArduinoOTA\src\InternalStorageESP.h">
+      <Filter>src\_micro-api-readonly\libraries\ArduinoOTA</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Documents\Arduino\libraries\ArduinoOTA\src\InternalStorageRenesas.h">
+      <Filter>src\_micro-api-readonly\libraries\ArduinoOTA</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Documents\Arduino\libraries\ArduinoOTA\src\InternalStorageRP2.h">
+      <Filter>src\_micro-api-readonly\libraries\ArduinoOTA</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Documents\Arduino\libraries\ArduinoOTA\src\InternalStorageSTM32.h">
+      <Filter>src\_micro-api-readonly\libraries\ArduinoOTA</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Documents\Arduino\libraries\ArduinoOTA\src\OTAStorage.h">
+      <Filter>src\_micro-api-readonly\libraries\ArduinoOTA</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Documents\Arduino\libraries\ArduinoOTA\src\SDStorage.h">
+      <Filter>src\_micro-api-readonly\libraries\ArduinoOTA</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Documents\Arduino\libraries\ArduinoOTA\src\SerialFlashStorage.h">
+      <Filter>src\_micro-api-readonly\libraries\ArduinoOTA</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Documents\Arduino\libraries\ArduinoOTA\src\WiFiOTA.h">
+      <Filter>src\_micro-api-readonly\libraries\ArduinoOTA</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Documents\Arduino\libraries\ArduinoOTA\src\utility\optiboot.h">
+      <Filter>src\_micro-api-readonly\libraries\ArduinoOTA</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Documents\Arduino\libraries\ArduinoOTA\src\utility\rp2_flash_boot.h">
+      <Filter>src\_micro-api-readonly\libraries\ArduinoOTA</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Documents\Arduino\libraries\ArduinoOTA\src\utility\r_flash_lp_cf.h">
+      <Filter>src\_micro-api-readonly\libraries\ArduinoOTA</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Documents\Arduino\libraries\ArduinoOTA\src\utility\stm32_flash_boot.h">
+      <Filter>src\_micro-api-readonly\libraries\ArduinoOTA</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Documents\Arduino\libraries\Adafruit_SSD1306_Wemos_Mini_OLED\Adafruit_SSD1306.h">
+      <Filter>src\_micro-api-readonly\libraries\Adafruit_SSD1306_Wemos_Mini_OLED</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Documents\Arduino\libraries\Adafruit_SSD1306_EMULATOR\Adafruit_SSD1306_EMULATOR.h">
+      <Filter>src\_micro-api-readonly\libraries\Adafruit_SSD1306_EMULATOR</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Documents\Arduino\libraries\Adafruit_SSD1306_EMULATOR\splash.h">
+      <Filter>src\_micro-api-readonly\libraries\Adafruit_SSD1306_EMULATOR</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Documents\Arduino\libraries\Adafruit_GFX_Library\Adafruit_GFX.h">
+      <Filter>src\_micro-api-readonly\libraries\Adafruit_GFX_Library</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Documents\Arduino\libraries\Adafruit_GFX_Library\Adafruit_GrayOLED.h">
+      <Filter>src\_micro-api-readonly\libraries\Adafruit_GFX_Library</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Documents\Arduino\libraries\Adafruit_GFX_Library\Adafruit_SPITFT.h">
+      <Filter>src\_micro-api-readonly\libraries\Adafruit_GFX_Library</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Documents\Arduino\libraries\Adafruit_GFX_Library\Adafruit_SPITFT_Macros.h">
+      <Filter>src\_micro-api-readonly\libraries\Adafruit_GFX_Library</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Documents\Arduino\libraries\Adafruit_GFX_Library\gfxfont.h">
+      <Filter>src\_micro-api-readonly\libraries\Adafruit_GFX_Library</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Documents\Arduino\libraries\ArduinoHttpClient\src\ArduinoHttpClient.h">
+      <Filter>src\_micro-api-readonly\libraries\ArduinoHttpClient</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Documents\Arduino\libraries\ArduinoHttpClient\src\b64.h">
+      <Filter>src\_micro-api-readonly\libraries\ArduinoHttpClient</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Documents\Arduino\libraries\ArduinoHttpClient\src\HttpClient.h">
+      <Filter>src\_micro-api-readonly\libraries\ArduinoHttpClient</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Documents\Arduino\libraries\ArduinoHttpClient\src\URLEncoder.h">
+      <Filter>src\_micro-api-readonly\libraries\ArduinoHttpClient</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Documents\Arduino\libraries\ArduinoHttpClient\src\URLParser.h">
+      <Filter>src\_micro-api-readonly\libraries\ArduinoHttpClient</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Documents\Arduino\libraries\ArduinoHttpClient\src\WebSocketClient.h">
+      <Filter>src\_micro-api-readonly\libraries\ArduinoHttpClient</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Documents\Arduino\libraries\ArduinoHttpClient\src\utility\URLParser\http_parser.h">
+      <Filter>src\_micro-api-readonly\libraries\ArduinoHttpClient</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="board.txt">
@@ -453,12 +528,6 @@
     </Text>
     <Text Include="..\..\..\..\Documents\Arduino\libraries\Adafruit_SSD1306\license.txt">
       <Filter>src\_micro-api-readonly\libraries\Adafruit_SSD1306</Filter>
-    </Text>
-    <Text Include="..\..\..\..\Documents\Arduino\libraries\ArduinoHttpClient\keywords.txt">
-      <Filter>src\_micro-api-readonly\libraries\ArduinoHttpClient</Filter>
-    </Text>
-    <Text Include="..\..\..\..\AppData\Local\Arduino15\packages\esp32\hardware\esp32\3.0.7\libraries\ArduinoOTA\keywords.txt">
-      <Filter>src\_micro-api-readonly\libraries\ArduinoOTA</Filter>
     </Text>
     <Text Include="..\..\..\..\AppData\Local\Arduino15\packages\esp32\hardware\esp32\3.0.7\libraries\ESPmDNS\keywords.txt">
       <Filter>src\_micro-api-readonly\libraries\ESPmDNS</Filter>
@@ -475,12 +544,6 @@
     <Text Include="..\..\..\..\AppData\Local\Arduino15\packages\esp32\hardware\esp32\3.0.7\libraries\WiFi\keywords.txt">
       <Filter>src\_micro-api-readonly\libraries\WiFi</Filter>
     </Text>
-    <Text Include="..\..\..\..\Documents\Arduino\libraries\Adafruit_GFX_Library\CMakeLists.txt">
-      <Filter>src\_micro-api-readonly\libraries\Adafruit_GFX_Library</Filter>
-    </Text>
-    <Text Include="..\..\..\..\Documents\Arduino\libraries\Adafruit_GFX_Library\license.txt">
-      <Filter>src\_micro-api-readonly\libraries\Adafruit_GFX_Library</Filter>
-    </Text>
     <Text Include="..\..\..\..\Documents\Arduino\libraries\Adafruit_BusIO\CMakeLists.txt">
       <Filter>src\_micro-api-readonly\libraries\Adafruit_BusIO</Filter>
     </Text>
@@ -489,6 +552,63 @@
     </Text>
     <Text Include="..\..\..\..\AppData\Local\Arduino15\packages\esp32\hardware\esp32\3.0.7\libraries\Update\keywords.txt">
       <Filter>src\_micro-api-readonly\libraries\Update</Filter>
+    </Text>
+    <Text Include="..\..\..\..\Documents\Arduino\libraries\HttpClient\keywords.txt">
+      <Filter>src\_micro-api-readonly\libraries\HttpClient</Filter>
+    </Text>
+    <Text Include="..\..\..\..\Documents\Arduino\libraries\ArduinoOTA\keywords.txt">
+      <Filter>src\_micro-api-readonly\libraries\ArduinoOTA</Filter>
+    </Text>
+    <Text Include="..\..\..\..\Documents\Arduino\libraries\ArduinoOTA\extras\avr\platform.local.txt">
+      <Filter>src\_micro-api-readonly\libraries\ArduinoOTA</Filter>
+    </Text>
+    <Text Include="..\..\..\..\Documents\Arduino\libraries\ArduinoOTA\extras\esp32\platform.local.txt">
+      <Filter>src\_micro-api-readonly\libraries\ArduinoOTA</Filter>
+    </Text>
+    <Text Include="..\..\..\..\Documents\Arduino\libraries\ArduinoOTA\extras\esp8266\platform.local.txt">
+      <Filter>src\_micro-api-readonly\libraries\ArduinoOTA</Filter>
+    </Text>
+    <Text Include="..\..\..\..\Documents\Arduino\libraries\ArduinoOTA\extras\IDE2\platform.local.txt">
+      <Filter>src\_micro-api-readonly\libraries\ArduinoOTA</Filter>
+    </Text>
+    <Text Include="..\..\..\..\Documents\Arduino\libraries\ArduinoOTA\extras\nRF5\platform.local.txt">
+      <Filter>src\_micro-api-readonly\libraries\ArduinoOTA</Filter>
+    </Text>
+    <Text Include="..\..\..\..\Documents\Arduino\libraries\ArduinoOTA\extras\ota-prg\platform.local.txt">
+      <Filter>src\_micro-api-readonly\libraries\ArduinoOTA</Filter>
+    </Text>
+    <Text Include="..\..\..\..\Documents\Arduino\libraries\ArduinoOTA\extras\renesas\platform.local.txt">
+      <Filter>src\_micro-api-readonly\libraries\ArduinoOTA</Filter>
+    </Text>
+    <Text Include="..\..\..\..\Documents\Arduino\libraries\ArduinoOTA\extras\rp2040\platform.local.txt">
+      <Filter>src\_micro-api-readonly\libraries\ArduinoOTA</Filter>
+    </Text>
+    <Text Include="..\..\..\..\Documents\Arduino\libraries\ArduinoOTA\extras\samd\platform.local.txt">
+      <Filter>src\_micro-api-readonly\libraries\ArduinoOTA</Filter>
+    </Text>
+    <Text Include="..\..\..\..\Documents\Arduino\libraries\ArduinoOTA\extras\stm32\platform.local.txt">
+      <Filter>src\_micro-api-readonly\libraries\ArduinoOTA</Filter>
+    </Text>
+    <Text Include="..\..\..\..\Documents\Arduino\libraries\Adafruit_SSD1306_Wemos_Mini_OLED\license.txt">
+      <Filter>src\_micro-api-readonly\libraries\Adafruit_SSD1306_Wemos_Mini_OLED</Filter>
+    </Text>
+    <Text Include="..\..\..\..\Documents\Arduino\libraries\Adafruit_SSD1306_Wemos_Mini_OLED\README.txt">
+      <Filter>src\_micro-api-readonly\libraries\Adafruit_SSD1306_Wemos_Mini_OLED</Filter>
+    </Text>
+    <Text Include="..\..\..\..\Documents\Arduino\libraries\Adafruit_SSD1306_EMULATOR\CMakeLists.txt">
+      <Filter>src\_micro-api-readonly\libraries\Adafruit_SSD1306_EMULATOR</Filter>
+    </Text>
+    <Text Include="..\..\..\..\Documents\Arduino\libraries\Adafruit_SSD1306_EMULATOR\license.txt">
+      <Filter>src\_micro-api-readonly\libraries\Adafruit_SSD1306_EMULATOR</Filter>
+    </Text>
+    <Text Include="..\..\..\..\Documents\Arduino\libraries\Adafruit_GFX_Library\CMakeLists.txt">
+      <Filter>src\_micro-api-readonly\libraries\Adafruit_GFX_Library</Filter>
+    </Text>
+    <Text Include="..\..\..\..\Documents\Arduino\libraries\Adafruit_GFX_Library\license.txt">
+      <Filter>src\_micro-api-readonly\libraries\Adafruit_GFX_Library</Filter>
+    </Text>
+    <Text Include="..\..\..\..\Documents\Arduino\libraries\ArduinoHttpClient\keywords.txt">
+      <Filter>src\_micro-api-readonly\libraries\ArduinoHttpClient</Filter>
     </Text>
   </ItemGroup>
   <ItemGroup>
@@ -645,24 +765,6 @@
     <ClCompile Include="..\..\..\..\Documents\Arduino\libraries\Adafruit_SSD1306\Adafruit_SSD1306.cpp">
       <Filter>src\_micro-api-readonly\libraries\Adafruit_SSD1306</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\Documents\Arduino\libraries\ArduinoHttpClient\src\b64.cpp">
-      <Filter>src\_micro-api-readonly\libraries\ArduinoHttpClient</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\Documents\Arduino\libraries\ArduinoHttpClient\src\HttpClient.cpp">
-      <Filter>src\_micro-api-readonly\libraries\ArduinoHttpClient</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\Documents\Arduino\libraries\ArduinoHttpClient\src\URLEncoder.cpp">
-      <Filter>src\_micro-api-readonly\libraries\ArduinoHttpClient</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\Documents\Arduino\libraries\ArduinoHttpClient\src\WebSocketClient.cpp">
-      <Filter>src\_micro-api-readonly\libraries\ArduinoHttpClient</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\Documents\Arduino\libraries\ArduinoHttpClient\src\utility\URLParser\http_parser.c">
-      <Filter>src\_micro-api-readonly\libraries\ArduinoHttpClient</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\AppData\Local\Arduino15\packages\esp32\hardware\esp32\3.0.7\libraries\ArduinoOTA\src\ArduinoOTA.cpp">
-      <Filter>src\_micro-api-readonly\libraries\ArduinoOTA</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\..\AppData\Local\Arduino15\packages\esp32\hardware\esp32\3.0.7\libraries\ESPmDNS\src\ESPmDNS.cpp">
       <Filter>src\_micro-api-readonly\libraries\ESPmDNS</Filter>
     </ClCompile>
@@ -717,18 +819,6 @@
     <ClCompile Include="..\..\..\..\AppData\Local\Arduino15\packages\esp32\hardware\esp32\3.0.7\libraries\Network\src\NetworkUdp.cpp">
       <Filter>src\_micro-api-readonly\libraries\Network</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\Documents\Arduino\libraries\Adafruit_GFX_Library\Adafruit_GFX.cpp">
-      <Filter>src\_micro-api-readonly\libraries\Adafruit_GFX_Library</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\Documents\Arduino\libraries\Adafruit_GFX_Library\Adafruit_GrayOLED.cpp">
-      <Filter>src\_micro-api-readonly\libraries\Adafruit_GFX_Library</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\Documents\Arduino\libraries\Adafruit_GFX_Library\Adafruit_SPITFT.cpp">
-      <Filter>src\_micro-api-readonly\libraries\Adafruit_GFX_Library</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\Documents\Arduino\libraries\Adafruit_GFX_Library\glcdfont.c">
-      <Filter>src\_micro-api-readonly\libraries\Adafruit_GFX_Library</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\..\Documents\Arduino\libraries\Adafruit_BusIO\Adafruit_BusIO_Register.cpp">
       <Filter>src\_micro-api-readonly\libraries\Adafruit_BusIO</Filter>
     </ClCompile>
@@ -746,6 +836,78 @@
     </ClCompile>
     <ClCompile Include="..\..\..\..\AppData\Local\Arduino15\packages\esp32\hardware\esp32\3.0.7\libraries\Update\src\Updater.cpp">
       <Filter>src\_micro-api-readonly\libraries\Update</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Documents\Arduino\libraries\HttpClient\b64.cpp">
+      <Filter>src\_micro-api-readonly\libraries\HttpClient</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Documents\Arduino\libraries\HttpClient\HttpClient.cpp">
+      <Filter>src\_micro-api-readonly\libraries\HttpClient</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Documents\Arduino\libraries\ArduinoOTA\src\InternalStorage.cpp">
+      <Filter>src\_micro-api-readonly\libraries\ArduinoOTA</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Documents\Arduino\libraries\ArduinoOTA\src\InternalStorageAVR.cpp">
+      <Filter>src\_micro-api-readonly\libraries\ArduinoOTA</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Documents\Arduino\libraries\ArduinoOTA\src\InternalStorageESP.cpp">
+      <Filter>src\_micro-api-readonly\libraries\ArduinoOTA</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Documents\Arduino\libraries\ArduinoOTA\src\InternalStorageRenesas.cpp">
+      <Filter>src\_micro-api-readonly\libraries\ArduinoOTA</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Documents\Arduino\libraries\ArduinoOTA\src\InternalStorageRP2.cpp">
+      <Filter>src\_micro-api-readonly\libraries\ArduinoOTA</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Documents\Arduino\libraries\ArduinoOTA\src\InternalStorageSTM32.cpp">
+      <Filter>src\_micro-api-readonly\libraries\ArduinoOTA</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Documents\Arduino\libraries\ArduinoOTA\src\OTAStorage.cpp">
+      <Filter>src\_micro-api-readonly\libraries\ArduinoOTA</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Documents\Arduino\libraries\ArduinoOTA\src\WiFiOTA.cpp">
+      <Filter>src\_micro-api-readonly\libraries\ArduinoOTA</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Documents\Arduino\libraries\ArduinoOTA\src\utility\rp2_flash_boot.c">
+      <Filter>src\_micro-api-readonly\libraries\ArduinoOTA</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Documents\Arduino\libraries\ArduinoOTA\src\utility\r_flash_lp_cf.c">
+      <Filter>src\_micro-api-readonly\libraries\ArduinoOTA</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Documents\Arduino\libraries\ArduinoOTA\src\utility\stm32_flash_boot.c">
+      <Filter>src\_micro-api-readonly\libraries\ArduinoOTA</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Documents\Arduino\libraries\Adafruit_SSD1306_Wemos_Mini_OLED\Adafruit_SSD1306.cpp">
+      <Filter>src\_micro-api-readonly\libraries\Adafruit_SSD1306_Wemos_Mini_OLED</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Documents\Arduino\libraries\Adafruit_SSD1306_EMULATOR\Adafruit_SSD1306_EMULATOR.cpp">
+      <Filter>src\_micro-api-readonly\libraries\Adafruit_SSD1306_EMULATOR</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Documents\Arduino\libraries\Adafruit_GFX_Library\Adafruit_GFX.cpp">
+      <Filter>src\_micro-api-readonly\libraries\Adafruit_GFX_Library</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Documents\Arduino\libraries\Adafruit_GFX_Library\Adafruit_GrayOLED.cpp">
+      <Filter>src\_micro-api-readonly\libraries\Adafruit_GFX_Library</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Documents\Arduino\libraries\Adafruit_GFX_Library\Adafruit_SPITFT.cpp">
+      <Filter>src\_micro-api-readonly\libraries\Adafruit_GFX_Library</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Documents\Arduino\libraries\Adafruit_GFX_Library\glcdfont.c">
+      <Filter>src\_micro-api-readonly\libraries\Adafruit_GFX_Library</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Documents\Arduino\libraries\ArduinoHttpClient\src\b64.cpp">
+      <Filter>src\_micro-api-readonly\libraries\ArduinoHttpClient</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Documents\Arduino\libraries\ArduinoHttpClient\src\HttpClient.cpp">
+      <Filter>src\_micro-api-readonly\libraries\ArduinoHttpClient</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Documents\Arduino\libraries\ArduinoHttpClient\src\URLEncoder.cpp">
+      <Filter>src\_micro-api-readonly\libraries\ArduinoHttpClient</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Documents\Arduino\libraries\ArduinoHttpClient\src\WebSocketClient.cpp">
+      <Filter>src\_micro-api-readonly\libraries\ArduinoHttpClient</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Documents\Arduino\libraries\ArduinoHttpClient\src\utility\URLParser\http_parser.c">
+      <Filter>src\_micro-api-readonly\libraries\ArduinoHttpClient</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
