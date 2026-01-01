@@ -61,7 +61,7 @@
 			04/08/2025 04:11 - too cold
 			12/14/2025 20:16 - Setting up WASP
 			12/19/2025 01:40 - ReWrite call for heat and turnoff upstairs
-
+			01/01/2026 02:39 - Turn valve all the time to heat upstairs
 			
 
 
@@ -76,15 +76,15 @@
 //======================================================================================
 //======================================================================================
 // Variables Used Here for Convenience
-//======================================================================================
+//================================================================+======================
 //======================================================================================
 
 #include <gfxfont.h>
 #include <Adafruit_SPITFT_Macros.h>
-#include <Adafruit_SPITFT.h>
+//#include <Adafruit_SPITFT.h>
 #include <Adafruit_GrayOLED.h>
 #include <Adafruit_GFX.h>
-#include <splash.h>
+//#include <splash.h>
 #include <Adafruit_SSD1306_EMULATOR.h>
 #include <HttpClient.h>
 #include <b64.h>
@@ -536,8 +536,9 @@ bool TestMode = false;
 void loop()
 {
 
-	turnOffValve();
-
+	// turnOffValve();
+	turnOnValve();
+	
 	runMaintenance();
 	updateDisplay();
 
