@@ -63,6 +63,7 @@
 			12/19/2025 01:40 - ReWrite call for heat and turnoff upstairs
 			01/01/2026 02:39 - Turn valve all the time to heat upstairs
 			01/02/2026 02:36 - Pus to Endeavor
+			01/02/2026 02:45 - chgd env tempd 
 			
 
 
@@ -138,10 +139,10 @@ bool callForHeat = false; // will be coded aft thermost installed
 int MAX_WATER_TEMP = 175; // 175 MAX Wtr temp. Shutdown if met or exceeded
 int MIN_WATER_TEMP = 100; // 100 MIN +/- 1 if not met then heat back up
 
-int envHighTemp = 72; // 72 current Hi for LR temp
+int envHighTemp = 69; // 72 current Hi for LR temp
 int envHighTempOffSet = 0; // 0 used to adjust theermocouple readi
 
-int envLowTemp = 68; // 68 current Lo for LR kick on at this var
+int envLowTemp = 64; // 68 current Lo for LR kick on at this var
 int envLowTempOffSet = 0; // 0 offset
 
 
