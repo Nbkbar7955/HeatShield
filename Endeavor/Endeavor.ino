@@ -65,7 +65,7 @@
 			01/02/2026 02:36 - Pus to Endeavor
 			01/02/2026 02:45 - chgd env tempd
 			01/06/2026 21:45 - removed unused uncludes veryfi water flows add clearDisplay() to clear at begin
-			
+			07/01/2026 10:17 - chg vars ** LP
 
 
 
@@ -145,7 +145,7 @@ int envLowTemp = 64; // 68 current Lo for LR kick on at this var
 int envLowTempOffSet = 0; // 0 offset
 
 
-int boilerHighTemp = 850; // 980 top temp for boiler
+int boilerHighTemp = 80 j; // 980 top temp for boiler
 int boilerHighTempOffSet = 0;
 
 int boilerLowTemp = 400; // 400 bottom temp for boiler
