@@ -73,14 +73,14 @@
     <Filter Include="src\_micro-api-readonly\libraries\Adafruit_SSD1306_Wemos_Mini_OLED">
       <UniqueIdentifier>{82b7b0f1-e758-4ef5-8daa-023e9fdb3511}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\_micro-api-readonly\libraries\Adafruit_SSD1306_EMULATOR">
-      <UniqueIdentifier>{acbab52a-3c49-49ec-a5b4-0a8bc0942f34}</UniqueIdentifier>
-    </Filter>
     <Filter Include="src\_micro-api-readonly\libraries\Adafruit_GFX_Library">
       <UniqueIdentifier>{a1cde447-b08f-4d9d-bd36-8ec918e99b41}</UniqueIdentifier>
     </Filter>
     <Filter Include="src\_micro-api-readonly\libraries\ArduinoHttpClient">
       <UniqueIdentifier>{3a632df9-6c8d-43b7-962e-09c5727da557}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\_micro-api-readonly\libraries\Adafruit_SSD1306_EMULATOR">
+      <UniqueIdentifier>{8e55149a-7693-4e0c-b5ac-1506680fc0de}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -126,14 +126,14 @@
     <None Include="..\..\..\..\Documents\Arduino\libraries\Adafruit_SSD1306_Wemos_Mini_OLED\library.properties">
       <Filter>src\_micro-api-readonly\libraries\Adafruit_SSD1306_Wemos_Mini_OLED</Filter>
     </None>
-    <None Include="..\..\..\..\Documents\Arduino\libraries\Adafruit_SSD1306_EMULATOR\library.properties">
-      <Filter>src\_micro-api-readonly\libraries\Adafruit_SSD1306_EMULATOR</Filter>
-    </None>
     <None Include="..\..\..\..\Documents\Arduino\libraries\Adafruit_GFX_Library\library.properties">
       <Filter>src\_micro-api-readonly\libraries\Adafruit_GFX_Library</Filter>
     </None>
     <None Include="..\..\..\..\Documents\Arduino\libraries\ArduinoHttpClient\library.properties">
       <Filter>src\_micro-api-readonly\libraries\ArduinoHttpClient</Filter>
+    </None>
+    <None Include="..\..\..\..\Documents\Arduino\libraries\Adafruit_SSD1306_EMULATOR\library.properties">
+      <Filter>src\_micro-api-readonly\libraries\Adafruit_SSD1306_EMULATOR</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
@@ -476,12 +476,6 @@
     <ClInclude Include="..\..\..\..\Documents\Arduino\libraries\Adafruit_SSD1306_Wemos_Mini_OLED\Adafruit_SSD1306.h">
       <Filter>src\_micro-api-readonly\libraries\Adafruit_SSD1306_Wemos_Mini_OLED</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\Documents\Arduino\libraries\Adafruit_SSD1306_EMULATOR\Adafruit_SSD1306_EMULATOR.h">
-      <Filter>src\_micro-api-readonly\libraries\Adafruit_SSD1306_EMULATOR</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\Documents\Arduino\libraries\Adafruit_SSD1306_EMULATOR\splash.h">
-      <Filter>src\_micro-api-readonly\libraries\Adafruit_SSD1306_EMULATOR</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\Documents\Arduino\libraries\Adafruit_GFX_Library\Adafruit_GFX.h">
       <Filter>src\_micro-api-readonly\libraries\Adafruit_GFX_Library</Filter>
     </ClInclude>
@@ -517,6 +511,12 @@
     </ClInclude>
     <ClInclude Include="..\..\..\..\Documents\Arduino\libraries\ArduinoHttpClient\src\utility\URLParser\http_parser.h">
       <Filter>src\_micro-api-readonly\libraries\ArduinoHttpClient</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Documents\Arduino\libraries\Adafruit_SSD1306_EMULATOR\Adafruit_SSD1306_EMULATOR.h">
+      <Filter>src\_micro-api-readonly\libraries\Adafruit_SSD1306_EMULATOR</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Documents\Arduino\libraries\Adafruit_SSD1306_EMULATOR\splash.h">
+      <Filter>src\_micro-api-readonly\libraries\Adafruit_SSD1306_EMULATOR</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -595,12 +595,6 @@
     <Text Include="..\..\..\..\Documents\Arduino\libraries\Adafruit_SSD1306_Wemos_Mini_OLED\README.txt">
       <Filter>src\_micro-api-readonly\libraries\Adafruit_SSD1306_Wemos_Mini_OLED</Filter>
     </Text>
-    <Text Include="..\..\..\..\Documents\Arduino\libraries\Adafruit_SSD1306_EMULATOR\CMakeLists.txt">
-      <Filter>src\_micro-api-readonly\libraries\Adafruit_SSD1306_EMULATOR</Filter>
-    </Text>
-    <Text Include="..\..\..\..\Documents\Arduino\libraries\Adafruit_SSD1306_EMULATOR\license.txt">
-      <Filter>src\_micro-api-readonly\libraries\Adafruit_SSD1306_EMULATOR</Filter>
-    </Text>
     <Text Include="..\..\..\..\Documents\Arduino\libraries\Adafruit_GFX_Library\CMakeLists.txt">
       <Filter>src\_micro-api-readonly\libraries\Adafruit_GFX_Library</Filter>
     </Text>
@@ -609,6 +603,12 @@
     </Text>
     <Text Include="..\..\..\..\Documents\Arduino\libraries\ArduinoHttpClient\keywords.txt">
       <Filter>src\_micro-api-readonly\libraries\ArduinoHttpClient</Filter>
+    </Text>
+    <Text Include="..\..\..\..\Documents\Arduino\libraries\Adafruit_SSD1306_EMULATOR\CMakeLists.txt">
+      <Filter>src\_micro-api-readonly\libraries\Adafruit_SSD1306_EMULATOR</Filter>
+    </Text>
+    <Text Include="..\..\..\..\Documents\Arduino\libraries\Adafruit_SSD1306_EMULATOR\license.txt">
+      <Filter>src\_micro-api-readonly\libraries\Adafruit_SSD1306_EMULATOR</Filter>
     </Text>
   </ItemGroup>
   <ItemGroup>
@@ -879,9 +879,6 @@
     <ClCompile Include="..\..\..\..\Documents\Arduino\libraries\Adafruit_SSD1306_Wemos_Mini_OLED\Adafruit_SSD1306.cpp">
       <Filter>src\_micro-api-readonly\libraries\Adafruit_SSD1306_Wemos_Mini_OLED</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\Documents\Arduino\libraries\Adafruit_SSD1306_EMULATOR\Adafruit_SSD1306_EMULATOR.cpp">
-      <Filter>src\_micro-api-readonly\libraries\Adafruit_SSD1306_EMULATOR</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\..\Documents\Arduino\libraries\Adafruit_GFX_Library\Adafruit_GFX.cpp">
       <Filter>src\_micro-api-readonly\libraries\Adafruit_GFX_Library</Filter>
     </ClCompile>
@@ -908,6 +905,9 @@
     </ClCompile>
     <ClCompile Include="..\..\..\..\Documents\Arduino\libraries\ArduinoHttpClient\src\utility\URLParser\http_parser.c">
       <Filter>src\_micro-api-readonly\libraries\ArduinoHttpClient</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Documents\Arduino\libraries\Adafruit_SSD1306_EMULATOR\Adafruit_SSD1306_EMULATOR.cpp">
+      <Filter>src\_micro-api-readonly\libraries\Adafruit_SSD1306_EMULATOR</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

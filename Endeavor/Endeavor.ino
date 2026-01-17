@@ -63,14 +63,15 @@
 			12/19/2025 01:40 - ReWrite call for heat and turnoff upstairs
 			01/01/2026 02:39 - Turn valve all the time to heat upstairs
 			01/02/2026 02:36 - Pus to Endeavor
-			01/02/2026 02:45 - chgd env tempd
-			01/06/2026 21:45 - removed unused uncludes veryfi water flows add clearDisplay() to clear at begin
+			01/02/2026 02:45 - chgd env temp
+			01/06/2026 21:45 - removed unused #include verified water flows add clearDisplay() to clear at begin
 			07/01/2026 10:17 - chg vars ** LP
+			01/16/2026 19:54 - fixed oled reinstalled ssd1306 lib
+			                 - added hi and low settings on oled line 1
 
 
 
-
-
+			//
 
 
 */
@@ -84,10 +85,10 @@
 
 #include <Adafruit_SPITFT_Macros.h>
 //#include <Adafruit_SPITFT.h>
-#include <Adafruit_GrayOLED.h>
 #include <Adafruit_GFX.h>
+#include <Adafruit_SSD1306.h>
 //#include <splash.h>
-#include <Adafruit_SSD1306_EMULATOR.h>
+//#include <Adafruit_SSD1306_EMULATOR.h>
 #include <HttpClient.h>
 const char* hostName = "ENDEAVOR_12";
 uint8_t ON = 0x0;
@@ -100,13 +101,10 @@ uint8_t OFF = 0x1;
 //======================================================================================
 
 
-
-#include <Adafruit_SSD1306.h>
 #include <ArduinoHttpClient.h>
 #include <ArduinoOTA.h>
 #include <ESPmDNS.h>
 #include <SparkFun_MCP9600.h>
-#include <SPI.h>
 #include <WiFi.h>
 // #include "../../../../AppData/Local/arduino15/packages/esp32/hardware/esp32/3.0.7/libraries/Update/src/Update.h"
 
@@ -138,14 +136,14 @@ bool callForHeat = false; // will be coded aft thermost installed
 int MAX_WATER_TEMP = 175; // 175 MAX Wtr temp. Shutdown if met or exceeded
 int MIN_WATER_TEMP = 100; // 100 MIN +/- 1 if not met then heat back up
 
-int envHighTemp = 69; // 72 current Hi for LR temp
+int envHighTemp = 70; // 70 current Hi for LR temp
 int envHighTempOffSet = 0; // 0 used to adjust theermocouple readi
 
-int envLowTemp = 64; // 68 current Lo for LR kick on at this var
+int envLowTemp = 64; // 64 current Lo for LR kick on at this var
 int envLowTempOffSet = 0; // 0 offset
 
 
-int boilerHighTemp = 80 j; // 980 top temp for boiler
+int boilerHighTemp = 980; // 980 top temp for boiler
 int boilerHighTempOffSet = 0;
 
 int boilerLowTemp = 400; // 400 bottom temp for boiler
@@ -173,7 +171,8 @@ int spinner = 0; // for spin
 
 ///////////////////////////////////////////////////////////////////////////
 
-String timeString = " XX:XX:XX "; // XX:XX:XX
+//String timeString = " XX:XX:XX "; // XX:XX:XX 
+String timeString = "EH:" + String(envHighTemp + envHighTempOffSet) + " EL:" + String(envLowTemp + envLowTempOffSet);
 String boilerStatus = "B- ";
 String waterStatus = "W- ";
 String valveStatus = "V- ";
@@ -219,26 +218,26 @@ int status = WL_IDLE_STATUS;
 //
 
 // misc
-const int processorLED = 2; //o 2 LED on MicroProcessor
-const int callForHeatPin = 4; //i 4 CALLFORHEAT
-const int flameOut = 5; //5 flame out
+constexpr int processorLED = 2; //o 2 LED on MicroProcessor
+constexpr int callForHeatPin = 4; //i 4 CALLFORHEAT
+constexpr int flameOut = 5; //5 flame out
 // SPI
-const int misoSpi = 12;// 12 MISO
-const int mosiSpi = 13;// 13 MOSI
-const int clkSpi = 14;// 14 CLK
-const int ssSpi = 15;// 15 SS
+constexpr int misoSpi = 12;// 12 MISO
+constexpr int mosiSpi = 13;// 13 MOSI
+constexpr int clkSpi = 14;// 14 CLK
+constexpr int ssSpi = 15;// 15 SS
 // Relays
-const int waterRelay = 17; //o 17 WATERPUMP RELAY
-const int zoneTwoRelay = 18; //o 18 2nd floor
-const int standbyRelay = 19; //o 19
-const int burnerRelay = 16; //o 16 BURNER RELAY
-const int yellowRelay = 34; //o 34 testing BURNER RELAY
+constexpr int waterRelay = 17; //o 17 WATERPUMP RELAY
+constexpr int zoneTwoRelay = 18; //o 18 2nd floor
+constexpr int standbyRelay = 19; //o 19
+constexpr int burnerRelay = 16; //o 16 BURNER RELAY
+constexpr int yellowRelay = 34; //o 34 testing BURNER RELAY
 // others
-const int speaker = 32; //o 32 SOUNDALARM
-const int PB1 = 34; //i 34 PB1
-const int PB2 = 35; //i 35 PB2
-const int PB3 = 36; //i 36 PB3 
-const int PB4 = 39; //i 39 PB4 
+constexpr int speaker = 32; //o 32 SOUNDALARM
+constexpr int PB1 = 34; //i 34 PB1
+constexpr int PB2 = 35; //i 35 PB2
+constexpr int PB3 = 36; //i 36 PB3 
+constexpr int PB4 = 39; //i 39 PB4 
 
 
 //======================================================================================
